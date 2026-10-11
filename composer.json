@@ -1,0 +1,9 @@
+{
+    "name": "s2j/s2j-webinar-source-qr",
+    "description": "WordPress companion plugin for webinar source tracking URLs and QR codes",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=8.1"
+    }
+}
