@@ -1,7 +1,3 @@
-<!--
-目的：「保存、アンインストール、S2J Webinar への受け渡し」の明文化
--->
-
 # S2J ウェビナー・ソース追跡 QR - 永続化と受け渡し
 
 ## 設計意図 (ゴール)
@@ -48,8 +44,8 @@
 `draft` / `apply` の `channels` 検証は、UI と **同一契約** の Webinar REST ([admin_ui_spec.md#webinar-rest-本-ui-契約](./admin_ui_spec.md#webinar-rest-本-ui-契約)) からソース名・ラベルを取得して照合します。
 
 * **初版の取得方式:** 編集ユーザー権限で `rest_do_request()` により `GET /s2j-webinar/v1/events/{post_id}/tracking-source-definitions` を実行 (Cookie / nonce コンテキスト内)。
-* **取得失敗時** (Webinar 無効、イベント未連携による定義 REST **4xx**、その他 REST エラー、空 `sources[]` を **行なし** とみなす場合含む): `draft` / `apply` / `sanitize_callback` は **503** (例: `catalog_unavailable`)、**メタ前値維持** (Webinar **4xx** 等を **503に正規化** — [rest_api_spec.md#http-カタログ保存](./rest_api_spec.md#http-カタログ保存))。未連携時 **4xx** の正本は Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md)(本 UI は **4xx も `catalogReady` false**)。
-* 正本 パス が Webinar 側で異なる場合は [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md) を優先し、**JSON 形** (`sources[]` の `source_name` / `label`) は維持。
+* **取得失敗時** (Webinar 無効、イベント未連携による定義 REST **4xx**、その他 REST エラー、空 `sources[]` を **行なし** とみなす場合含む): `draft` / `apply` / `sanitize_callback` は **503** (例: `catalog_unavailable`)、**メタ前値維持** (Webinar **4xx** 等を **503に正規化** — [rest_api_spec.md#http-カタログ保存](./rest_api_spec.md#http-カタログ保存))。未連携時 **4xx** の正本は Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)(本 UI は **4xx も `catalogReady` false**)。
+* 正本 パス が Webinar 側で異なる場合は [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md) を優先し、**JSON 形** (`sources[]` の `source_name` / `label`) は維持。
 
 ### 保存可否 (初版・厳格)
 
@@ -123,7 +119,7 @@ Webinar REST から `{ "items": [ { "source_name", "registration_url", "external
 ## S2J Webinar との受け渡し
 
 * `ready` / `draft` 文書は `_s2j_webinar_source_qr` にある。
-* S2J Webinar は **メタを読むだけ** (サマリー)。**書き込まない** ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md))。
+* S2J Webinar は **メタを読むだけ** (サマリー)。**書き込まない** ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md))。
 * **同期 plan に載せない** (Survey `attach_survey` とは別)。
 * S2J Webinar が無効でも、**既存メタ** があれば Fill から **閲覧** (表示) 可。**Save draft / Apply は不可** (厳格 — [admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格))。
 * ソース行の生成・取り込み・永続化は **Webinar 有効 + 定義 REST 成功** が前提 ([admin_ui_spec.md](./admin_ui_spec.md))。

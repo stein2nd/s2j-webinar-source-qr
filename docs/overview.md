@@ -1,7 +1,3 @@
-<!--
-目的：「プロジェクトの存在理由、概要、基本情報」の明文化
--->
-
 # S2J ウェビナー・ソース追跡 QR - 概要
 
 ## はじめに
@@ -54,7 +50,7 @@
 * **本 UI からのソース名 (チャネル id) の新規作成・削除** (正本は Webinar)
 * 取り込みで Webinar **ソース定義一覧** に **無い** `source_name` をメタ行として **追加** (警告表示のみ。Webinar 側でソース定義後に再取り込み)
 * **S2J Webinar 無効** または **ソース定義 REST 失敗** 時の **メタ保存** (初版は **厳格**: 閲覧のみ — [admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格))
-* 接続先ポータルでのリンク **新規作成** の再現 (初版 `zoom`: REST 作成不可。[Webinar 仕様 v0.0.2 調査](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/README.md))
+* 接続先ポータルでのリンク **新規作成** の再現 (初版 `zoom`: REST 作成不可。[Webinar 仕様 v0.0.2 調査](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md))
 * 独自 UTM の付与、URL のクエリー改変
 * WordPress 内 analytics、配配メール連携
 * 初版以外のプロバイダ取り込み UI
@@ -65,4 +61,4 @@
 
 * [plugin_spec.md](./plugin_spec.md)
 * [admin_ui_spec.md](./admin_ui_spec.md) (Webinar REST 契約)
-* [S2J Webinar 仕様 v0.0.2 README](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/README.md)
+* [S2J Webinar 仕様 v0.0.2 README](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md)

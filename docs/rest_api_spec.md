@@ -1,7 +1,3 @@
-<!--
-目的：「本プラグイン REST (メタ保存・反映)」の明文化
--->
-
 # S2J ウェビナー・ソース追跡 QR - REST API
 
 ## 設計意図 (ゴール)
@@ -148,4 +144,4 @@ PNG パイプライン未実装 (**501**、`apply` のみ)。初版 `code` 正�
 * [admin_ui_spec.md](./admin_ui_spec.md)
 * [persistence_spec.md](./persistence_spec.md)
 * [data_dictionary.md](./data_dictionary.md)
-* Webinar 取り込み: [source_qr_tracking_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_tracking_rest_spec.md)
+* Webinar 取り込み: [source_qr_tracking_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_tracking_rest_spec.md)

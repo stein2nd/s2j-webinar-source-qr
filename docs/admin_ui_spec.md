@@ -1,7 +1,3 @@
-<!--
-目的：「メンテナンス UI (4ステップ)」の明文化
--->
-
 # S2J ウェビナー・ソース追跡 QR - 管理 UI 仕様
 
 ## 設計意図 (ゴール)
@@ -50,15 +46,15 @@
 
 ## Webinar REST (本 UI 契約)
 
-S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **最終正本** は Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md) (本表は初版の **期待契約** )。**外部ブロッカー** (定義 REST / handoff 確定待ち): [status.md#webinar-側待ち](./status.md#webinar-側待ち)。合意後は status の doc メンテナンス手順に従い **確定** 表記に更新。
+S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md) および [source_qr_tracking_definitions_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_tracking_definitions_rest_spec.md) / [source_qr_tracking_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_tracking_rest_spec.md) (本表は **確定契約** の要約)。
 
-| 用途 | Method / パス (期待) | 200ボディ (最小) |
+| 用途 | Method / パス | 200ボディ (最小) |
 | --- | --- | --- |
 | **ソース定義一覧** (行の正本) | `GET /events/{post_id}/tracking-source-definitions` | `{ "sources": [ { "source_name": "…", "label": "…" } ] }` |
 | **registration URL 取り込み** | `GET /events/{post_id}/tracking-sources` | `{ "items": [ { "source_name", "registration_url", "external_id"? } ] }` — [rest_api_spec.md](./rest_api_spec.md) |
 
 * 認証: 本 UI と同様 Cookie + `X-WP-Nonce` (`wp_rest`)。
-* **定義一覧の前提 (Webinar 正本):** イベント `_s2j_webinar_id` が非空であること。未連携時は Webinar 側 **4xx** — [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md) に明記。本 UI では **4xx も `catalogReady` false**。Import 条件の `_s2j_webinar_id` と暗黙整合。
+* **定義一覧の前提 (Webinar 正本):** イベント `_s2j_webinar_id` が非空であること。未連携時は Webinar 側 **400** `tracking_webinar_id_empty` — [source_qr_tracking_definitions_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_tracking_definitions_rest_spec.md)。本 UI では **4xx も `catalogReady` false**。Import 条件の `_s2j_webinar_id` と暗黙整合。
 * 定義一覧 **失敗:** Notice。メタ `channels` があれば **閲覧用** に表示。**Save draft / Apply / Import は disabled** ([保存可否 (初版・厳格)](#保存可否-初版厳格))。
 * **`sources: []`:** 行なし。Import 不可。保存ボタン disabled。
 * 取り込み **失敗:** Notice、メタは前回 `draft` のまま (自動 draft POST しない)。
@@ -123,7 +119,7 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **最終正本** は Webi
 | プレビュー | JS (npm ライブラリ)。管理画面バンドルのみ |
 | 保存 PNG | PHP (GD 等)。`includes/` |
 
-Composer 純関数には QR バイトを載せない ([S2J Webinar 仕様 v0.0.2 / Composer メモ](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/status.md))。
+Composer 純関数には QR バイトを載せない ([S2J Webinar 運用素材索引](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md))。
 
 ## 非目標 (UI)
 

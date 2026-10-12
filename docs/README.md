@@ -14,15 +14,15 @@
 
 版の取り扱いは [specs.md](./specs.md#版の取り扱い) を参照してください。**S2J Webinar 仕様 v0.0.2** は親プラグイン側の版であり、本プラグインの製品版ではありません。
 
-将来の仕様改訂案は [docs_mod/](../docs_mod/) に置き、合意後に **docs/** へ反映します。
+将来の仕様改訂案は [docs_mod/](../docs_mod/) に置き、合意後に **docs/** に反映します。
 
 ドキュメント運用: [governance/documentation_governance.md](./governance/documentation_governance.md) — 完了イニシアチブ索引は [archive/README.md](./archive/README.md)。
 
 ## 親プロジェクトとの関係
 
-* 索引・接続先調査 (`zoom`): [S2J Webinar 仕様 v0.0.2](https://github.com/stein2nd/s2j-webinar/tree/main/docs_mod/v0.0.2)
-* 本プラグインを呼び出す側 handoff: [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md)
-* 用語 (横断): [glossary.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/glossary.md)
+* 索引・接続先調査 (`zoom`): [S2J Webinar 運用素材](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md)
+* 本プラグインを呼び出す側 handoff: [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)
+* 用語 (横断): [glossary_operational.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/glossary_operational.md)
 
 ## 仕様ファイル
 

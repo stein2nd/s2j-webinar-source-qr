@@ -2,6 +2,24 @@
 
 ## unreleased
 
+## 0.0.1 - 2026-10-12
+
+### Added
+
+* [tools/dist/make-dist-zip.mjs](./tools/dist/make-dist-zip.mjs): `npm run dist:zip` / `dist` 用ステージングと `release/{slug}-{version}.zip` 生成 (`release-meta.json` 付き)
+* GitHub Actions: [dist-zip.yml](./.github/workflows/dist-zip.yml) (tag `v*` / 手動、`npm run dist` + artifact)、[phpunit.yml](./.github/workflows/phpunit.yml) (main / develop / PR)
+
+### Changed
+
+* **docs/** 正本: S2J Webinar 参照を `docs_mod/v0.0.2` から Webinar **`docs/`** (運用素材) に同期 (README、`specs` / `governance` / `overview` 等)
+* [admin_ui_spec.md](./docs/admin_ui_spec.md): Webinar REST 表を **確定契約** に更新 (定義 GET、未連携時 **400** `tracking_webinar_id_empty`)
+* [status.md](./docs/status.md): 定義 / 取り込み REST **仕様確定**、Webinar プラグイン **実装待ち**、親 repo リンクと完了条件を更新
+
+### Notes
+
+* コード (PHP/TS) の **docs 正本追随** は未着手のまま ([docs/status.md](./docs/status.md))
+* `dist:zip` はルート `readme.txt` (または `README.txt`) 必須。PHPUnit CI は `npm run phpunit:wp-env` 等の **テスト基盤追加前** は未成立
+
 ## 0.0.1 - 2026-10-11
 
 ### Added

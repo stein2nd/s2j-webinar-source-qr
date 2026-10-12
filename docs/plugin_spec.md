@@ -34,16 +34,16 @@
 | QR バイト生成、メディア登録 | PNG / GD を持たない |
 | 取り込みボタン → Webinar REST 呼び出し | HTTP を呼ばない (Webinar アダプタが呼ぶ) |
 
-初版 (v0.0.1) の **`composer.json` に s2j-webinar-service は含めません** (取り込みは S2J Webinar REST の写像済み JSON のみ受け取る。方針根拠は [S2J Webinar 仕様 v0.0.2 / status.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/status.md))。
+初版 (v0.0.1) の **`composer.json` に s2j-webinar-service は含めません** (取り込みは S2J Webinar REST の写像済み JSON のみ受け取る。方針根拠は [S2J Webinar 仕様 v0.0.2 / status.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md))。
 
 ## Webinar handoff (同一モーダル)
 
 S2J Webinar Survey と同型:
 
 * handoff は **別 UI を作らず**、本プラグインのメンテナンスモーダルを開く。
-* 実装は Webinar 側の **カスタムイベント / `@wordpress/hooks` の `doAction`** 等、Survey handoff と **同じパターン** を写経 ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md))。
+* 実装は Webinar 側の **カスタムイベント / `@wordpress/hooks` の `doAction`** 等、Survey handoff と **同じパターン** を写経 ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md))。
 * 本プラグイン `src/gutenberg/` は **open リスナ** を登録し、Fill ボタンと同じ `MaintenanceModal` をマウント。
-* **hook / イベント名:** 初版 docs 時点は **TBD** (Survey handoff 写経 — [status.md#webinar-側待ち](./status.md#webinar-側待ち))。**実装着手前**に Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md) で hook / イベント名を確定し、本節の TBD を **具体名に更新**する。
+* **hook / イベント名:** 初版 docs 時点は **TBD** (Survey handoff 写経 — [status.md#webinar-側待ち](./status.md#webinar-側待ち))。**実装着手前**に Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md) で hook / イベント名を確定し、本節の TBD を **具体名に更新**する。
 
 ## コード配置 (骨格)
 

@@ -10,7 +10,7 @@
 | 対象 | 版 | 意味 |
 | --- | --- | --- |
 | **本プラグイン** (S2J ウェビナー・ソース追跡 QR) | **v0.0.1** | 本 **`docs/`** が記述する **このプラグイン** の初版仕様・製品版 ([docs_mod/](../docs_mod/) は改訂案用) |
-| **S2J Webinar** (親プラグイン) | **v0.0.2** | 運用素材 (CoverArt / フライヤー / Source QR handoff 等) の **Webinar 側** 改訂。パス `docs_mod/v0.0.2/` は Webinar の版 |
+| **S2J Webinar** (親プラグイン) | **v0.0.2** | 運用素材 (CoverArt / フライヤー / Source QR handoff 等) の **Webinar 側** 改訂。正本 [operational_material_index.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md) |
 
 本リポジトリの文中で **「初版」** と書くときは、特記なければ **本プラグイン v0.0.1** を指します。Webinar の版を指すときは **「S2J Webinar 仕様 v0.0.2」** などと明示します。
 
@@ -22,7 +22,7 @@
 
 初版 (本プラグイン v0.0.1) では **`s2j-webinar-source-qr-service` は作りません。** Source Tracking **取り込み** の写像は [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) のプロバイダ Adapter です。QR 符号化と文書検証 (URL、スタイル) は本プラグインに置きます。
 
-* 上記 Composer 方針の根拠 (Webinar 側): [S2J Webinar 仕様 v0.0.2 / status.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/status.md)
+* 上記 Composer 方針の根拠 (Webinar 側): [S2J Webinar 運用素材索引](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md)
 
 ## 読み方ガイド
 
@@ -46,9 +46,10 @@
 
 ### S2J Webinar 側の実装者
 
-1. [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md) (`tracking-source-definitions` パス 正本)
-2. [source_qr_tracking_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_tracking_rest_spec.md)
-3. 本プラグインの [persistence_spec.md](./persistence_spec.md) (メタの読み方)
+1. [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)
+2. [source_qr_tracking_definitions_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_tracking_definitions_rest_spec.md)
+3. [source_qr_tracking_rest_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_tracking_rest_spec.md)
+4. 本プラグインの [persistence_spec.md](./persistence_spec.md) (メタの読み方)
 
 ## ドキュメント一覧
 
@@ -66,7 +67,7 @@
 
 ## 用語
 
-[S2J Webinar 仕様 v0.0.2 / glossary.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/glossary.md) を横断用語の正本とします。
+[S2J Webinar glossary_operational.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/glossary_operational.md) を横断用語の正本とします。
 
 | 仕様書 (日本語) | データキー / コード | 備考 |
 | --- | --- | --- |

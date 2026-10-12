@@ -2,7 +2,7 @@
 
 > **確定仕様の正本:** [docs/](../docs/) — v0.0.1 合意内容は **docs/** に写経済みです。本 **docs_mod/** は後日の改訂案と、進行中イニシアチブの三点セット (`modification.md` / `status.md` / `test-results.md`) 用に **削除せず存置** します。
 
-改訂を始めるときは本ディレクトリで起草し、合意後に **docs/** へ反映してください。運用規則は [docs/governance/documentation_governance.md](../docs/governance/documentation_governance.md) です。完了イニシアチブは [docs/archive/](../docs/archive/) に freeze します。
+改訂を始めるときは本ディレクトリで起草し、合意後に **docs/** に反映してください。運用規則は [docs/governance/documentation_governance.md](../docs/governance/documentation_governance.md) です。完了イニシアチブは [docs/archive/](../docs/archive/) に freeze します。
 
 ## 正本へのリンク (仕様本文)
 
@@ -19,6 +19,6 @@
 
 ## 親プロジェクトとの関係
 
-* 索引・接続先調査 (`zoom`): [S2J Webinar 仕様 v0.0.2](https://github.com/stein2nd/s2j-webinar/tree/main/docs_mod/v0.0.2)
-* handoff: [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/source_qr_handoff_spec.md)
-* 用語 (横断): [glossary.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/glossary.md)
+* 索引・接続先調査 (`zoom`): [S2J Webinar 運用素材 (v0.0.2)](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md)
+* handoff: [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)
+* 用語 (横断): [glossary_operational.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/glossary_operational.md)

@@ -1,10 +1,6 @@
-<!--
-目的：「メタキー、文書形」の明文化
--->
-
 # S2J ウェビナー・ソース追跡 QR - データ辞書
 
-用語 (パネル文書 / メタ文書) は [S2J Webinar 仕様 v0.0.2 / glossary.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/glossary.md) と [persistence_spec.md](./persistence_spec.md) を参照します。横断用語表は [specs.md#用語](./specs.md#用語) です。本プラグインの版は [specs.md#版の取り扱い](./specs.md#版の取り扱い) です。
+用語 (パネル文書 / メタ文書) は [S2J Webinar 仕様 v0.0.2 / glossary.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/glossary_operational.md) と [persistence_spec.md](./persistence_spec.md) を参照します。横断用語表は [specs.md#用語](./specs.md#用語) です。本プラグインの版は [specs.md#版の取り扱い](./specs.md#版の取り扱い) です。
 
 ## 非対象
 
@@ -23,7 +19,7 @@
 | --- | --- |
 | `_s2j_webinar_id` | 取り込みボタン表示条件。ソース定義一覧 REST の前提 (未設定時 Webinar 正本 **4xx** → `catalogReady` false — [admin_ui_spec.md#webinar-rest-本-ui-契約](./admin_ui_spec.md#webinar-rest-本-ui-契約)) |
 | `_s2j_webinar_provider` | [provider 解決](#provider-解決-正本) の入力の一つ。Import 表示は open 後 **GET 解決済み** のパネル `provider` — [admin_ui_spec.md#1-ソースと-registration-url](./admin_ui_spec.md#1-ソースと-registration-url) (初版 `zoom` のみ) |
-| `_s2j_webinar_status` | **ソース追跡 QR 文書の `status` とは無関係**。Webinar 接続・同期状態 ([glossary](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/glossary.md)) |
+| `_s2j_webinar_status` | **ソース追跡 QR 文書の `status` とは無関係**。Webinar 接続・同期状態 ([glossary](https://github.com/stein2nd/s2j-webinar/blob/main/docs/glossary_operational.md)) |
 
 ## メタ文書のトップレベル
 

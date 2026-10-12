@@ -1,7 +1,3 @@
-<!--
-目的：「README と docs の整合、用語、archive 運用」の明文化
--->
-
 # S2J ウェビナー・ソース追跡 QR - ドキュメンテーション・ガバナンス
 
 本ドキュメントは、ユーザー向け説明と仕様の **整合ルール** を定義します。
@@ -17,10 +13,10 @@ README と `docs/` の説明・命名が、実装と Webinar / Service 契約か
 | 対象 | 正本 |
 | --- | --- |
 | Source Tracking **取り込み**写像 (`zoom` Adapter) | [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) の `docs/` (本プラグイン v0.0.1は Composer で require しない) |
-| Webinar handoff、OAuth、取り込み GET、ソース定義 REST | S2J Webinar の `docs/` または Webinar 仕様 v0.0.2 `docs_mod/v0.0.2/` (正本反映前) |
+| Webinar handoff、OAuth、取り込み GET、ソース定義 REST | [S2J Webinar `docs/`](https://github.com/stein2nd/s2j-webinar/tree/main/docs) (運用素材 v0.0.2) |
 | メタキー、文書形、REST `code` (本プラグイン) | 本 `docs/` (`data_dictionary.md` / `persistence_spec.md` / `rest_api_spec.md` 等) |
 | 4ステップ UI、Webinar REST 契約 (クライアント) | [admin_ui_spec.md](../admin_ui_spec.md) |
-| 横断用語 (registration_url 等) | [S2J Webinar 仕様 v0.0.2 / glossary.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs_mod/v0.0.2/glossary.md) + [specs.md#用語](../specs.md#用語) |
+| 横断用語 (registration_url 等) | [S2J Webinar glossary_operational.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/glossary_operational.md) + [specs.md#用語](../specs.md#用語) |
 | 最短手順・インストール | ルート `README.md` |
 | 統合の見取り図 | [plugin_spec.md](../plugin_spec.md) (要約。細部の正本ではない) |
 | 索引 | [specs.md](../specs.md) |
@@ -58,7 +54,7 @@ README と `docs/` の説明・命名が、実装と Webinar / Service 契約か
 * 大きな改訂案は **`docs_mod/`** で起草し、レビュー・合意のあと **`docs/`** に反映する。
 * 依存リポジトリからのリンクは、可能な限り **`docs/`** を指すように保つ。
 * 小さな typo は **`docs/`** を直接直してよい。
-* v0.0.1で **docs/** へ写経したあとも **`docs_mod/README.md`** は削除せず、次改訂の入口として存置してよい ([../../docs_mod/README.md](../../docs_mod/README.md))。
+* v0.0.1で **docs/** に写経したあとも **`docs_mod/README.md`** は削除せず、次改訂の入口として存置してよい ([../../docs_mod/README.md](../../docs_mod/README.md))。
 
 ## 6. イニシアチブ証跡 (archive)
 
