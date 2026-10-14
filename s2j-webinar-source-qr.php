@@ -29,6 +29,11 @@ define( 'S2J_WEBINAR_SOURCE_QR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'S2J_WEBINAR_SOURCE_QR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'S2J_WEBINAR_SOURCE_QR_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
+$composer_autoload = S2J_WEBINAR_SOURCE_QR_PLUGIN_DIR . 'vendor/autoload.php';
+if ( is_readable( $composer_autoload ) ) {
+	require_once $composer_autoload;
+}
+
 /**
  * Load plugin PHP modules.
  */
@@ -39,6 +44,7 @@ function s2j_webinar_source_qr_load_dependencies() {
 	require_once $dir . 'Domain/document.php';
 	require_once $dir . 'Domain/catalog.php';
 	require_once $dir . 'Domain/provider.php';
+	require_once $dir . 'Domain/qr.php';
 	require_once $dir . 'Meta/Registrar.php';
 	require_once $dir . 'Meta/SavePost.php';
 	require_once $dir . 'RestController.php';

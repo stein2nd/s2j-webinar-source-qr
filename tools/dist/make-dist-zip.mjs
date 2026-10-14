@@ -78,6 +78,11 @@ ensureEmptyDir(stagePluginDir);
 copyTree(mustExist('includes'), join(stagePluginDir, 'includes'));
 copyTree(mustExist('dist'), join(stagePluginDir, 'dist'));
 
+const vendorDir = join(repoRoot, 'vendor');
+if (existsSync(vendorDir)) {
+	copyTree(vendorDir, join(stagePluginDir, 'vendor'));
+}
+
 cpSync(mustExist(`${PLUGIN_SLUG}.php`), join(stagePluginDir, `${PLUGIN_SLUG}.php`));
 cpSync(mustExist('uninstall.php'), join(stagePluginDir, 'uninstall.php'));
 cpSync(resolveReadmePath(), join(stagePluginDir, 'readme.txt'));

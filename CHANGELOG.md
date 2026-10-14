@@ -2,6 +2,16 @@
 
 ## unreleased
 
+### Added
+
+* **QR Apply (PR1):** `chillerlan/php-qrcode` + GD — [`includes/Domain/qr.php`](./includes/Domain/qr.php)。`POST …/apply` **200**、`status: ready`、行ごと PNG メディア (`qr_attachment_id`)。中央 icon 合成は未実装
+* 配布 zip に `vendor/` を同梱 (`predist:zip` + [`make-dist-zip.mjs`](./tools/dist/make-dist-zip.mjs))
+
+### Changed
+
+* wp-env Integration: apply **501** → **200** ([`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php))
+* [`s2j-webinar-source-qr.php`](./s2j-webinar-source-qr.php): Composer autoload 読み込み
+
 ## 0.0.1 - 2026-10-14
 
 ### Added
@@ -25,7 +35,7 @@
 
 ### Notes
 
-* **Apply** QR PNG、Step3プレビュー、Webinar handoff、meta `sanitize` 厳格は未実装 ([status.md](./docs/status.md))
+* Step3プレビュー、Apply 成功時 UI close、Webinar handoff、meta `sanitize` 厳格、QR 中央 icon は未実装 ([status.md](./docs/status.md))
 * 段階 **3b** ローカル実行は Docker 必須。Docker なし環境は PR の **`phpunit-wp-env`** を正とする (2026-10-14CI PASS: [PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1))
 
 ## 0.0.1 - 2026-10-12

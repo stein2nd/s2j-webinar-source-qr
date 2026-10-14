@@ -51,6 +51,7 @@
         "build:production:frontend": "NODE_ENV=production FLUSH_DIST=false VITE_LOG_LEVEL=error vite build --mode production",
         "dev": "vite build --mode development --watch",
         "makepot": "wp i18n make-pot . languages/s2j-webinar-source-qr.pot --domain=s2j-webinar-source-qr",
+        "predist:zip": "composer install --no-dev --no-interaction --prefer-dist",
         "dist:build": "npm run build:production",
         "dist:zip": "node tools/dist/make-dist-zip.mjs",
         "dist": "npm run dist:build && npm run dist:zip"

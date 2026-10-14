@@ -153,7 +153,7 @@ class S2J_Webinar_Source_Qr_Rest_Controller {
 	}
 
 	/**
-	 * POST apply (step 4) — PNG pipeline returns 501 until implemented.
+	 * POST apply (step 4) — QR PNG per channel, status ready.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -211,11 +211,13 @@ class S2J_Webinar_Source_Qr_Rest_Controller {
 				);
 			}
 
-			return new WP_Error(
-				'qr_not_implemented',
-				__( 'QR export is not available yet.', 's2j-webinar-source-qr' ),
-				array( 'status' => 501 )
-			);
+			$applied = s2j_wsq_apply_document_with_qr( $post_id, $document );
+			if ( is_wp_error( $applied ) ) {
+				return $applied;
+			}
+
+			$document             = $applied;
+			$document['provider'] = s2j_wsq_resolve_provider( $post_id, $document );
 		}
 
 		$updated = update_post_meta( $post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, $document );

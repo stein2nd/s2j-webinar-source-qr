@@ -112,9 +112,9 @@ class RestDocumentTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * POST apply returns 501 until QR PNG pipeline exists.
+	 * POST apply returns 200 with ready status and PNG attachments.
 	 */
-	public function test_apply_returns_501_qr_not_implemented() {
+	public function test_apply_returns_200_and_ready_with_attachments() {
 		$body = array(
 			'status'   => 'draft',
 			'channels' => array(
@@ -136,9 +136,20 @@ class RestDocumentTest extends WP_UnitTestCase {
 
 		$response = $this->dispatch_document_request( 'POST', '/document/apply', $body );
 
-		$this->assertSame( 501, $response->get_status() );
+		$this->assertSame( 200, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertSame( 'qr_not_implemented', $data['code'] );
+		$this->assertSame( 'ready', $data['status'] );
+		$this->assertCount( 2, $data['channels'] );
+
+		foreach ( $data['channels'] as $row ) {
+			$this->assertNotEmpty( $row['qr_attachment_id'] );
+			$mime = get_post_mime_type( (int) $row['qr_attachment_id'] );
+			$this->assertSame( 'image/png', $mime );
+		}
+
+		$stored = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+		$this->assertIsArray( $stored );
+		$this->assertSame( 'ready', $stored['status'] );
 	}
 
 	/**
