@@ -14,6 +14,19 @@
 
 **依存:** 段階1・2では **[GatherPress](https://github.com/stein2nd/gatherpress)** を **有効化必須** です (wp.org 版では **GatherPress alpha** も必要な場合があります)。
 
+### Docker なしの開発環境
+
+**`npm run phpunit:wp-env` (段階3b) だけが Docker 必須** です (`@wordpress/env` がコンテナで WordPress を起動する)。Docker Desktop 等が無いマシンでは **ローカルで 3b は実行しない** 想定で問題ありません。
+
+| 段階 | Docker なしでローカル実行 | 代替 |
+| --- | --- | --- |
+| **3a** | **可能** — `composer test` | CI `phpunit-pure` と同一 |
+| **1** | **可能** — Local / Studio + `npm run test:smoke:local` | `WP_PATH` を Site Shell または Studio ルートに |
+| **2** | **可能** — Studio Blueprint + 手動 UI | CLI は段階1と同じ smoke |
+| **3b** | **不可** (wp-env) | **PR / push 後の GitHub Actions `phpunit-wp-env`** で確認。Pass は [最新結果](#最新結果) に記録 |
+
+日常のループ例: **`composer test`** → 変更を push → CI の **`phpunit-wp-env`** を見る。Integration を触った PR では `phpunit-wp-env` が緑であることをマージ条件にすれば足ります。
+
 ## 推奨実施順 (S2J Webinar 同型・localhost 自動テスト優先)
 
 **段階 (1/2/3)** と **環境 (localhost / HTTPS)** は別軸です。先に **localhost で完結する自動テスト** を揃え、HTTPS は後回しにします。
@@ -22,7 +35,7 @@
 | --- | --- | --- | --- | --- |
 | **0** | **3a** | **Local 可のみ** (WP 不要) | 純 PHPUnit・lint・CI と同型 | `composer test` / `npm run lint` |
 | **1** | **1** | **Local 可のみ** (CLI) | Local **Site Shell** と Studio ルートの **`WP_PATH`** で同じスクリプト | `npm run test:smoke:local` |
-| **2** | **3b** | **Local 可のみ** (Docker) | wp-env 統合・REST 登録など | `npm run phpunit:wp-env` |
+| **2** | **3b** | **Local 可のみ** (要 Docker) | wp-env 統合 — **Docker 無しは CI** | `npm run phpunit:wp-env` または PR の `phpunit-wp-env` |
 | **3** | **2** | **Local 可のみ** | Blueprint 再現 + (1) 再実行 + **手動** UI (Fill / モーダル) | [studio/](../studio/) |
 | **4** | **1–3** | **Local 可 (E2/E4/E6)** | Webinar 定義 REST 成立後の Save draft・Apply **501/200** | [status.md §外部結合](./status.md#status-external) |
 | **5** | **2–3** | **要 HTTPS** | OAuth (E1)・実 Zoom 取り込み (E3)・ステージング UI | [test-results.md 最新結果](#最新結果) に Pass 記録 |
@@ -89,6 +102,8 @@ npm run test:unit:php:local
 WordPress 非起動。`includes/Domain/document.php` の正規化・マージを検証します。
 
 ### 3b. wp-env 統合 (拡張)
+
+**前提:** ローカル実行には **Docker** が必要。無い場合は [Docker なしの開発環境](#docker-なしの開発環境) — **CI の `phpunit-wp-env` job** を正とする。
 
 ```bash
 npm install

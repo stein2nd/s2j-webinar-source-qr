@@ -51,7 +51,7 @@
 | --- | --- | --- | --- |
 | 0 | 3a | Local 可のみ | `composer test`、lint (WP 不要) |
 | 1 | 1 | Local 可のみ (CLI) | Local Site Shell / Studio — `npm run test:smoke:local` |
-| 2 | 3b | Local 可のみ | `npm run phpunit:wp-env` + [`tests/Integration/`](../tests/Integration/) 拡張 |
+| 2 | 3b | Local 可のみ (要 Docker) | `npm run phpunit:wp-env` — **Docker 無しは CI のみ** ([test-results.md](./test-results.md#docker-なしの開発環境)) |
 | 3 | 2 | Local 可のみ | Studio Blueprint + 手動 UI (Fill・モーダル) |
 | 4 | 1–3 | Local 可 (E2/E4/E6) | 定義 REST 後 Save draft・Apply 501/200 |
 | 5 | 2–3 | 要 HTTPS | OAuth (E1)・Import (E3) — Pass は [test-results.md](./test-results.md) |
@@ -185,7 +185,7 @@
 * [x] 段階2 — [`studio/smoke-test-blueprint.json`](../studio/smoke-test-blueprint.json) + [`studio/README.md`](../studio/README.md)
 * [x] `.wp-env.json` + [`phpunit.wp-env.xml.dist`](../phpunit.wp-env.xml.dist)
 * [x] CI — js-lint / docs-lint / dist-zip / phpunit (pure + wp-env job)
-* [x] 段階3b — `npm run phpunit:wp-env` green (PR [#1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1) CI `phpunit-wp-env` 2026-10-14)
+* [x] 段階3b — Integration green (PR [#1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1) CI `phpunit-wp-env` 2026-10-14。**ローカル wp-env は Docker 必須** — 無 Docker 環境は CI で十分)
 
 #### Test (記録) — Local 可のみ
 

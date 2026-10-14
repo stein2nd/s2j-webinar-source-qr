@@ -41,7 +41,7 @@
 初版は PHP (`GutenbergMount`) が **`s2jWebinarActive`** (bool) を localize する。判定は Survey メンテナンス UI と同型の **`is_plugin_active()` 相当** を正本とする。
 
 * **`false`:** ソース定義一覧 GET を **呼ばない** (または即失敗同扱い)。`catalogReady` = false。
-* **`true`:** 定義一覧 GET を実行。成功かつ `sources.length >= 1` のとき `catalogReady` = true。
+* **`true`:** 定義一覧 GET を実行。成功かつ `sources.length >= 1` の場合 `catalogReady` = true。
 * **導出:** `src/gutenberg/` に **`catalogReady` 導出を1ヵ所** に集約 (上記 + `s2jWebinarActive` + 定義 GET 結果)。サーバー guard とは別評価 ([persistence_spec.md#保存可否-初版厳格](./persistence_spec.md#保存可否-初版厳格))。
 
 ## Webinar REST (本 UI 契約)
@@ -79,11 +79,11 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
 
 ### 1. ソースと registration URL
 
-* **取り込み (任意):** 次を **すべて** 満たすとき **`Import tracking URLs`** を表示。
+* **取り込み (任意):** 次を **すべて** 満たす場合 **`Import tracking URLs`** を表示。
   * S2J Webinar が有効
   * イベント `_s2j_webinar_id` が非空
   * パネル `provider` が `zoom` (open 後 `GET …/document` の **解決済み** 値 — [data_dictionary.md#provider-解決-正本](./data_dictionary.md#provider-解決-正本)。`_s2j_webinar_provider` 未設定時は `zoom`)
-  * パネル `channels` が **ソース定義一覧で構築済み** (0行のとき Import **無効** )
+  * パネル `channels` が **ソース定義一覧で構築済み** (0行の場合 Import **無効** )
 * 取り込み: `GET …/tracking-sources` → マージ ([persistence_spec.md](./persistence_spec.md)) → **自動 `POST …/document/draft`** → 成功時 **未保存フラグクリア**。
 * **取り込みマージ後の draft POST 失敗 (4xx / 503):** メタは **前値**のまま。パネルはマージ結果を **保持**。**未保存あり** (dirty)。Notice 表示。
 * **未登録 `source_name`:** Warning Notice に一覧。行追加・手動割り当て UI **なし** (初版)。

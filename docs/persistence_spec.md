@@ -49,12 +49,12 @@
 
 ### 保存可否 (初版・厳格)
 
-UI ガードの正本は [admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格) です。サーバーは常に次を満たすときだけメタを更新します。
+UI ガードの正本は [admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格) です。サーバーは常に次を満たす場合だけメタを更新します。
 
 * S2J Webinar プラグイン **有効**
 * 当該イベントで **ソース定義一覧 GET が成功** (`sources` が空でないこと)
 
-満たさないときはカタログ guard 不合格として **503** のみ返し、メタを更新しない (オフライン編集でメタを書き換えない)。文書検証 NG は **4xx** — [rest_api_spec.md#http-カタログ保存](./rest_api_spec.md#http-カタログ保存)。
+満たさない場合はカタログ guard 不合格として **503** のみ返し、メタを更新しない (オフライン編集でメタを書き換えない)。文書検証 NG は **4xx** — [rest_api_spec.md#http-カタログ保存](./rest_api_spec.md#http-カタログ保存)。
 
 * **同時編集 / 楽観ロック:** 初版 **なし** (最後の保存勝ち。[overview.md](./overview.md) Out of Scope)。
 * **UI / サーバー二重 guard:** クライアント `catalogReady` とサーバー catalog guard は **別々に同条件** を評価する (単一共有 API は作らない)。UI disabled でも POST 時はサーバー **503** ([admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格))。
@@ -88,7 +88,7 @@ UI ガードの正本は [admin_ui_spec.md#保存可否-初版厳格](./admin_ui
 
 ### 取り込み結果のマージ
 
-Webinar REST から `{ "items": [ { "source_name", "registration_url", "external_id"? } ] }` を受け取ったとき ([rest_api_spec.md](./rest_api_spec.md)):
+Webinar REST から `{ "items": [ { "source_name", "registration_url", "external_id"? } ] }` を受け取った場合 ([rest_api_spec.md](./rest_api_spec.md)):
 
 **前提:** パネル `channels` が **ソース定義一覧で構築済み** ([admin_ui_spec.md](./admin_ui_spec.md))。未構築時は Import を出さない / 無効。
 
