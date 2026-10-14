@@ -103,4 +103,7 @@ npm run phpunit:wp-env
 
 | 日付 | 段階 | 環境 | 結果 | メモ |
 | --- | --- | --- | --- | --- |
-| (未記録) | — | — | — | 初回実装後に記入 |
+| 2026-10-14 | 3a | CI | PASS | `composer test` (PR #1) |
+| 2026-10-14 | 3b | CI (wp-env) | PASS | `RestDocumentTest` draft 200 / 503 / apply 501 (PR #1) |
+| 2026-10-14 | 1 | Local | PASS | 既存記録 |
+| (未記録) | 2 | Studio | — | Blueprint + 手動 UI |

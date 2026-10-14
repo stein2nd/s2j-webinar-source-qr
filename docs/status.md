@@ -185,7 +185,7 @@
 * [x] 段階2 — [`studio/smoke-test-blueprint.json`](../studio/smoke-test-blueprint.json) + [`studio/README.md`](../studio/README.md)
 * [x] `.wp-env.json` + [`phpunit.wp-env.xml.dist`](../phpunit.wp-env.xml.dist)
 * [x] CI — js-lint / docs-lint / dist-zip / phpunit (pure + wp-env job)
-* [ ] 段階3b — `npm run phpunit:wp-env` green (PR CI `phpunit-wp-env` で確認)
+* [x] 段階3b — `npm run phpunit:wp-env` green (PR [#1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1) CI `phpunit-wp-env` 2026-10-14)
 
 #### Test (記録) — Local 可のみ
 
