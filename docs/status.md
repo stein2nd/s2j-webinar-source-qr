@@ -162,11 +162,11 @@
 * [x] `status: ready` + メディア `qr_attachment_id`
 * [x] Apply **200** 経路 ([`RestController.php`](../includes/RestController.php))
 * [x] `qr_not_implemented` **501** からの移行 (wp-env Integration)
-* [ ] 中央 icon 合成 (`icon_attachment_id`)
+* [x] 中央 icon 合成 (`icon_attachment_id`) — GD 白プレート + 約22% スケール ([`includes/Domain/qr.php`](../includes/Domain/qr.php))
 
 #### Test (Apply API) — Local 可 (E6)
 
-* [x] Apply **200** + PNG メディア — [`RestDocumentTest.php`](../tests/Integration/RestDocumentTest.php) (CI `phpunit-wp-env`)
+* [x] Apply **200** + PNG メディア — [`RestDocumentTest.php`](../tests/Integration/RestDocumentTest.php) (CI `phpunit-wp-env`、中央 icon 含む)
 
 ### handoff {#status-handoff}
 
@@ -212,7 +212,7 @@
 | E1 | 前提 — S2J Webinar OAuth / `_s2j_webinar_id` | **要 HTTPS** (Zoom `4700`。Connect 省略可) |
 | E2 | 定義 REST200 + `sources.length >= 1` | **Local 可** (Webinar 実装 + テスト用 ID があれば。未実装時は不可) |
 | E3 | 取り込み `tracking-sources` → draft 保存 | **要 HTTPS** (実 Zoom 登録 URL。E1・ E2後) |
-| E4 | Save draft / Apply (catalogReady true) | **Local 可** (E2成立時。Apply PNG は [§QR 反映](#status-qr-apply) 未) |
+| E4 | Save draft / Apply (catalogReady true) | **Local 可** (E2成立時。Apply PNG + 中央 icon は [§QR 反映](#status-qr-apply)) |
 | E5 | handoff 同一モーダル | **Local 可** (hook 確定 + Webinar 側実装後) |
 | E6 | QR PNG Apply end-to-end | **Local 可** (実装後。メディア確認) |
 

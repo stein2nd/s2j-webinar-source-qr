@@ -65,6 +65,175 @@ function s2j_wsq_qr_scale_for_size_px( $size_px ) {
 }
 
 /**
+ * Allowed media MIME types for center icon (CoverArt-style raster list).
+ *
+ * @return list<string>
+ */
+function s2j_wsq_qr_allowed_icon_mime_types() {
+	return array(
+		'image/jpeg',
+		'image/png',
+		'image/gif',
+		'image/webp',
+	);
+}
+
+/**
+ * Load a raster icon from a media attachment as a GD image.
+ *
+ * @param int $attachment_id Attachment post ID.
+ * @return GdImage|WP_Error
+ */
+function s2j_wsq_gd_load_icon_from_attachment( $attachment_id ) {
+	$attachment_id = (int) $attachment_id;
+	if ( $attachment_id <= 0 ) {
+		return new WP_Error(
+			'qr_generation_failed',
+			__( 'Center icon attachment is invalid.', 's2j-webinar-source-qr' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	if ( 'attachment' !== get_post_type( $attachment_id ) ) {
+		return new WP_Error(
+			'qr_generation_failed',
+			__( 'Center icon attachment is invalid.', 's2j-webinar-source-qr' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	$mime = get_post_mime_type( $attachment_id );
+	if ( ! is_string( $mime ) || ! in_array( $mime, s2j_wsq_qr_allowed_icon_mime_types(), true ) ) {
+		return new WP_Error(
+			'qr_generation_failed',
+			__( 'Center icon must be a JPEG, PNG, GIF, or WebP image.', 's2j-webinar-source-qr' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	$path = get_attached_file( $attachment_id );
+	if ( ! is_string( $path ) || ! is_readable( $path ) ) {
+		return new WP_Error(
+			'qr_generation_failed',
+			__( 'Center icon file could not be read.', 's2j-webinar-source-qr' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	$image = s2j_wsq_gd_load_image_from_path( $path, $mime );
+	if ( is_wp_error( $image ) ) {
+		return $image;
+	}
+
+	return $image;
+}
+
+/**
+ * @param string $path Absolute file path.
+ * @param string $mime MIME type.
+ * @return GdImage|WP_Error
+ */
+function s2j_wsq_gd_load_image_from_path( $path, $mime ) {
+	switch ( $mime ) {
+		case 'image/jpeg':
+			$image = function_exists( 'imagecreatefromjpeg' ) ? @imagecreatefromjpeg( $path ) : false;
+			break;
+		case 'image/png':
+			$image = function_exists( 'imagecreatefrompng' ) ? @imagecreatefrompng( $path ) : false;
+			break;
+		case 'image/gif':
+			$image = function_exists( 'imagecreatefromgif' ) ? @imagecreatefromgif( $path ) : false;
+			break;
+		case 'image/webp':
+			$image = function_exists( 'imagecreatefromwebp' ) ? @imagecreatefromwebp( $path ) : false;
+			break;
+		default:
+			$image = false;
+	}
+
+	if ( false === $image || ! ( $image instanceof GdImage ) ) {
+		return new WP_Error(
+			'qr_generation_failed',
+			__( 'Center icon could not be decoded.', 's2j-webinar-source-qr' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	return $image;
+}
+
+/**
+ * Composite center icon onto a QR PNG (white quiet-zone plate + scaled icon).
+ *
+ * @param string $png_bytes         Raw QR PNG.
+ * @param int    $icon_attachment_id Media attachment ID; 0 skips overlay.
+ * @return string|WP_Error PNG bytes.
+ */
+function s2j_wsq_overlay_center_icon_on_qr_png( $png_bytes, $icon_attachment_id ) {
+	$icon_attachment_id = (int) $icon_attachment_id;
+	if ( $icon_attachment_id <= 0 ) {
+		return $png_bytes;
+	}
+
+	$qr = @imagecreatefromstring( $png_bytes );
+	if ( false === $qr || ! ( $qr instanceof GdImage ) ) {
+		return new WP_Error(
+			'qr_generation_failed',
+			__( 'Could not decode QR image for icon overlay.', 's2j-webinar-source-qr' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	$icon = s2j_wsq_gd_load_icon_from_attachment( $icon_attachment_id );
+	if ( is_wp_error( $icon ) ) {
+		imagedestroy( $qr );
+		return $icon;
+	}
+
+	$qr_w = imagesx( $qr );
+	$qr_h = imagesy( $qr );
+	$box  = (int) max( 8, floor( min( $qr_w, $qr_h ) * 0.22 ) );
+	$pad  = (int) max( 4, floor( $box * 0.12 ) );
+	$plate = $box + ( 2 * $pad );
+
+	$plate_x = (int) floor( ( $qr_w - $plate ) / 2 );
+	$plate_y = (int) floor( ( $qr_h - $plate ) / 2 );
+
+	$white = imagecolorallocate( $qr, 255, 255, 255 );
+	imagefilledrectangle( $qr, $plate_x, $plate_y, $plate_x + $plate - 1, $plate_y + $plate - 1, $white );
+
+	$icon_w = imagesx( $icon );
+	$icon_h = imagesy( $icon );
+	if ( $icon_w > 0 && $icon_h > 0 ) {
+		$scale  = min( $box / $icon_w, $box / $icon_h );
+		$dest_w = max( 1, (int) floor( $icon_w * $scale ) );
+		$dest_h = max( 1, (int) floor( $icon_h * $scale ) );
+		$dest_x = $plate_x + $pad + (int) floor( ( $box - $dest_w ) / 2 );
+		$dest_y = $plate_y + $pad + (int) floor( ( $box - $dest_h ) / 2 );
+
+		imagealphablending( $qr, true );
+		imagecopyresampled( $qr, $icon, $dest_x, $dest_y, 0, 0, $dest_w, $dest_h, $icon_w, $icon_h );
+	}
+
+	imagedestroy( $icon );
+
+	ob_start();
+	imagepng( $qr );
+	$out = ob_get_clean();
+	imagedestroy( $qr );
+
+	if ( ! is_string( $out ) || strlen( $out ) < 8 ) {
+		return new WP_Error(
+			'qr_generation_failed',
+			__( 'Could not encode QR image with icon.', 's2j-webinar-source-qr' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	return $out;
+}
+
+/**
  * Render registration URL to raw PNG bytes.
  *
  * @param string               $url   Encoded payload.
@@ -128,6 +297,15 @@ function s2j_wsq_render_qr_png_bytes( $url, array $style ) {
 			__( 'Could not generate QR image.', 's2j-webinar-source-qr' ),
 			array( 'status' => 500 )
 		);
+	}
+
+	$icon_id = isset( $style['icon_attachment_id'] ) ? (int) $style['icon_attachment_id'] : 0;
+	if ( $icon_id > 0 ) {
+		$with_icon = s2j_wsq_overlay_center_icon_on_qr_png( $png, $icon_id );
+		if ( is_wp_error( $with_icon ) ) {
+			return $with_icon;
+		}
+		$png = $with_icon;
 	}
 
 	return $png;

@@ -153,6 +153,128 @@ class RestDocumentTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Apply composites style.icon_attachment_id at QR center (white plate + icon).
+	 */
+	public function test_apply_with_center_icon_marks_center_bright() {
+		$icon_id = $this->create_test_png_attachment();
+
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/apply',
+			array(
+				'status'   => 'draft',
+				'channels' => array(
+					array(
+						'id'               => 'web',
+						'registration_url' => 'https://example.com/register-web-icon',
+					),
+					array(
+						'id'               => 'sns',
+						'registration_url' => 'https://example.com/register-sns-icon',
+					),
+				),
+				'style'    => array(
+					'foreground_hex'     => '#000000',
+					'size_px'            => 512,
+					'icon_attachment_id' => $icon_id,
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$qr_id  = (int) $data['channels'][0]['qr_attachment_id'];
+		$this->assertGreaterThan( 0, $qr_id );
+
+		$path = get_attached_file( $qr_id );
+		$this->assertIsString( $path );
+		$this->assertFileExists( $path );
+
+		$image = imagecreatefrompng( $path );
+		$this->assertNotFalse( $image );
+
+		$cx  = (int) floor( imagesx( $image ) / 2 );
+		$cy  = (int) floor( imagesy( $image ) / 2 );
+		$rgb = imagecolorat( $image, $cx, $cy );
+		$r   = ( $rgb >> 16 ) & 0xFF;
+		imagedestroy( $image );
+
+		$this->assertGreaterThan( 240, $r, 'Center pixel should lie on the white icon plate.' );
+	}
+
+	/**
+	 * Apply fails when icon_attachment_id does not reference an image.
+	 */
+	public function test_apply_returns_400_for_invalid_center_icon() {
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/apply',
+			array(
+				'status'   => 'draft',
+				'channels' => array(
+					array(
+						'id'               => 'web',
+						'registration_url' => 'https://example.com/register-web-bad-icon',
+					),
+					array(
+						'id'               => 'sns',
+						'registration_url' => 'https://example.com/register-sns-bad-icon',
+					),
+				),
+				'style'    => array(
+					'foreground_hex'     => '#000000',
+					'size_px'            => 512,
+					'icon_attachment_id' => 999999,
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertIsArray( $data );
+		$this->assertSame( 'qr_generation_failed', $data['code'] );
+	}
+
+	/**
+	 * @return int Attachment ID.
+	 */
+	private function create_test_png_attachment() {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$image = imagecreatetruecolor( 32, 32 );
+		$red   = imagecolorallocate( $image, 210, 50, 50 );
+		imagefilledrectangle( $image, 0, 0, 31, 31, $red );
+		ob_start();
+		imagepng( $image );
+		$bytes = ob_get_clean();
+		imagedestroy( $image );
+
+		$upload = wp_upload_bits( 'wsq-test-icon.png', null, $bytes );
+		$this->assertEmpty( $upload['error'] );
+
+		$attach_id = wp_insert_attachment(
+			array(
+				'post_mime_type' => 'image/png',
+				'post_title'     => 'wsq-test-icon',
+				'post_content'   => '',
+				'post_status'    => 'inherit',
+			),
+			$upload['file'],
+			$this->event_id
+		);
+		$this->assertIsInt( $attach_id );
+		$this->assertGreaterThan( 0, $attach_id );
+
+		$metadata = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
+		if ( is_array( $metadata ) ) {
+			wp_update_attachment_metadata( $attach_id, $metadata );
+		}
+
+		return (int) $attach_id;
+	}
+
+	/**
 	 * @return string|null
 	 */
 	private function gatherpress_event_post_type() {
