@@ -1,7 +1,9 @@
 import { registerPlugin } from '@wordpress/plugins';
 import { Fill } from '@wordpress/components';
 import {
+	BaseControl,
 	Button,
+	ColorPicker,
 	Modal,
 	TextControl,
 	Notice,
@@ -15,38 +17,45 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import '@/styles/gutenberg.scss';
 import {
-	type ChannelId,
+	type SourceDefinition,
 	type SourceQrDocument,
 	type TrackingItem,
 	defaultDocument,
 	documentRestPath,
+	mergeDefinitionsWithDocument,
 	mergeTrackingItems,
+	webinarPathFromTemplate,
 } from '@/domain/document';
 
 const PLUGIN_ID = 's2j-webinar-source-qr';
 
-function channelLabel(id: ChannelId): string {
-	switch (id) {
-		case 'web':
-			return __('Web', 's2j-webinar-source-qr');
-		case 'sns':
-			return __('Social', 's2j-webinar-source-qr');
-		case 'other':
-			return __('Other', 's2j-webinar-source-qr');
-		default:
-			return id;
-	}
+function getBootstrap() {
+	return (
+		window.s2jWebinarSourceQrData ?? {
+			restNamespace: 's2j-webinar-source-qr/v1',
+			metaKey: '_s2j_webinar_source_qr',
+			s2jWebinarActive: false,
+			webinarDefinitionsPathTemplate:
+				'/s2j-webinar/v1/events/%d/tracking-source-definitions',
+			webinarTrackingPathTemplate:
+				'/s2j-webinar/v1/events/%d/tracking-sources',
+		}
+	);
 }
 
-function getBootstrap() {
-	return window.s2jWebinarSourceQrData ?? {
-		restNamespace: 's2j-webinar-source-qr/v1',
-		metaKey: '_s2j_webinar_source_qr',
-		webinarTrackingPathTemplate:
-			'/s2j-webinar/v1/events/%d/tracking-sources',
-		webinarPluginActive: false,
-		channelIds: ['web', 'sns', 'other'],
-	};
+function channelDisplayLabel(row: { id: string; label: string }): string {
+	return row.label.trim() !== '' ? row.label : row.id;
+}
+
+function normalizeHexColor(input: string): string {
+	const value = input.trim();
+	if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+		return value;
+	}
+	if (/^[0-9A-Fa-f]{6}$/.test(value)) {
+		return `#${value}`;
+	}
+	return value;
 }
 
 const MaintenanceModal = ({
@@ -62,7 +71,10 @@ const MaintenanceModal = ({
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [notice, setNotice] = useState<string | null>(null);
+	const [catalogNotice, setCatalogNotice] = useState<string | null>(null);
 	const [unassigned, setUnassigned] = useState<TrackingItem[]>([]);
+	const [catalogReady, setCatalogReady] = useState(false);
+	const [dirty, setDirty] = useState(false);
 
 	const webinarMeta = useSelect((select) => {
 		const meta =
@@ -71,18 +83,71 @@ const MaintenanceModal = ({
 				unknown
 			>) ?? {};
 		return {
-			webinarId: String(meta._s2j_webinar_id ?? ''),
-			provider: String(meta._s2j_webinar_provider ?? 'zoom') || 'zoom',
+			webinarId: String(meta._s2j_webinar_id ?? '').trim(),
+			provider: String(meta._s2j_webinar_provider ?? '').trim() || 'zoom',
 		};
 	}, []);
 
+	const readOnly = !catalogReady;
+
 	const canImport = useMemo(() => {
 		return (
-			bootstrap.webinarPluginActive &&
+			catalogReady &&
+			bootstrap.s2jWebinarActive &&
 			webinarMeta.webinarId.length > 0 &&
-			'zoom' === webinarMeta.provider
+			document.provider === 'zoom'
 		);
-	}, [bootstrap.webinarPluginActive, webinarMeta]);
+	}, [
+		bootstrap.s2jWebinarActive,
+		catalogReady,
+		document.provider,
+		webinarMeta.webinarId,
+	]);
+
+	const loadCatalogAndMerge = useCallback(
+		async (baseDoc: SourceQrDocument) => {
+			setCatalogNotice(null);
+			if (!bootstrap.s2jWebinarActive) {
+				setCatalogReady(false);
+				return baseDoc;
+			}
+
+			try {
+				const path = webinarPathFromTemplate(
+					bootstrap.webinarDefinitionsPathTemplate,
+					postId
+				);
+				const response = (await apiFetch({ path })) as {
+					sources?: SourceDefinition[];
+				};
+				const sources = Array.isArray(response?.sources)
+					? response.sources
+					: [];
+				if (sources.length < 1) {
+					setCatalogReady(false);
+					setCatalogNotice(
+						__(
+							'Saving requires S2J Webinar and a source catalog.',
+							's2j-webinar-source-qr'
+						)
+					);
+					return baseDoc;
+				}
+				setCatalogReady(true);
+				return mergeDefinitionsWithDocument(baseDoc, sources);
+			} catch {
+				setCatalogReady(false);
+				setCatalogNotice(
+					__(
+						'Saving requires S2J Webinar and a source catalog.',
+						's2j-webinar-source-qr'
+					)
+				);
+				return baseDoc;
+			}
+		},
+		[bootstrap.s2jWebinarActive, bootstrap.webinarDefinitionsPathTemplate, postId]
+	);
 
 	const loadDocument = useCallback(async () => {
 		setLoading(true);
@@ -91,7 +156,11 @@ const MaintenanceModal = ({
 			const data = (await apiFetch({
 				path: documentRestPath(bootstrap.restNamespace, postId),
 			})) as SourceQrDocument;
-			setDocument({ ...defaultDocument(), ...data });
+			const merged = { ...defaultDocument(), ...data };
+			const withRows = await loadCatalogAndMerge(merged);
+			setDocument(withRows);
+			setDirty(false);
+			setUnassigned([]);
 		} catch {
 			setNotice(
 				__(
@@ -100,25 +169,28 @@ const MaintenanceModal = ({
 				)
 			);
 			setDocument(defaultDocument());
+			setCatalogReady(false);
 		} finally {
 			setLoading(false);
 		}
-	}, [bootstrap.restNamespace, postId]);
+	}, [bootstrap.restNamespace, loadCatalogAndMerge, postId]);
 
 	useEffect(() => {
 		void loadDocument();
 	}, [loadDocument]);
 
-	const saveDraft = async () => {
+	const saveDraft = async (doc: SourceQrDocument = document) => {
 		setSaving(true);
 		setNotice(null);
 		try {
 			const saved = (await apiFetch({
 				path: documentRestPath(bootstrap.restNamespace, postId, 'draft'),
 				method: 'POST',
-				data: document,
+				data: doc,
 			})) as SourceQrDocument;
-			setDocument(saved);
+			const withRows = await loadCatalogAndMerge(saved);
+			setDocument(withRows);
+			setDirty(false);
 			setNotice(__('Draft saved.', 's2j-webinar-source-qr'));
 		} catch (error: unknown) {
 			const message =
@@ -137,17 +209,17 @@ const MaintenanceModal = ({
 		setSaving(true);
 		setNotice(null);
 		try {
-			const path = bootstrap.webinarTrackingPathTemplate.replace(
-				'%d',
-				String(postId)
+			const path = webinarPathFromTemplate(
+				bootstrap.webinarTrackingPathTemplate,
+				postId
 			);
 			const response = (await apiFetch({
 				path,
 			})) as { items?: TrackingItem[] };
 			const items = Array.isArray(response?.items) ? response.items : [];
 			const merged = mergeTrackingItems(document, items);
-			setDocument(merged.document);
 			setUnassigned(merged.unassigned);
+			await saveDraft(merged.document);
 			setNotice(
 				sprintf(
 					/* translators: %d: number of imported rows matched to channels */
@@ -175,6 +247,7 @@ const MaintenanceModal = ({
 				data: document,
 			});
 			setNotice(__('Applied.', 's2j-webinar-source-qr'));
+			setDirty(false);
 		} catch (error: unknown) {
 			const message =
 				(error as { message?: string })?.message ??
@@ -185,7 +258,8 @@ const MaintenanceModal = ({
 		}
 	};
 
-	const updateUrl = (id: ChannelId, url: string) => {
+	const updateUrl = (id: string, url: string) => {
+		setDirty(true);
 		setDocument((prev) => ({
 			...prev,
 			channels: prev.channels.map((row) =>
@@ -193,6 +267,12 @@ const MaintenanceModal = ({
 			),
 		}));
 	};
+
+	const saveDisabled = saving || readOnly;
+	const statusLabel =
+		document.status === 'ready'
+			? __('Document status: Ready', 's2j-webinar-source-qr')
+			: __('Document status: Draft', 's2j-webinar-source-qr');
 
 	return (
 		<Modal
@@ -209,7 +289,14 @@ const MaintenanceModal = ({
 						4
 					)}
 				</Heading>
+				<p>{statusLabel}</p>
 			</div>
+
+			{catalogNotice && (
+				<Notice status="warning" isDismissible={false}>
+					{catalogNotice}
+				</Notice>
+			)}
 
 			{notice && (
 				<Notice status="info" isDismissible onRemove={() => setNotice(null)}>
@@ -223,12 +310,21 @@ const MaintenanceModal = ({
 				<>
 					{1 === step && (
 						<>
+							{document.channels.length === 0 && (
+								<p>
+									{__(
+										'No source rows. Configure S2J Webinar source definitions for this event.',
+										's2j-webinar-source-qr'
+									)}
+								</p>
+							)}
 							{document.channels.map((row) => (
 								<TextControl
 									key={row.id}
-									label={channelLabel(row.id)}
+									label={channelDisplayLabel(row)}
 									value={row.registration_url}
 									onChange={(value) => updateUrl(row.id, value)}
+									disabled={readOnly}
 									help={__(
 										'Paste the registration URL from the provider portal.',
 										's2j-webinar-source-qr'
@@ -246,7 +342,7 @@ const MaintenanceModal = ({
 							) : (
 								<p>
 									{__(
-										'Import is available when S2J Webinar is active and the event has a provider webinar ID.',
+										'Import is available when the source catalog is ready, S2J Webinar is active, the event has a webinar ID, and provider is zoom.',
 										's2j-webinar-source-qr'
 									)}
 								</p>
@@ -254,7 +350,7 @@ const MaintenanceModal = ({
 							{unassigned.length > 0 && (
 								<Notice status="warning" isDismissible={false}>
 									{__(
-										'Some imported source names did not match web, sns, or other.',
+										'Some imported source names did not match the current catalog.',
 										's2j-webinar-source-qr'
 									)}
 								</Notice>
@@ -263,16 +359,47 @@ const MaintenanceModal = ({
 					)}
 
 					{2 === step && (
-						<TextControl
-							label={__('Module color (hex)', 's2j-webinar-source-qr')}
-							value={document.style.foreground_hex}
-							onChange={(value) =>
-								setDocument((prev) => ({
-									...prev,
-									style: { ...prev.style, foreground_hex: value },
-								}))
-							}
-						/>
+						<BaseControl
+							className="s2j-webinar-source-qr-modal__color"
+							label={__('Module color', 's2j-webinar-source-qr')}
+							help={__(
+								'QR module color (#RRGGBB). Uses the same control as other WordPress admin screens.',
+								's2j-webinar-source-qr'
+							)}
+						>
+							<ColorPicker
+								color={document.style.foreground_hex || '#000000'}
+								enableAlpha={false}
+								onChange={(value) => {
+									if (readOnly) {
+										return;
+									}
+									setDirty(true);
+									setDocument((prev) => ({
+										...prev,
+										style: {
+											...prev.style,
+											foreground_hex: normalizeHexColor(value),
+										},
+									}));
+								}}
+							/>
+							<TextControl
+								label={__('Hex', 's2j-webinar-source-qr')}
+								value={document.style.foreground_hex}
+								disabled={readOnly}
+								onChange={(value) => {
+									setDirty(true);
+									setDocument((prev) => ({
+										...prev,
+										style: {
+											...prev.style,
+											foreground_hex: normalizeHexColor(value),
+										},
+									}));
+								}}
+							/>
+						</BaseControl>
 					)}
 
 					{3 === step && (
@@ -310,11 +437,19 @@ const MaintenanceModal = ({
 				>
 					{__('Next', 's2j-webinar-source-qr')}
 				</Button>
-				<Button variant="secondary" onClick={() => void saveDraft()} disabled={saving}>
+				<Button
+					variant="secondary"
+					onClick={() => void saveDraft()}
+					disabled={saveDisabled || !dirty}
+				>
 					{__('Save draft', 's2j-webinar-source-qr')}
 				</Button>
 				{4 === step && (
-					<Button variant="primary" onClick={() => void applyDocument()} disabled={saving}>
+					<Button
+						variant="primary"
+						onClick={() => void applyDocument()}
+						disabled={saveDisabled}
+					>
 						{__('Apply', 's2j-webinar-source-qr')}
 					</Button>
 				)}

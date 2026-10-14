@@ -2,10 +2,8 @@
  * Panel document shape (mirrors includes/Domain/document.php).
  */
 
-export type ChannelId = 'web' | 'sns' | 'other';
-
 export type ChannelRow = {
-	id: ChannelId;
+	id: string;
 	label: string;
 	registration_url: string;
 	qr_attachment_id: number;
@@ -31,7 +29,10 @@ export type TrackingItem = {
 	external_id?: string;
 };
 
-export const CHANNEL_IDS: ChannelId[] = ['web', 'sns', 'other'];
+export type SourceDefinition = {
+	source_name: string;
+	label: string;
+};
 
 export function defaultStyle(): DocumentStyle {
 	return {
@@ -41,22 +42,37 @@ export function defaultStyle(): DocumentStyle {
 	};
 }
 
-export function defaultChannels(): ChannelRow[] {
-	return CHANNEL_IDS.map((id) => ({
-		id,
-		label: '',
-		registration_url: '',
-		qr_attachment_id: 0,
-	}));
-}
-
 export function defaultDocument(): SourceQrDocument {
 	return {
 		status: 'draft',
 		provider: '',
-		channels: defaultChannels(),
+		channels: [],
 		style: defaultStyle(),
 		updated_at: '',
+	};
+}
+
+export function mergeDefinitionsWithDocument(
+	document: SourceQrDocument,
+	definitions: SourceDefinition[]
+): SourceQrDocument {
+	const byId = new Map(
+		document.channels.map((row) => [row.id, { ...row }] as const)
+	);
+
+	const channels: ChannelRow[] = definitions.map((def) => {
+		const existing = byId.get(def.source_name);
+		return {
+			id: def.source_name,
+			label: def.label ?? '',
+			registration_url: existing?.registration_url ?? '',
+			qr_attachment_id: existing?.qr_attachment_id ?? 0,
+		};
+	});
+
+	return {
+		...document,
+		channels,
 	};
 }
 
@@ -69,6 +85,7 @@ export function mergeTrackingItems(
 		channels: document.channels.map((row) => ({ ...row })),
 	};
 	const unassigned: TrackingItem[] = [];
+	const knownIds = new Set(next.channels.map((row) => row.id));
 
 	for (const item of items) {
 		const name = item.source_name?.trim() ?? '';
@@ -77,9 +94,10 @@ export function mergeTrackingItems(
 			continue;
 		}
 
-		const index = next.channels.findIndex((row) => row.id === name);
-		if (index >= 0) {
-			next.channels[index].registration_url = url;
+		if (knownIds.has(name)) {
+			next.channels = next.channels.map((row) =>
+				row.id === name ? { ...row, registration_url: url } : row
+			);
 		} else {
 			unassigned.push(item);
 		}
@@ -101,4 +119,11 @@ export function documentRestPath(
 		return `${base}/apply`;
 	}
 	return base;
+}
+
+export function webinarPathFromTemplate(
+	template: string,
+	postId: number
+): string {
+	return template.replace('%d', String(postId));
 }

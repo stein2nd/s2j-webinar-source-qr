@@ -1,6 +1,6 @@
 <?php
 /**
- * Pure document helpers (no WordPress I/O).
+ * Pure document helpers (no WordPress I/O except esc_url_raw in normalize).
  *
  * @package S2J_Webinar_Source_Qr
  */
@@ -23,25 +23,7 @@ function s2j_wsq_default_style() {
 }
 
 /**
- * Empty channel rows for all fixed ids.
- *
- * @return array<int, array{id: string, label: string, registration_url: string, qr_attachment_id: int}>
- */
-function s2j_wsq_default_channels() {
-	$rows = array();
-	foreach ( S2J_Webinar_Source_Qr_Constants::channel_ids() as $id ) {
-		$rows[] = array(
-			'id'                => $id,
-			'label'             => '',
-			'registration_url'  => '',
-			'qr_attachment_id'  => 0,
-		);
-	}
-	return $rows;
-}
-
-/**
- * Fresh meta document (`draft`).
+ * Fresh meta document (`draft`, empty channels until UI merges definitions).
  *
  * @return array<string, mixed>
  */
@@ -49,14 +31,14 @@ function s2j_wsq_default_document() {
 	return array(
 		'status'     => 'draft',
 		'provider'   => '',
-		'channels'   => s2j_wsq_default_channels(),
+		'channels'   => array(),
 		'style'      => s2j_wsq_default_style(),
 		'updated_at' => '',
 	);
 }
 
 /**
- * Merge persisted or panel input onto defaults (does not validate URLs).
+ * Merge persisted or panel input onto defaults (does not validate URLs or catalog).
  *
  * @param mixed $input Raw meta or REST body.
  * @return array<string, mixed>
@@ -67,7 +49,7 @@ function s2j_wsq_merge_document( $input ) {
 	$merged = array_merge( $base, array_intersect_key( $input, $base ) );
 
 	if ( isset( $input['channels'] ) && is_array( $input['channels'] ) ) {
-		$merged['channels'] = s2j_wsq_merge_channels( $input['channels'] );
+		$merged['channels'] = s2j_wsq_sanitize_channel_rows( $input['channels'] );
 	}
 
 	if ( isset( $input['style'] ) && is_array( $input['style'] ) ) {
@@ -78,31 +60,62 @@ function s2j_wsq_merge_document( $input ) {
 }
 
 /**
- * Keep exactly three channel rows in canonical order.
+ * Normalize channel row shape (preserve dynamic ids).
  *
  * @param array<int, mixed> $rows Incoming rows.
  * @return array<int, array<string, mixed>>
  */
-function s2j_wsq_merge_channels( array $rows ) {
-	$by_id = array();
+function s2j_wsq_sanitize_channel_rows( array $rows ) {
+	$out = array();
 	foreach ( $rows as $row ) {
 		if ( ! is_array( $row ) || empty( $row['id'] ) ) {
 			continue;
 		}
-		$id = (string) $row['id'];
-		if ( in_array( $id, S2J_Webinar_Source_Qr_Constants::channel_ids(), true ) ) {
-			$by_id[ $id ] = $row;
-		}
-	}
-
-	$out = array();
-	foreach ( S2J_Webinar_Source_Qr_Constants::channel_ids() as $id ) {
-		$row = isset( $by_id[ $id ] ) ? $by_id[ $id ] : array();
 		$out[] = array(
-			'id'               => $id,
+			'id'               => (string) $row['id'],
 			'label'            => isset( $row['label'] ) ? (string) $row['label'] : '',
 			'registration_url' => isset( $row['registration_url'] ) ? (string) $row['registration_url'] : '',
 			'qr_attachment_id' => isset( $row['qr_attachment_id'] ) ? (int) $row['qr_attachment_id'] : 0,
+		);
+	}
+	return $out;
+}
+
+/**
+ * Index channel rows by id.
+ *
+ * @param array<int, array<string, mixed>> $rows Channel rows.
+ * @return array<string, array<string, mixed>>
+ */
+function s2j_wsq_index_channels_by_id( array $rows ) {
+	$by_id = array();
+	foreach ( $rows as $row ) {
+		if ( ! empty( $row['id'] ) ) {
+			$by_id[ (string) $row['id'] ] = $row;
+		}
+	}
+	return $by_id;
+}
+
+/**
+ * Build channel rows from Webinar catalog + incoming panel/meta rows (definition order).
+ *
+ * @param array<int, array{source_name: string, label: string}> $catalog Source definitions.
+ * @param array<int, array<string, mixed>>                     $incoming Existing panel/meta rows.
+ * @return array<int, array<string, mixed>>
+ */
+function s2j_wsq_align_channels_to_catalog( array $catalog, array $incoming ) {
+	$by_id = s2j_wsq_index_channels_by_id( s2j_wsq_sanitize_channel_rows( $incoming ) );
+	$out   = array();
+
+	foreach ( $catalog as $def ) {
+		$id      = (string) $def['source_name'];
+		$existing = isset( $by_id[ $id ] ) ? $by_id[ $id ] : array();
+		$out[]   = array(
+			'id'               => $id,
+			'label'            => (string) $def['label'],
+			'registration_url' => isset( $existing['registration_url'] ) ? (string) $existing['registration_url'] : '',
+			'qr_attachment_id' => isset( $existing['qr_attachment_id'] ) ? (int) $existing['qr_attachment_id'] : 0,
 		);
 	}
 
@@ -110,26 +123,51 @@ function s2j_wsq_merge_channels( array $rows ) {
 }
 
 /**
- * Normalize for draft save (partial URLs allowed).
- *
- * @param array<string, mixed> $document Merged document.
- * @return array{ok: bool, document?: array<string, mixed>, error?: array{code: string, message: string}}
+ * @param string $url Raw URL.
+ * @return array{ok: true, url: string}|array{ok: false, error: array{code: string, message: string}}
  */
-function s2j_wsq_normalize_for_draft( array $document ) {
-	$document['status'] = 'draft';
-
-	$style = $document['style'];
-	if ( ! is_array( $style ) ) {
-		$style = s2j_wsq_default_style();
+function s2j_wsq_validate_registration_url( $url ) {
+	$url = trim( (string) $url );
+	if ( '' === $url ) {
+		return array( 'ok' => true, 'url' => '' );
 	}
 
+	$sanitized = esc_url_raw( $url );
+	if ( '' === $sanitized || ! preg_match( '#^https?://#i', $sanitized ) ) {
+		return array(
+			'ok'    => false,
+			'error' => array(
+				'code'    => 'invalid_registration_url',
+				'message' => 'One or more registration URLs are invalid.',
+			),
+		);
+	}
+
+	if ( strlen( $sanitized ) > 2048 ) {
+		return array(
+			'ok'    => false,
+			'error' => array(
+				'code'    => 'invalid_registration_url',
+				'message' => 'One or more registration URLs are invalid.',
+			),
+		);
+	}
+
+	return array( 'ok' => true, 'url' => $sanitized );
+}
+
+/**
+ * @param array<string, mixed> $style Style block.
+ * @return array{ok: true, style: array<string, mixed>}|array{ok: false, error: array{code: string, message: string}}
+ */
+function s2j_wsq_normalize_style_block( array $style ) {
 	$hex = isset( $style['foreground_hex'] ) ? (string) $style['foreground_hex'] : '#000000';
 	if ( ! preg_match( '/^#[0-9A-Fa-f]{6}$/', $hex ) ) {
 		return array(
 			'ok'    => false,
 			'error' => array(
-				'code'    => 'invalid_foreground_hex',
-				'message' => 'Invalid foreground color.',
+				'code'    => 'invalid_document',
+				'message' => 'Document style or attachments are invalid.',
 			),
 		);
 	}
@@ -147,42 +185,92 @@ function s2j_wsq_normalize_for_draft( array $document ) {
 		$icon_id = 0;
 	}
 
-	$document['style'] = array(
-		'icon_attachment_id' => $icon_id,
-		'foreground_hex'     => $hex,
-		'size_px'            => $size,
+	return array(
+		'ok'    => true,
+		'style' => array(
+			'icon_attachment_id' => $icon_id,
+			'foreground_hex'     => $hex,
+			'size_px'            => $size,
+		),
+	);
+}
+
+/**
+ * Invalidate qr_attachment_id when URL or shared style changed (persistence_spec).
+ *
+ * @param array<int, array<string, mixed>> $channels New channel rows.
+ * @param array<string, mixed>|null          $previous Previous stored document (null = first save).
+ * @param array<string, mixed>               $new_style Normalized style.
+ * @return array<int, array<string, mixed>>
+ */
+function s2j_wsq_apply_qr_invalidation( array $channels, $previous, array $new_style ) {
+	if ( null === $previous || ! is_array( $previous ) ) {
+		return $channels;
+	}
+
+	$prev_style = isset( $previous['style'] ) && is_array( $previous['style'] ) ? $previous['style'] : array();
+	$style_changed =
+		(string) ( $prev_style['foreground_hex'] ?? '' ) !== (string) $new_style['foreground_hex'] ||
+		(int) ( $prev_style['size_px'] ?? 0 ) !== (int) $new_style['size_px'] ||
+		(int) ( $prev_style['icon_attachment_id'] ?? 0 ) !== (int) $new_style['icon_attachment_id'];
+
+	$prev_by_id = s2j_wsq_index_channels_by_id(
+		isset( $previous['channels'] ) && is_array( $previous['channels'] ) ? $previous['channels'] : array()
 	);
 
-	$channels = s2j_wsq_merge_channels( $document['channels'] );
 	foreach ( $channels as $index => $row ) {
-		$url = trim( (string) $row['registration_url'] );
-		if ( '' !== $url ) {
-			$sanitized = esc_url_raw( $url );
-			if ( '' === $sanitized || ! preg_match( '#^https?://#i', $sanitized ) ) {
-				return array(
-					'ok'    => false,
-					'error' => array(
-						'code'    => 'invalid_registration_url',
-						'message' => 'Invalid registration URL.',
-					),
-				);
-			}
-			if ( strlen( $sanitized ) > 2048 ) {
-				return array(
-					'ok'    => false,
-					'error' => array(
-						'code'    => 'registration_url_too_long',
-						'message' => 'Registration URL is too long.',
-					),
-				);
-			}
-			$channels[ $index ]['registration_url'] = $sanitized;
-		} else {
-			$channels[ $index ]['registration_url'] = '';
+		$id   = (string) $row['id'];
+		$prev = isset( $prev_by_id[ $id ] ) ? $prev_by_id[ $id ] : null;
+		if ( null === $prev ) {
+			continue;
+		}
+		$url_changed = (string) ( $prev['registration_url'] ?? '' ) !== (string) $row['registration_url'];
+		if ( $style_changed || $url_changed ) {
+			$channels[ $index ]['qr_attachment_id'] = 0;
 		}
 	}
 
-	$document['channels'] = $channels;
+	return $channels;
+}
+
+/**
+ * Normalize document for draft save (catalog required).
+ *
+ * @param array<string, mixed>                             $document Panel document.
+ * @param array<int, array{source_name: string, label: string}> $catalog Definitions.
+ * @param array<string, mixed>|null                          $previous Previous meta (for QR invalidation).
+ * @return array{ok: bool, document?: array<string, mixed>, error?: array{code: string, message: string}}
+ */
+function s2j_wsq_normalize_for_draft( array $document, array $catalog, $previous = null ) {
+	$style_result = s2j_wsq_normalize_style_block(
+		isset( $document['style'] ) && is_array( $document['style'] ) ? $document['style'] : array()
+	);
+	if ( empty( $style_result['ok'] ) ) {
+		return array(
+			'ok'    => false,
+			'error' => $style_result['error'],
+		);
+	}
+
+	$document['style']    = $style_result['style'];
+	$document['channels'] = s2j_wsq_align_channels_to_catalog(
+		$catalog,
+		isset( $document['channels'] ) && is_array( $document['channels'] ) ? $document['channels'] : array()
+	);
+
+	foreach ( $document['channels'] as $index => $row ) {
+		$check = s2j_wsq_validate_registration_url( $row['registration_url'] );
+		if ( empty( $check['ok'] ) ) {
+			return array(
+				'ok'    => false,
+				'error' => $check['error'],
+			);
+		}
+		$document['channels'][ $index ]['registration_url'] = $check['url'];
+	}
+
+	$document['channels'] = s2j_wsq_apply_qr_invalidation( $document['channels'], $previous, $document['style'] );
+	$document['status']     = 'draft';
 	$document['updated_at'] = gmdate( 'c' );
 
 	return array(
@@ -192,9 +280,9 @@ function s2j_wsq_normalize_for_draft( array $document ) {
 }
 
 /**
- * Check all channels have URLs (apply precondition).
+ * Whether every catalog row has a non-empty registration URL (apply precondition).
  *
- * @param array<string, mixed> $document Normalized document.
+ * @param array<string, mixed> $document Document with aligned channels.
  * @return bool
  */
 function s2j_wsq_all_channels_have_url( array $document ) {
@@ -212,13 +300,14 @@ function s2j_wsq_all_channels_have_url( array $document ) {
 /**
  * Merge Webinar tracking import items into a panel document (pure).
  *
- * @param array<string, mixed> $document Panel document.
+ * @param array<string, mixed>               $document Panel document.
  * @param array<int, array<string, mixed>> $items Mapped items from Webinar REST.
  * @return array{document: array<string, mixed>, unassigned: array<int, array<string, mixed>>}
  */
 function s2j_wsq_merge_tracking_items( array $document, array $items ) {
-	$document = s2j_wsq_merge_document( $document );
+	$document   = s2j_wsq_merge_document( $document );
 	$unassigned = array();
+	$by_id      = s2j_wsq_index_channels_by_id( $document['channels'] );
 
 	foreach ( $items as $item ) {
 		if ( ! is_array( $item ) ) {
@@ -230,16 +319,14 @@ function s2j_wsq_merge_tracking_items( array $document, array $items ) {
 			continue;
 		}
 
-		$matched = false;
-		foreach ( $document['channels'] as $index => $row ) {
-			if ( $row['id'] === $name ) {
-				$document['channels'][ $index ]['registration_url'] = $url;
-				$matched = true;
-				break;
+		if ( isset( $by_id[ $name ] ) ) {
+			foreach ( $document['channels'] as $index => $row ) {
+				if ( $row['id'] === $name ) {
+					$document['channels'][ $index ]['registration_url'] = $url;
+					break;
+				}
 			}
-		}
-
-		if ( ! $matched ) {
+		} else {
 			$unassigned[] = array(
 				'source_name'      => $name,
 				'registration_url' => $url,

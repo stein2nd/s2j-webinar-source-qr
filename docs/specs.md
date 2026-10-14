@@ -12,7 +12,7 @@
 | **本プラグイン** (S2J ウェビナー・ソース追跡 QR) | **v0.0.1** | 本 **`docs/`** が記述する **このプラグイン** の初版仕様・製品版 ([docs_mod/](../docs_mod/) は改訂案用) |
 | **S2J Webinar** (親プラグイン) | **v0.0.2** | 運用素材 (CoverArt / フライヤー / Source QR handoff 等) の **Webinar 側** 改訂。正本 [operational_material_index.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md) |
 
-本リポジトリの文中で **「初版」** と書くときは、特記なければ **本プラグイン v0.0.1** を指します。Webinar の版を指すときは **「S2J Webinar 仕様 v0.0.2」** などと明示します。
+本リポジトリの文中で **「初版」** と書く場合は、特記なければ **本プラグイン v0.0.1** を指します。Webinar の版を指す場合は **「S2J Webinar 仕様 v0.0.2」** などと明示します。
 
 ## 共通仕様
 

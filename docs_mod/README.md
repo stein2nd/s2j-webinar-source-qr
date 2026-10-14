@@ -2,7 +2,7 @@
 
 > **確定仕様の正本:** [docs/](../docs/) — v0.0.1 合意内容は **docs/** に写経済みです。本 **docs_mod/** は後日の改訂案と、進行中イニシアチブの三点セット (`modification.md` / `status.md` / `test-results.md`) 用に **削除せず存置** します。
 
-改訂を始めるときは本ディレクトリで起草し、合意後に **docs/** に反映してください。運用規則は [docs/governance/documentation_governance.md](../docs/governance/documentation_governance.md) です。完了イニシアチブは [docs/archive/](../docs/archive/) に freeze します。
+改訂を始める際は、本ディレクトリで起草し、合意後に **docs/** に反映してください。運用規則は [docs/governance/documentation_governance.md](../docs/governance/documentation_governance.md) です。完了イニシアチブは [docs/archive/](../docs/archive/) に freeze します。
 
 ## 正本へのリンク (仕様本文)
 

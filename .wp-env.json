@@ -1,0 +1,12 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
+	"plugins": [
+		".",
+		"https://downloads.wordpress.org/plugin/gatherpress.zip",
+		"./tests/fixtures/s2j-webinar"
+	],
+	"phpVersion": "8.2",
+	"config": {
+		"WP_DEBUG": true
+	}
+}

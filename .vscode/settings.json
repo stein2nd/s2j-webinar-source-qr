@@ -1,4 +1,8 @@
 {
+    "intelephense.environment.includePaths": [
+        "${workspaceFolder}/includes",
+        "${workspaceFolder}/../s2j-webinar/includes"
+    ],
     "json.schemaDownload.enable": true,
     "textlint.configPath": "${workspaceFolder}/.textlintrc.json",
     "textlint.nodePath": "${workspaceFolder}/node_modules",

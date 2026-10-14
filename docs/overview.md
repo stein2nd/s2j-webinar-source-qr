@@ -31,7 +31,7 @@
 ## 提供機能 (初版 v0.0.1)
 
 * イベント編集から開く **4ステップ** メンテナンス UI (同一ダイアログ)
-* **Webinar ソース定義にもとづく行** への **手入力 registration URL** (**`catalogReady` 時**。取り込み以外の URL 入力はプロバイダ共通) と、条件を満たすとき **取り込み** (初版: 解決済みパネル `provider` が `zoom` のみ。HTTP は Webinar 経由 — Import 条件の正本 [admin_ui_spec.md#1-ソースと-registration-url](./admin_ui_spec.md#1-ソースと-registration-url))
+* **Webinar ソース定義にもとづく行** への **手入力 registration URL** (**`catalogReady` 時**。取り込み以外の URL 入力はプロバイダ共通) と、条件を満たす場合 **取り込み** (初版: 解決済みパネル `provider` が `zoom` のみ。HTTP は Webinar 経由 — Import 条件の正本 [admin_ui_spec.md#1-ソースと-registration-url](./admin_ui_spec.md#1-ソースと-registration-url))
 * QR プレビュー (クライアント) と PNG メディア保存 (サーバー)
 * メタ `_s2j_webinar_source_qr` の保存 (`draft` / `ready`)
 

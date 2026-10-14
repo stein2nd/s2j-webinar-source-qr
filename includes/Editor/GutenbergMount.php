@@ -73,29 +73,18 @@ class S2J_Webinar_Source_Qr_Gutenberg_Mount {
 			S2J_WEBINAR_SOURCE_QR_PLUGIN_DIR . 'languages'
 		);
 
+		$webinar_ns = S2J_Webinar_Source_Qr_Constants::WEBINAR_REST_NAMESPACE;
+
 		wp_localize_script(
 			's2j-webinar-source-qr-gutenberg',
 			's2jWebinarSourceQrData',
 			array(
-				'restNamespace' => S2J_Webinar_Source_Qr_Constants::REST_NAMESPACE,
-				'metaKey'       => S2J_Webinar_Source_Qr_Constants::META_KEY,
-				'webinarTrackingPathTemplate' => '/' . S2J_Webinar_Source_Qr_Constants::WEBINAR_TRACKING_REST_NAMESPACE . '/events/%d/tracking-sources',
-				'webinarPluginActive' => $this->is_webinar_plugin_active(),
-				'channelIds'    => S2J_Webinar_Source_Qr_Constants::channel_ids(),
+				'restNamespace'                  => S2J_Webinar_Source_Qr_Constants::REST_NAMESPACE,
+				'metaKey'                        => S2J_Webinar_Source_Qr_Constants::META_KEY,
+				's2jWebinarActive'               => s2j_wsq_is_webinar_plugin_active(),
+				'webinarDefinitionsPathTemplate' => '/' . $webinar_ns . '/events/%d/tracking-source-definitions',
+				'webinarTrackingPathTemplate'    => '/' . $webinar_ns . '/events/%d/tracking-sources',
 			)
 		);
-	}
-
-	/**
-	 * Whether S2J Webinar is active (import button gating).
-	 *
-	 * @return bool
-	 */
-	private function is_webinar_plugin_active() {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		return is_plugin_active( 's2j-webinar/s2j-webinar.php' );
 	}
 }
