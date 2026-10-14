@@ -7,26 +7,26 @@
 ### Added
 
 * **docs 正本追随 (コード):** Webinar 定義カタログ ([`includes/Domain/catalog.php`](./includes/Domain/catalog.php))、`provider` 解決、固定 channel 廃止・定義順 `channels` ([`includes/Domain/document.php`](./includes/Domain/document.php))
-* REST: `GET/POST …/document`、draft / apply（カタログ **503**、apply **501** `qr_not_implemented`）([`includes/RestController.php`](./includes/RestController.php))
-* Gutenberg: 定義 GET → 行マージ、`catalogReady`、Import 成功時 **POST draft**、Step 2 **ColorPicker** + Hex ([`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
+* REST: `GET/POST …/document`、draft / apply (カタログ **503**、apply **501** `qr_not_implemented`) ([`includes/RestController.php`](./includes/RestController.php))
+* Gutenberg: 定義 GET → 行マージ、`catalogReady`、Import 成功時 **POST draft**、Step2 **ColorPicker** + Hex ([`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
 * テスト: 純 PHPUnit ([`DocumentLogicTest.php`](./tests/phpunit/DocumentLogicTest.php))、段階1 [`smoke-local.sh`](./tests/smoke-local.sh)、wp-env Integration ([`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php): draft **200** / **503** / apply **501**)、Webinar 定義 REST スタブ ([`tests/fixtures/s2j-webinar/`](./tests/fixtures/s2j-webinar/))
-* CI / 配布: [js-lint.yml](./.github/workflows/js-lint.yml)、[phpunit.yml](./.github/workflows/phpunit.yml)（pure + wp-env）、[`.wp-env.json`](./.wp-env.json)、Studio [`studio/`](./studio/)
+* CI / 配布: [js-lint.yml](./.github/workflows/js-lint.yml)、[phpunit.yml](./.github/workflows/phpunit.yml)(pure + wp-env)、[`.wp-env.json`](./.wp-env.json)、Studio [`studio/`](./studio/)
 
 ### Changed
 
-* [status.md](./docs/status.md): 機能一覧・Test 見出し（**Local 可のみ** / **要 HTTPS**）、[推奨テスト実施順](./docs/status.md#status-test-order)
-* [test-results.md](./docs/test-results.md): localhost 可能表、推奨実施順、**Docker なし**（3b は CI `phpunit-wp-env` で代替）
+* [status.md](./docs/status.md): 機能一覧・ Test 見出し (**Local 可のみ** / **要 HTTPS**)、[推奨テスト実施順](./docs/status.md#status-test-order)
+* [test-results.md](./docs/test-results.md): localhost 可能表、推奨実施順、**Docker なし**(3b は CI `phpunit-wp-env` で代替)
 * [README.md](./README.md): テスト段階と Docker 要否の注記
-* `.wp-env.json`: GatherPress を [wordpress.org plugin zip](https://downloads.wordpress.org/plugin/gatherpress.zip)（GitHub archive **404** 回避）
+* `.wp-env.json`: GatherPress を [wordpress.org plugin zip](https://downloads.wordpress.org/plugin/gatherpress.zip)(GitHub archive **404** 回避)
 
 ### Fixed
 
-* [`tests/smoke-local.sh`](./tests/smoke-local.sh): macOS Bash 3.2 + `set -u` で空 `"${WP_ARGS[@]}"` が落ちる問題（`wp_cmd` ラッパー）
+* [`tests/smoke-local.sh`](./tests/smoke-local.sh): macOS Bash3.2 + `set -u` で空 `"${WP_ARGS[@]}"` が落ちる問題 (`wp_cmd` ラッパー)
 
 ### Notes
 
-* **Apply** QR PNG、Step 3 プレビュー、Webinar handoff、meta `sanitize` 厳格は未実装（[status.md](./docs/status.md)）
-* 段階 **3b** ローカル実行は Docker 必須。Docker 無し環境は PR の **`phpunit-wp-env`** を正とする（2026-10-14 CI PASS: [PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1)）
+* **Apply** QR PNG、Step3プレビュー、Webinar handoff、meta `sanitize` 厳格は未実装 ([status.md](./docs/status.md))
+* 段階 **3b** ローカル実行は Docker 必須。Docker なし環境は PR の **`phpunit-wp-env`** を正とする (2026-10-14CI PASS: [PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1))
 
 ## 0.0.1 - 2026-10-12
 
