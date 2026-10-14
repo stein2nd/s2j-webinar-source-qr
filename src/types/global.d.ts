@@ -5,9 +5,9 @@ declare global {
 		s2jWebinarSourceQrData?: {
 			restNamespace: string;
 			metaKey: string;
+			s2jWebinarActive: boolean;
+			webinarDefinitionsPathTemplate: string;
 			webinarTrackingPathTemplate: string;
-			webinarPluginActive: boolean;
-			channelIds: string[];
 		};
 	}
 }

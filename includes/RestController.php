@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Thin REST adapter (docs_mod/rest_api_spec.md).
+ * REST adapter (docs/rest_api_spec.md).
  */
 class S2J_Webinar_Source_Qr_Rest_Controller {
 
@@ -128,7 +128,7 @@ class S2J_Webinar_Source_Qr_Rest_Controller {
 	}
 
 	/**
-	 * GET document.
+	 * GET document — meta merge + resolved provider only.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
@@ -137,6 +137,7 @@ class S2J_Webinar_Source_Qr_Rest_Controller {
 		$post_id = (int) $request['post_id'];
 		$stored  = get_post_meta( $post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
 		$doc     = s2j_wsq_merge_document( $stored );
+		$doc['provider'] = s2j_wsq_resolve_provider( $post_id, $doc );
 
 		return new WP_REST_Response( $doc, 200 );
 	}
@@ -148,26 +149,76 @@ class S2J_Webinar_Source_Qr_Rest_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function save_draft( $request ) {
-		$post_id = (int) $request['post_id'];
-		$body    = $request->get_json_params();
+		return $this->persist_document( $request, 'draft' );
+	}
+
+	/**
+	 * POST apply (step 4) — PNG pipeline returns 501 until implemented.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function apply_document( $request ) {
+		return $this->persist_document( $request, 'apply' );
+	}
+
+	/**
+	 * Shared draft/apply persistence with catalog guard.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @param string          $mode    draft|apply.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	private function persist_document( $request, $mode ) {
+		$post_id  = (int) $request['post_id'];
+		$body     = $request->get_json_params();
+		$previous = get_post_meta( $post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+		$previous = is_array( $previous ) ? $previous : null;
+
 		if ( ! is_array( $body ) ) {
 			$body = array();
 		}
 
 		$merged = s2j_wsq_merge_document( $body );
-		$result = s2j_wsq_normalize_for_draft( $merged );
+		unset( $merged['provider'] );
+
+		$catalog = s2j_wsq_fetch_source_definitions( $post_id );
+		if ( is_wp_error( $catalog ) ) {
+			return $catalog;
+		}
+
+		$result = s2j_wsq_normalize_for_draft( $merged, $catalog, $previous );
 
 		if ( empty( $result['ok'] ) ) {
 			$error = $result['error'];
+			$status = 400;
 			return new WP_Error(
 				$error['code'],
 				$error['message'],
-				array( 'status' => 400 )
+				array( 'status' => $status )
 			);
 		}
 
 		$document = $result['document'];
-		$updated  = update_post_meta( $post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, $document );
+		$document['provider'] = s2j_wsq_resolve_provider( $post_id, $document );
+
+		if ( 'apply' === $mode ) {
+			if ( ! s2j_wsq_all_channels_have_url( $document ) ) {
+				return new WP_Error(
+					'invalid_registration_url',
+					__( 'One or more registration URLs are invalid.', 's2j-webinar-source-qr' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			return new WP_Error(
+				'qr_not_implemented',
+				__( 'QR export is not available yet.', 's2j-webinar-source-qr' ),
+				array( 'status' => 501 )
+			);
+		}
+
+		$updated = update_post_meta( $post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, $document );
 		if ( false === $updated ) {
 			$current = get_post_meta( $post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
 			if ( $current !== $document ) {
@@ -180,46 +231,5 @@ class S2J_Webinar_Source_Qr_Rest_Controller {
 		}
 
 		return new WP_REST_Response( $document, 200 );
-	}
-
-	/**
-	 * POST apply (step 4) — PNG pipeline not implemented in skeleton.
-	 *
-	 * @param WP_REST_Request $request Request.
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function apply_document( $request ) {
-		$post_id = (int) $request['post_id'];
-		$body    = $request->get_json_params();
-		if ( ! is_array( $body ) ) {
-			$body = array();
-		}
-
-		$merged = s2j_wsq_merge_document( $body );
-		$result = s2j_wsq_normalize_for_draft( $merged );
-
-		if ( empty( $result['ok'] ) ) {
-			$error = $result['error'];
-			return new WP_Error(
-				$error['code'],
-				$error['message'],
-				array( 'status' => 400 )
-			);
-		}
-
-		$document = $result['document'];
-		if ( ! s2j_wsq_all_channels_have_url( $document ) ) {
-			return new WP_Error(
-				'channels_incomplete',
-				__( 'All channels need a registration URL before apply.', 's2j-webinar-source-qr' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		return new WP_Error(
-			'apply_png_not_implemented',
-			__( 'QR PNG generation is not implemented yet.', 's2j-webinar-source-qr' ),
-			array( 'status' => 501 )
-		);
 	}
 }

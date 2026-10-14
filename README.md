@@ -7,3 +7,5 @@ GatherPress イベント向けの **ソース追跡 URL + QR コード** コン�
 * 連携、handoff (**S2J Webinar 仕様 v0.0.2**): [s2j-webinar / docs/operational_material_index.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md)
 
 **v0.0.1骨格:** PHP (`includes/`)、イベント編集 Fill (`src/gutenberg/`)。`npm run build:dev:gutenberg` でアセットを生成します。実装は [docs/](docs/) 正本に追随します。
+
+**テスト (3段階):** [docs/test-results.md](./docs/test-results.md) — Local スモーク (`npm run test:smoke:local`)、WordPress Studio ([studio/](./studio/))、PHPUnit (`composer test` / `npm run phpunit:wp-env`)。

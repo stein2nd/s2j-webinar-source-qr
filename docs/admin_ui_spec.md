@@ -62,7 +62,7 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
   * `s2jWebinarActive` (bool) — [S2J Webinar 有効 (クライアント)](#s2j-webinar-有効-クライアント)
   * `webinarDefinitionsPathTemplate` — 定義 GET (`…/tracking-source-definitions`)
   * `webinarTrackingPathTemplate` — 取り込み GET (`…/tracking-sources`)
-  * 骨格: 取り込みテンプレのみ一部実装。定義テンプレ / `s2jWebinarActive` は [status.md](./status.md) 追随待ち。
+  * 実装: 上記3キーを `GutenbergMount` から localize ([status.md](./status.md))。
   * 型: `src/types/global.d.ts` (bootstrap 型) のプロパティ名も **上記キーと同一** にする。
 
 ## チャネル行 (ソース名と一行対応)

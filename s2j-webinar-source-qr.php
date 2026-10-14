@@ -6,7 +6,7 @@
  * @author Koutarou ISHIKAWA
  * @license GPL-3.0-or-later
  *
- * Plugin Name: S2J Webinar ソース QR
+ * Plugin Name: S2J Webinar Source QR
  * Plugin URI: https://github.com/stein2nd/s2j-webinar-source-qr
  * Description: Source tracking registration URLs and QR PNG maintenance for GatherPress events.
  * Version: 0.0.1
@@ -37,6 +37,8 @@ function s2j_webinar_source_qr_load_dependencies() {
 
 	require_once $dir . 'Constants.php';
 	require_once $dir . 'Domain/document.php';
+	require_once $dir . 'Domain/catalog.php';
+	require_once $dir . 'Domain/provider.php';
 	require_once $dir . 'Meta/Registrar.php';
 	require_once $dir . 'Meta/SavePost.php';
 	require_once $dir . 'RestController.php';
