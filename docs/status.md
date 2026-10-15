@@ -1,6 +1,6 @@
 # S2J ウェビナー・ソース追跡 QR - 実装状況
 
-最終更新: 2026-10-14
+最終更新: 2026-10-15
 
 索引は [specs.md](./specs.md) です。版の取り扱いは [specs.md#版の取り扱い](./specs.md#版の取り扱い) です。仕様改訂案は [docs_mod/](../docs_mod/) を参照。
 
@@ -17,17 +17,17 @@
 
 **完了条件列:** 100% 到達用チェックリスト。`[x]` = 満たし済み、`[ ]` = 未。正本 spec は各§の見出しリンク。
 
-**実装％** は、各§の **プラグイン検証可能** 項 (`[x]` / その全数) のみ。Zoom OAuth ・実 Webinar ID 等は [§外部結合ゲート](#status-external) に分離し、Pass 記録があっても % には入れない。
+**実装％** は、各§の **プラグイン検証可能** 項 (`[x]` / その全数) のみ。Zoom OAuth、実 Webinar ID 等は [§外部結合ゲート](#status-external) に分離し、Pass 記録があっても % には入れない。§内の **Test (… E1/E3 等)** 行と **任意** 行は分母に含めない (例: [§カタログ](#status-catalog) の E2、[§取り込み](#status-import) の E3)。
 
 | 機能名 | 実装済み/未実装 | 実装％ | 完了条件 (100%) |
 | --- | --- | --- | --- |
 | 仕様 (`docs/`) | 確定 | — | [§仕様分割](#status-spec-docs) |
 | 配布 (Vite / dist / zip) | 実装済み | 100 | [§配布](#status-dist) (5/5) |
 | メタ + REST `document` | 一部 | 75 | [§REST・永続化](#status-rest) (9/12) |
-| 管理 UI (Gutenberg 4ステップ) | 一部 | 70 | [§管理 UI](#status-admin-ui) (7/10) |
+| 管理 UI (Gutenberg 4ステップ) | 一部 | 67 | [§管理 UI](#status-admin-ui) (8/12) |
 | Webinar 定義 REST + `catalogReady` | 実装済み | 100 | [§カタログ](#status-catalog) (6/6) |
 | 取り込み → draft | 実装済み | 100 | [§取り込み](#status-import) (4/4) |
-| Apply + QR PNG | 未実装 | 0 | [§QR 反映](#status-qr-apply) (0/4) |
+| Apply + QR PNG | 実装済み | 100 | [§QR 反映](#status-qr-apply) (6/6) |
 | Webinar handoff (同一モーダル) | 未着手 | 0 | [§handoff](#status-handoff) (0/2) |
 | テスト・ CI (段階1–3) | 一部 | 75 | [§品質・スモーク](#status-quality) (9/12) |
 
@@ -224,4 +224,4 @@
 
 ## 実装ロードマップ (到達順)
 
-1. ~~仕様 `docs/` 正本~~ → ~~REST / カタログ / UI 骨格~~ → [§推奨テスト実施順](#status-test-order) **順0–2** (3a ・ smoke ・3b 緑) → **順3** Studio UI → 実装: QR Apply ・ sanitize → **順4** (E2/E4/E6) → **順5** HTTPS (E1/E3) → handoff (E5)
+1. ~~仕様 `docs/` 正本~~ → ~~REST / カタログ / UI 骨格~~ → ~~QR Apply (§QR 反映)~~ → [§推奨テスト実施順](#status-test-order) **順0–2** (3a、smoke、3b 緑) → **順3** Studio UI → 実装: meta `sanitize`、UI 残 → **順4** (E2/E4/E6) → **順5** HTTPS (E1/E3) → handoff (E5)

@@ -1,17 +1,43 @@
 # S2J ウェビナー・ソース追跡 QR - CHANGELOG
 
+## セキュリティ (開発依存 - upstream 待ち)
+
+最終確認: **2026-10-15** — `npm audit`: **23** 件 (moderate: 13/high: 8/critical: 2)、`npm audit --omit=dev`: **0**。配布 zip は `dist/` + PHP `vendor/` (Composer)。`node_modules` は同梱しない。`npm audit fix --force` は採用しない (破壊的ダウングレード)。
+
+依存更新 (`ncu` / `npm install`) のたびに上記2コマンドを再実行し、件数と下記の解消状況をこの節で更新する。
+
+* **`@wordpress/env`** (`wp-env` / CI `phpunit-wp-env`): transitive **`simple-git` / `@simple-git/argv-parser`** (critical、[GHSA-v5rq-49vh-5v5c](https://github.com/advisories/GHSA-v5rq-49vh-5v5c))、**`qs`** (moderate)、**`@wp-playground/cli`** 経由。実行は開発、CI のみ。**待ち**: [WordPress `@wordpress/env`](https://github.com/WordPress/gutenberg/tree/trunk/packages/env) / Playground CLI の依存更新 (npm の自動 fix は `@wordpress/env@3` 提案のため不可)
+* **`@s2j/docs-linter`** (`npm run lint:docs`): **`textlint-rule-prh` / `prh`**、プリセット (`textlint-rule-preset-wp-docs-ja` 等)、**`sprintf-js`** (moderate、npm 上 fix なし)。**待ち**: [docs-linter](https://github.com/stein2nd/s2j-docs-linter) および textlint プリセット側
+* **`stylelint`** (`npm run lint:scss`): **`braces` / `micromatch` / `fast-glob` / `globby`** (high)。npm の自動 fix は stylelint v7ダウングレード提案のため不可。**待ち**: [stylelint/stylelint](https://github.com/stylelint/stylelint) の transitive 更新
+* **`vite-plugin-static-copy`** (`npm run build:*`): 同梱 **chokidar** 経由の **`braces`** (high)。npm の自動 fix は v0系ダウングレード提案のため不可。**待ち**: [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy) の chokidar 更新
+
 ## unreleased
+
+## 0.0.1 - 2026-10-15
 
 ### Added
 
 * **QR Apply (PR1):** `chillerlan/php-qrcode` + GD — [`includes/Domain/qr.php`](./includes/Domain/qr.php)。`POST …/apply` **200**、`status: ready`、行ごと PNG メディア (`qr_attachment_id`)
 * **QR 中央 icon:** `style.icon_attachment_id` を Apply PNG に合成 (JPEG/PNG/GIF/WebP、白 quiet-zone プレート)
-* 配布 zip に `vendor/` を同梱 (`predist:zip` + [`make-dist-zip.mjs`](./tools/dist/make-dist-zip.mjs))
+* wp-env Integration: 中央 icon 合成・不正 `icon_attachment_id` **400** ([`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php))
+* 配布 zip に `vendor/` を同梱 (`predist:zip` + [`make-dist-zip.mjs`](./tools/dist/make-dist-zip.mjs)、[dist-zip.yml](./.github/workflows/dist-zip.yml) で Composer)
 
 ### Changed
 
-* wp-env Integration: apply **501** → **200** ([`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php))
+* wp-env Integration: apply **501** → **200** (draft **200** / catalog **503** は維持)
 * [`s2j-webinar-source-qr.php`](./s2j-webinar-source-qr.php): Composer autoload 読み込み
+* [`includes/RestController.php`](./includes/RestController.php): apply 経路で [`s2j_wsq_apply_document_with_qr()`](./includes/Domain/qr.php) を呼び出し
+* [status.md](./docs/status.md) / [test-results.md](./docs/test-results.md): QR Apply ・中央 icon ・**localhost / HTTPS** テスト順 ([PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1)、[PR #2](https://github.com/stein2nd/s2j-webinar-source-qr/pull/2))
+* 開発依存: `@wordpress/env` ^11、`@s2j/docs-linter` ^1.0.29、React / ESLint / Rollup 等 (`ncu` 追随)
+* textlint の許可パターンに `#status-*` アンカー ID を追加
+
+### Fixed
+
+* **CI:** `main` の [phpunit.yml](./.github/workflows/phpunit.yml) が `npm run phpunit:wp-env` を実行する一方、`package.json` に script 未定義だった不整合 — テスト基盤マージ ([PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1)) で `phpunit:wp-env` / `.wp-env.json` を追加
+
+### Notes
+
+* Step3: JS プレビュー、Apply 成功時モーダル close、Webinar handoff、meta `sanitize_callback` 厳格は未実装 ([status.md](./docs/status.md))
 
 ## 0.0.1 - 2026-10-14
 
