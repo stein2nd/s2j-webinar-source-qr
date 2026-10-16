@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ruleset name="s2j-plugin">
+	<description>PSR-12 for namespaced plugin PHP (includes/).</description>
+	<rule ref="PSR12">
+		<exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+		<exclude name="Squiz.Classes.ValidClassName.NotCamelCaps"/>
+		<exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps"/>
+		<exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+	</rule>
+	<config name="php_version" value="80100"/>
+	<file>includes</file>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+</ruleset>

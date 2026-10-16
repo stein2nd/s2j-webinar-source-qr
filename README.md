@@ -8,4 +8,4 @@ GatherPress イベント向けの **ソース追跡 URL + QR コード** コン�
 
 **v0.0.1骨格:** PHP (`includes/`)、イベント編集 Fill (`src/gutenberg/`)。`npm run build:dev:gutenberg` でアセットを生成します。実装は [docs/](docs/) 正本に追随します。
 
-**テスト (3段階):** [docs/test-results.md](./docs/test-results.md) — Local スモーク (`npm run test:smoke:local`)、WordPress Studio ([studio/](./studio/))、PHPUnit **`composer test` (Docker 不要)**。wp-env 統合 (`npm run phpunit:wp-env`) は **Docker 必須** — ない場合は PR の CI `phpunit-wp-env` で確認。
+**テスト (3段階):** [docs/test-results.md](./docs/test-results.md) — Local スモーク (`npm run test:smoke:local`)、Studio ([studio/](./studio/))、PHPUnit 単体 (`npm run test:unit:php:unit-only`)、統合 (`npm run test:unit:php:local` — MySQL。Docker 不要)。CI 統合は `phpunit-wp-env` (wp-env)。

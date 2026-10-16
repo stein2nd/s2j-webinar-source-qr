@@ -1,6 +1,6 @@
 <?php
 /**
- * REST route registration (wp-env).
+ * REST route registration (integration: local MySQL or wp-env).
  *
  * @package S2J_Webinar_Source_Qr
  */

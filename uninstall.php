@@ -30,6 +30,6 @@ $post_ids = get_posts(
 	)
 );
 
-foreach ( $post_ids as $post_id ) {
-	delete_post_meta( (int) $post_id, S2J_Webinar_Source_Qr_Constants::META_KEY );
+foreach ( $post_ids as $event_post_id ) {
+	delete_post_meta( (int) $event_post_id, S2J_Webinar_Source_Qr_Constants::META_KEY );
 }

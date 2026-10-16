@@ -23,8 +23,8 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Run pure PHPUnit
-        run: composer test
+      - name: Run unit PHPUnit (no WordPress DB)
+        run: composer test:unit
 
   phpunit-wp-env:
     runs-on: ubuntu-latest

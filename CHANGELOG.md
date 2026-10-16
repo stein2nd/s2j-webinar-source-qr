@@ -13,6 +13,51 @@
 
 ## unreleased
 
+## 0.0.1 - 2026-10-17
+
+### Changed
+
+* 統合 PHPUnit bootstrap ([`tests/bootstrap.php`](./tests/bootstrap.php)) — GatherPress / Webinar スタブの読み込みを [GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426) 指摘どおり変更:
+  * **以前:** `plugins_loaded` (優先度 0) で `activate_plugin( …, true )` — コアが `after_setup_theme` 前にプラグインヘッダーを翻訳し、WP **6.7+** で `gatherpress` の `_load_textdomain_just_in_time` **Notice**
+  * **以後:** `plugins_loaded` で `require_once` のみ (GatherPress + スタブ)。`init` (優先度 0) で `GatherPress\Core\Setup::get_instance()->activate_gatherpress_plugin( false )` (events テーブル)。Webinar REST スタブのみ `init` で `activate_plugin` (`deactivate_plugins` テスト用; ヘッダに Text Domain なし)
+
+### Notes
+
+* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** で **PASS** (2026-10-17 確認: unit **4** + integration **6**、**31** assertions)
+
+## 0.0.1 - 2026-10-16
+
+### Added
+
+* ローカル PHPUnit (Docker 不要): [`bin/phpunit-local.sh`](./bin/phpunit-local.sh)、[`bin/install-wp-tests.sh`](./bin/install-wp-tests.sh) — MySQL + 初回 svn で WP テスト lib、GatherPress / Webinar スタブ同梱
+* PHP 静的解析・スタイル: [`phpstan.neon.dist`](./phpstan.neon.dist) + [`phpstan-bootstrap.php`](./phpstan-bootstrap.php)、[`phpcs.xml.dist`](./phpcs.xml.dist) (PSR-12 / `includes/`)、WPCS 分割 ([`phpcs.wpcs.xml.dist`](./phpcs.wpcs.xml.dist) ルート PHP、[`phpcs.wpcs-includes.xml.dist`](./phpcs.wpcs-includes.xml.dist) i18n / Security)
+* [`.env.tests.example`](./.env.tests.example): ローカル統合用 DB / GatherPress パス
+
+### Changed
+
+* PHPUnit 分割 — 単体 [`phpunit.unit.xml.dist`](./phpunit.unit.xml.dist) (`tests/bootstrap-unit.php`)、統合 [`phpunit.xml.dist`](./phpunit.xml.dist) (`tests/bootstrap.php` → `tests/Integration/`)。旧 `tests/bootstrap-pure.php` / `bootstrap.wp-env.php` を廃止
+* Composer: `test:unit` / `test:integration` / `test:all`、`lint:php` = PHPStan + phpcs + WPCS
+* npm: `test:unit:php:unit-only` → `composer test:unit`、`test:unit:php:local` → `bin/phpunit-local.sh` (`pretest:unit:php:local` で Composer install)
+* CI `phpunit-pure`: `composer test:unit`
+* `includes/`: PSR-12整形 (phpcs)、[`Constants.php`](./includes/Constants.php) の定数に `public` 可視性
+* [status.md](./docs/status.md): ローカル3b PASS (2026-10-16)、Apply **501** 表記の整理、Integration テスト項目・外部結合 E6の更新
+* [test-results.md](./docs/test-results.md#最新結果): 2026-10-16 - Local **3a** / **3b** (MySQL) PASS 行
+* [README.md](./README.md): MediaLibrary Date Corrector 同型のローカル統合手順
+
+### Fixed
+
+* [`includes/Domain/qr.php`](./includes/Domain/qr.php): Composer 読込後に `class_exists( QRCode::class, false )` だと chillerlan が未ロードのまま **Apply `500`** (`QR library is unavailable`) — オートロード有効の判定に修正
+* [`includes/Domain/qr.php`](./includes/Domain/qr.php): PHP **8.5** で `imagedestroy()` 非推奨警告 — `s2j_wsq_gd_destroy()` は v8.5未満のみ呼び出し
+* [`includes/Domain/catalog.php`](./includes/Domain/catalog.php): 定義 REST パス行の phpcs 行長 (>120) を折り返し
+* [`tests/stubs/wordpress-test-stubs.php`](./tests/stubs/wordpress-test-stubs.php): `WP_UnitTestCase::factory()` スタブ (Integration の `factory()` 未定義を解消)
+* [`tests/Integration/RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php): 中央 icon 検証用 PNG を白塗りに変更、テスト内の `imagedestroy()` 削除
+* [`uninstall.php`](./uninstall.php): ループ変数を `$event_post_id` に変更 (WPCS グローバル `$post_id` 上書き回避)
+
+### Notes
+
+* ローカル `npm run test:unit:php:local` — blockpluginbase / `wordpress_test` で **PASS** (2026-10-16: unit **4** + integration **6**、**31** assertions)
+* 統合 bootstrap 時の `_load_textdomain_just_in_time` **Notice** — 2026-10-16 時点では `plugins_loaded` 上の `activate_plugin()` 経由 (GatherPress ヘッダ翻訳)。**2026-10-17** に bootstrap 変更で解消 ([GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426)、[unreleased](#unreleased))
+
 ## 0.0.1 - 2026-10-15
 
 ### Added

@@ -1,6 +1,6 @@
 <?php
 /**
- * REST draft / catalog guard / apply (wp-env).
+ * REST draft / catalog guard / apply (integration: local MySQL or wp-env).
  *
  * @package S2J_Webinar_Source_Qr
  */
@@ -196,8 +196,7 @@ class RestDocumentTest extends WP_UnitTestCase {
 		$cx  = (int) floor( imagesx( $image ) / 2 );
 		$cy  = (int) floor( imagesy( $image ) / 2 );
 		$rgb = imagecolorat( $image, $cx, $cy );
-		$r   = ( $rgb >> 16 ) & 0xFF;
-		imagedestroy( $image );
+		$r = ( $rgb >> 16 ) & 0xFF;
 
 		$this->assertGreaterThan( 240, $r, 'Center pixel should lie on the white icon plate.' );
 	}
@@ -243,12 +242,11 @@ class RestDocumentTest extends WP_UnitTestCase {
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
 		$image = imagecreatetruecolor( 32, 32 );
-		$red   = imagecolorallocate( $image, 210, 50, 50 );
-		imagefilledrectangle( $image, 0, 0, 31, 31, $red );
+		$white = imagecolorallocate( $image, 255, 255, 255 );
+		imagefilledrectangle( $image, 0, 0, 31, 31, $white );
 		ob_start();
 		imagepng( $image );
 		$bytes = ob_get_clean();
-		imagedestroy( $image );
 
 		$upload = wp_upload_bits( 'wsq-test-icon.png', null, $bytes );
 		$this->assertEmpty( $upload['error'] );
