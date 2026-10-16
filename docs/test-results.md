@@ -8,24 +8,24 @@
 | --- | --- | --- | --- |
 | **1** | WordPress 上で最低限動くこと (結合スモーク) | Local、Site Shell、WP-CLI | `tests/smoke-local.sh` / `npm run test:smoke:local` |
 | **2** | テストサイト構成の再現 (GatherPress 同梱) | **WordPress Studio**、Blueprints | [`studio/smoke-test-blueprint.json`](../studio/smoke-test-blueprint.json) |
-| **3** | PHP 自動テスト、PR 時のゲート | PHPUnit、GitHub Actions | `composer test` (純ロジック)。WP 統合は `npm run phpunit:wp-env` |
+| **3** | PHP 自動テスト、PR 時のゲート | PHPUnit、GitHub Actions | 単体: `composer test:unit`。統合: `npm run test:unit:php:local` (MySQL) または CI `phpunit-wp-env` |
 
-段階1・2は実 WordPress、段階3の **3a** は WordPress を起動しない純 PHPUnit です。
+段階1・2は実 WordPress。段階3の **3a (unit)** は WordPress DB 不要。段階 **3b (integration)** は MySQL + テスト用 DB、または Docker (wp-env) です。
 
 **依存:** 段階1・2では **[GatherPress](https://github.com/stein2nd/gatherpress)** を **有効化必須** です (wp.org 版では **GatherPress alpha** も必要な場合があります)。
 
 ### Docker なしの開発環境
 
-**`npm run phpunit:wp-env` (段階3b) だけが Docker 必須** です (`@wordpress/env` がコンテナで WordPress を起動する)。Docker Desktop 等がないマシンでは **ローカルで3b は実行しない** 想定で問題ありません。
+**3a (unit)** は PHP + Composer のみ。**3b (integration)** は **Local の MySQL** で `npm run test:unit:php:local` が可能 (初回のみ Subversion で WP テスト lib 取得)。**Docker (wp-env)** は CI 向けの代替経路です。
 
 | 段階 | Docker なしでローカル実行 | 代替 |
 | --- | --- | --- |
-| **3a** | **可能** — `composer test` | CI `phpunit-pure` と同一 |
+| **3a** | **可能** — `npm run test:unit:php:unit-only` (= `composer test:unit`) | CI `phpunit-pure` と同一 |
+| **3b** | **可能** — `npm run test:unit:php:local` (要 MySQL テスト DB、`.env.tests`) | **PR / push 後の GitHub Actions `phpunit-wp-env`** (Docker)。Pass は [最新結果](#最新結果) に記録 |
 | **1** | **可能** — Local / Studio + `npm run test:smoke:local` | `WP_PATH` を Site Shell または Studio ルートに |
 | **2** | **可能** — Studio Blueprint + 手動 UI | CLI は段階1と同じ smoke |
-| **3b** | **不可** (wp-env) | **PR / push 後の GitHub Actions `phpunit-wp-env`** で確認。Pass は [最新結果](#最新結果) に記録 |
 
-日常のループ例: **`composer test`** → 変更を push → CI の **`phpunit-wp-env`** を見る。Integration を触った PR では `phpunit-wp-env` が緑であることをマージ条件にすれば足ります。
+日常のループ例: **`npm run test:unit:php:unit-only`** → (統合を触ったら) **`npm run test:unit:php:local`** または push 後 CI **`phpunit-wp-env`**。
 
 ## 推奨実施順 (S2J Webinar 同型・ localhost 自動テスト優先)
 
@@ -33,9 +33,9 @@
 
 | 順 | 段階 | 環境 | 内容 | 本リポジトリ |
 | --- | --- | --- | --- | --- |
-| **0** | **3a** | **Local 可のみ** (WP 不要) | 純 PHPUnit ・ lint ・ CI と同型 | `composer test` / `npm run lint` |
+| **0** | **3a** | **Local 可のみ** (WP 不要) | 単体 PHPUnit ・ lint ・ CI と同型 | `npm run test:unit:php:unit-only` / `npm run lint` |
 | **1** | **1** | **Local 可のみ** (CLI) | Local **Site Shell** と Studio ルートの **`WP_PATH`** で同じスクリプト | `npm run test:smoke:local` |
-| **2** | **3b** | **Local 可のみ** (要 Docker) | wp-env 統合 — **Docker なしは CI** | `npm run phpunit:wp-env` または PR の `phpunit-wp-env` |
+| **2** | **3b** | **Local 可** (MySQL) / **CI** (Docker) | 統合 PHPUnit — `tests/Integration/` | `npm run test:unit:php:local` または PR の `phpunit-wp-env` |
 | **3** | **2** | **Local 可のみ** | Blueprint 再現 + (1) 再実行 + **手動** UI (Fill / モーダル) | [studio/](../studio/) |
 | **4** | **1–3** | **Local 可 (E2/E4/E6)** | Webinar 定義 REST 成立後の Save draft ・ Apply **501/200** | [status.md §外部結合](./status.md#status-external) |
 | **5** | **2–3** | **要 HTTPS** | OAuth (E1) ・実 Zoom 取り込み (E3) ・ステージング UI | [test-results.md 最新結果](#最新結果) に Pass 記録 |
@@ -136,27 +136,49 @@ GatherPress **イベント** 編集 (ブロックエディター) で実施。�
 
 ## 第3段階: PHPUnit
 
-### 3a. 純 PHPUnit (CI ・ローカル)
+[S2J MediaLibrary Date Corrector](https://github.com/stein2nd/s2j-media-library-date-corrector) と同型。**wp-env / Docker は必須ではありません** (CI では引き続き利用可)。
+
+### 3a. 単体 (PHP + Composer のみ)
 
 ```bash
 composer install
-composer test
-# または
+npm run test:unit:php:unit-only
+# 同等: composer test:unit
+```
+
+WordPress / MySQL 不要。`tests/phpunit/` (`includes/Domain/document.php` 等) を検証します。CI job **`phpunit-pure`** と同一です。
+
+### 3b. 統合 (MySQL + 初回のみ Subversion)
+
+**前提:** 開発サイト DB (`local` 等) とは **別名** のテスト DB。`.env.tests.example` を `.env.tests` にコピーして接続を合わせます。
+
+```bash
+composer install
 npm run test:unit:php:local
 ```
 
-WordPress 非起動。`includes/Domain/document.php` の正規化・マージを検証します。
+`pretest:unit:php:local` で Composer install 後、`bin/phpunit-local.sh` が **unit → (必要なら) WP テスト lib インストール → integration** の順で実行します。初回は **MySQL** と **svn** (テスト lib 取得) が必要です。GatherPress (wp.org zip) と Webinar REST スタブはスクリプトが `tests/.wordpress/wp-content/plugins/` に用意します。
 
-### 3b. wp-env 統合 (拡張)
+#### 統合 bootstrap (GatherPress / WP 6.7+)
 
-**前提:** ローカル実行には **Docker** が必要。ない場合は [Docker なしの開発環境](#docker-なしの開発環境) — **CI の `phpunit-wp-env` job** を正とする。
+[`tests/bootstrap.php`](../tests/bootstrap.php) は wp-env / ローカル MySQL の **同一** エントリです。GatherPress 有効化は [GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426) の指摘に合わせ、次のとおりです。
+
+| タイミング | 処理 |
+| --- | --- |
+| `plugins_loaded` (0) | `require_once` — `gatherpress/gatherpress.php` と Webinar REST スタブ。**`activate_plugin()` で GatherPress を有効化しない** (`after_setup_theme` 前のヘッダ翻訳 → WP 6.7+ Notice) |
+| `init` (0) | `GatherPress\Core\Setup::get_instance()->activate_gatherpress_plugin( false )` — events 用 DB セットアップ (silent `activate_plugin` では activation hook が走らない問題の回避) |
+| `init` (0) | Webinar スタブのみ `activate_plugin( …, true )` — `RestDocumentTest` の `deactivate_plugins()` 用 (スタブに Text Domain ヘッダなし) |
+
+ローカル再確認 (2026-10-17): `npm run test:unit:php:local` — **Notice なし**、integration **6/6** PASS。
+
+### 3b (代替) . wp-env — CI / Docker
 
 ```bash
 npm install
 npm run phpunit:wp-env
 ```
 
-`.wp-env.json` で GatherPress + 本プラグインを読み込み、`tests/Integration/` を実行します。Local DB とは別コンテナです。
+`.wp-env.json` で GatherPress + 本プラグイン + スタブを読み込み、**CI `phpunit-wp-env`** と同じ `tests/Integration/` を実行します。
 
 ---
 
@@ -168,4 +190,7 @@ npm run phpunit:wp-env
 | 2026-10-14 | 3b | CI (wp-env) | PASS | `RestDocumentTest` draft200 / 503 / apply200 (QR Apply PR) |
 | 2026-10-14 | 1 | Local | PASS | `npm run test:smoke:local` (blockpluginbase) |
 | 2026-10-14 | 2 | Local | PASS | U1– U12 (U10Apply503/501は CI Integration 代替)。新規イベント |
+| 2026-10-16 | 3a | Local | PASS | `npm run test:unit:php:local` 内 — unit **4** tests, 13 assertions (WP 不要) |
+| 2026-10-16 | 3b | Local (MySQL) | PASS | 同上 — integration **6** tests (合計 **31** assertions)。`.env.tests` / DB `wordpress_test` / GatherPress 実体 + Webinar REST stub。apply200・中央 icon・invalid icon **400** |
+| 2026-10-17 | 3b | Local (MySQL) | PASS | bootstrap 変更後 ([GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426)) — **WP 6.7+ Notice なし**、integration **6/6** (計 **31** assertions) |
 | (未記録) | 2 | Studio | — | Blueprint 再現 (Local で U1– U9済) |

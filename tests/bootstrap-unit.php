@@ -1,6 +1,6 @@
 <?php
 /**
- * Bootstrap for pure PHPUnit (no WordPress).
+ * PHPUnit bootstrap for pure unit tests (no WordPress test suite / DB).
  *
  * @package S2J_Webinar_Source_Qr
  */

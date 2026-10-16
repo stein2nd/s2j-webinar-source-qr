@@ -1,16 +1,88 @@
 # S2J ウェビナー・ソース追跡 QR - CHANGELOG
 
+## セキュリティ (開発依存 - upstream 待ち)
+
+最終確認: **2026-10-15** — `npm audit`: **23** 件 (moderate: 13/high: 8/critical: 2)、`npm audit --omit=dev`: **0**。配布 zip は `dist/` + PHP `vendor/` (Composer)。`node_modules` は同梱しない。`npm audit fix --force` は採用しない (破壊的ダウングレード)。
+
+依存更新 (`ncu` / `npm install`) のたびに上記2コマンドを再実行し、件数と下記の解消状況をこの節で更新する。
+
+* **`@wordpress/env`** (`wp-env` / CI `phpunit-wp-env`): transitive **`simple-git` / `@simple-git/argv-parser`** (critical、[GHSA-v5rq-49vh-5v5c](https://github.com/advisories/GHSA-v5rq-49vh-5v5c))、**`qs`** (moderate)、**`@wp-playground/cli`** 経由。実行は開発、CI のみ。**待ち**: [WordPress `@wordpress/env`](https://github.com/WordPress/gutenberg/tree/trunk/packages/env) / Playground CLI の依存更新 (npm の自動 fix は `@wordpress/env@3` 提案のため不可)
+* **`@s2j/docs-linter`** (`npm run lint:docs`): **`textlint-rule-prh` / `prh`**、プリセット (`textlint-rule-preset-wp-docs-ja` 等)、**`sprintf-js`** (moderate、npm 上 fix なし)。**待ち**: [docs-linter](https://github.com/stein2nd/s2j-docs-linter) および textlint プリセット側
+* **`stylelint`** (`npm run lint:scss`): **`braces` / `micromatch` / `fast-glob` / `globby`** (high)。npm の自動 fix は stylelint v7ダウングレード提案のため不可。**待ち**: [stylelint/stylelint](https://github.com/stylelint/stylelint) の transitive 更新
+* **`vite-plugin-static-copy`** (`npm run build:*`): 同梱 **chokidar** 経由の **`braces`** (high)。npm の自動 fix は v0系ダウングレード提案のため不可。**待ち**: [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy) の chokidar 更新
+
 ## unreleased
 
-### Added
-
-* **QR Apply (PR1):** `chillerlan/php-qrcode` + GD — [`includes/Domain/qr.php`](./includes/Domain/qr.php)。`POST …/apply` **200**、`status: ready`、行ごと PNG メディア (`qr_attachment_id`)。中央 icon 合成は未実装
-* 配布 zip に `vendor/` を同梱 (`predist:zip` + [`make-dist-zip.mjs`](./tools/dist/make-dist-zip.mjs))
+## 0.0.1 - 2026-10-17
 
 ### Changed
 
-* wp-env Integration: apply **501** → **200** ([`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php))
+* 統合 PHPUnit bootstrap ([`tests/bootstrap.php`](./tests/bootstrap.php)) — GatherPress / Webinar スタブの読み込みを [GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426) 指摘どおり変更:
+  * **以前:** `plugins_loaded` (優先度0) で `activate_plugin( …, true )` — コアが `after_setup_theme` 前にプラグインヘッダーを翻訳し、WP **6.7+** で `gatherpress` の `_load_textdomain_just_in_time` **Notice**
+  * **以後:** `plugins_loaded` で `require_once` のみ (GatherPress + スタブ)。`init` (優先度0) で `GatherPress\Core\Setup::get_instance()->activate_gatherpress_plugin( false )` (events テーブル)。Webinar REST スタブのみ `init` で `activate_plugin` (`deactivate_plugins` テスト用; ヘッダーに Text Domain なし)
+
+### Notes
+
+* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** で **PASS** (2026-10-17確認: unit **4** + integration **6**、**31** assertions)
+
+## 0.0.1 - 2026-10-16
+
+### Added
+
+* ローカル PHPUnit (Docker 不要): [`bin/phpunit-local.sh`](./bin/phpunit-local.sh)、[`bin/install-wp-tests.sh`](./bin/install-wp-tests.sh) — MySQL + 初回 svn で WP テスト lib、GatherPress / Webinar スタブ同梱
+* PHP 静的解析・スタイル: [`phpstan.neon.dist`](./phpstan.neon.dist) + [`phpstan-bootstrap.php`](./phpstan-bootstrap.php)、[`phpcs.xml.dist`](./phpcs.xml.dist) (PSR-12 / `includes/`)、WPCS 分割 ([`phpcs.wpcs.xml.dist`](./phpcs.wpcs.xml.dist) ルート PHP、[`phpcs.wpcs-includes.xml.dist`](./phpcs.wpcs-includes.xml.dist) i18n / Security)
+* [`.env.tests.example`](./.env.tests.example): ローカル統合用 DB / GatherPress パス
+
+### Changed
+
+* PHPUnit 分割 — 単体 [`phpunit.unit.xml.dist`](./phpunit.unit.xml.dist) (`tests/bootstrap-unit.php`)、統合 [`phpunit.xml.dist`](./phpunit.xml.dist) (`tests/bootstrap.php` → `tests/Integration/`)。旧 `tests/bootstrap-pure.php` / `bootstrap.wp-env.php` を廃止
+* Composer: `test:unit` / `test:integration` / `test:all`、`lint:php` = PHPStan + phpcs + WPCS
+* npm: `test:unit:php:unit-only` → `composer test:unit`、`test:unit:php:local` → `bin/phpunit-local.sh` (`pretest:unit:php:local` で Composer install)
+* CI `phpunit-pure`: `composer test:unit`
+* `includes/`: PSR-12整形 (phpcs)、[`Constants.php`](./includes/Constants.php) の定数に `public` 可視性
+* [status.md](./docs/status.md): ローカル3b PASS (2026-10-16)、Apply **501** 表記の整理、Integration テスト項目・外部結合 E6の更新
+* [test-results.md](./docs/test-results.md#最新結果): 2026-10-16 - Local **3a** / **3b** (MySQL) PASS 行
+* [README.md](./README.md): MediaLibrary Date Corrector 同型のローカル統合手順
+
+### Fixed
+
+* [`includes/Domain/qr.php`](./includes/Domain/qr.php): Composer 読込後に `class_exists( QRCode::class, false )` だと chillerlan が未ロードのまま **Apply `500`** (`QR library is unavailable`) — オートロード有効の判定に修正
+* [`includes/Domain/qr.php`](./includes/Domain/qr.php): PHP **8.5** で `imagedestroy()` 非推奨警告 — `s2j_wsq_gd_destroy()` は v8.5未満のみ呼び出し
+* [`includes/Domain/catalog.php`](./includes/Domain/catalog.php): 定義 REST パス行の phpcs 行長 (>120) を折り返し
+* [`tests/stubs/wordpress-test-stubs.php`](./tests/stubs/wordpress-test-stubs.php): `WP_UnitTestCase::factory()` スタブ (Integration の `factory()` 未定義を解消)
+* [`tests/Integration/RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php): 中央 icon 検証用 PNG を白塗りに変更、テスト内の `imagedestroy()` 削除
+* [`uninstall.php`](./uninstall.php): ループ変数を `$event_post_id` に変更 (WPCS グローバル `$post_id` 上書き回避)
+
+### Notes
+
+* ローカル `npm run test:unit:php:local` — blockpluginbase / `wordpress_test` で **PASS** (2026-10-16: unit **4** + integration **6**、**31** assertions)
+* 統合 bootstrap 時の `_load_textdomain_just_in_time` **Notice**: 2026-10-16時点では `plugins_loaded` 上の `activate_plugin()` 経由 (GatherPress ヘッダー翻訳)。**2026-10-17** に bootstrap 変更で解消 ([GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426)、[unreleased](#unreleased))
+
+## 0.0.1 - 2026-10-15
+
+### Added
+
+* **QR Apply (PR1):** `chillerlan/php-qrcode` + GD — [`includes/Domain/qr.php`](./includes/Domain/qr.php)。`POST …/apply` **200**、`status: ready`、行ごと PNG メディア (`qr_attachment_id`)
+* **QR 中央 icon:** `style.icon_attachment_id` を Apply PNG に合成 (JPEG/PNG/GIF/WebP、白 quiet-zone プレート)
+* wp-env Integration: 中央 icon 合成・不正 `icon_attachment_id` **400** ([`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php))
+* 配布 zip に `vendor/` を同梱 (`predist:zip` + [`make-dist-zip.mjs`](./tools/dist/make-dist-zip.mjs)、[dist-zip.yml](./.github/workflows/dist-zip.yml) で Composer)
+
+### Changed
+
+* wp-env Integration: apply **501** → **200** (draft **200** / catalog **503** は維持)
 * [`s2j-webinar-source-qr.php`](./s2j-webinar-source-qr.php): Composer autoload 読み込み
+* [`includes/RestController.php`](./includes/RestController.php): apply 経路で [`s2j_wsq_apply_document_with_qr()`](./includes/Domain/qr.php) を呼び出し
+* [status.md](./docs/status.md) / [test-results.md](./docs/test-results.md): QR Apply ・中央 icon ・**localhost / HTTPS** テスト順 ([PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1)、[PR #2](https://github.com/stein2nd/s2j-webinar-source-qr/pull/2))
+* 開発依存: `@wordpress/env` ^11、`@s2j/docs-linter` ^1.0.29、React / ESLint / Rollup 等 (`ncu` 追随)
+* textlint の許可パターンに `#status-*` アンカー ID を追加
+
+### Fixed
+
+* **CI:** `main` の [phpunit.yml](./.github/workflows/phpunit.yml) が `npm run phpunit:wp-env` を実行する一方、`package.json` に script 未定義だった不整合 — テスト基盤マージ ([PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1)) で `phpunit:wp-env` / `.wp-env.json` を追加
+
+### Notes
+
+* Step3: JS プレビュー、Apply 成功時モーダル close、Webinar handoff、meta `sanitize_callback` 厳格は未実装 ([status.md](./docs/status.md))
 
 ## 0.0.1 - 2026-10-14
 
@@ -35,7 +107,7 @@
 
 ### Notes
 
-* Step3プレビュー、Apply 成功時 UI close、Webinar handoff、meta `sanitize` 厳格、QR 中央 icon は未実装 ([status.md](./docs/status.md))
+* Step3プレビュー、Apply 成功時 UI close、Webinar handoff、meta `sanitize` 厳格 ([status.md](./docs/status.md))
 * 段階 **3b** ローカル実行は Docker 必須。Docker なし環境は PR の **`phpunit-wp-env`** を正とする (2026-10-14CI PASS: [PR #1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1))
 
 ## 0.0.1 - 2026-10-12

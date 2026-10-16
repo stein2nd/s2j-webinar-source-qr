@@ -2,7 +2,7 @@
 /**
  * IDE / static-analysis stubs for the WordPress PHPUnit test suite.
  *
- * Not loaded by tests/bootstrap.wp-env.php. Real classes come from wp-env at runtime.
+ * Not loaded by tests/bootstrap.php. Real classes come from the WordPress test suite at runtime.
  *
  * @package S2J_Webinar_Source_Qr
  */
@@ -17,11 +17,21 @@ if ( class_exists( 'WP_UnitTestCase', false ) ) {
 abstract class WP_UnitTestCase extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * WordPress test data factory.
-	 *
-	 * @var WP_UnitTest_Factory
+	 * @var WP_UnitTest_Factory|null
 	 */
-	protected $factory;
+	protected static $factory_object = null;
+
+	/**
+	 * WordPress test data factory (static entry point; matches core WP_UnitTestCase).
+	 *
+	 * @return WP_UnitTest_Factory
+	 */
+	public static function factory() {
+		if ( null === self::$factory_object ) {
+			self::$factory_object = new WP_UnitTest_Factory();
+		}
+		return self::$factory_object;
+	}
 }
 
 /**
@@ -33,6 +43,16 @@ class WP_UnitTest_Factory {
 	 * @var WP_UnitTest_Factory_For_User
 	 */
 	public $user;
+
+	/**
+	 * @var WP_UnitTest_Factory_For_Post
+	 */
+	public $post;
+
+	public function __construct() {
+		$this->user = new WP_UnitTest_Factory_For_User();
+		$this->post = new WP_UnitTest_Factory_For_Post();
+	}
 }
 
 /**
@@ -45,6 +65,22 @@ class WP_UnitTest_Factory_For_User {
 	 * @return int User ID.
 	 */
 	public function create( array $args = array() ) {
+		unset( $args );
+		return 0;
+	}
+}
+
+/**
+ * Post factory (stub).
+ */
+class WP_UnitTest_Factory_For_Post {
+
+	/**
+	 * @param array<string, mixed> $args Post arguments.
+	 * @return int Post ID.
+	 */
+	public function create( array $args = array() ) {
+		unset( $args );
 		return 0;
 	}
 }

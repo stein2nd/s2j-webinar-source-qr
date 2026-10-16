@@ -1,12 +1,13 @@
 <?php
+
 /**
  * Provider resolution (data_dictionary).
  *
  * @package S2J_Webinar_Source_Qr
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 /**
@@ -16,16 +17,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param array<string, mixed> $document Merged document (may include stored provider).
  * @return string
  */
-function s2j_wsq_resolve_provider( $post_id, array $document ) {
-	$stored = isset( $document['provider'] ) ? trim( (string) $document['provider'] ) : '';
-	if ( '' !== $stored ) {
-		return $stored;
-	}
+function s2j_wsq_resolve_provider($post_id, array $document)
+{
+    $stored = isset($document['provider']) ? trim((string) $document['provider']) : '';
+    if ('' !== $stored) {
+        return $stored;
+    }
 
-	$webinar = get_post_meta( $post_id, '_s2j_webinar_provider', true );
-	if ( is_string( $webinar ) && '' !== trim( $webinar ) ) {
-		return trim( $webinar );
-	}
+    $webinar = get_post_meta($post_id, '_s2j_webinar_provider', true);
+    if (is_string($webinar) && '' !== trim($webinar)) {
+        return trim($webinar);
+    }
 
-	return 'zoom';
+    return 'zoom';
 }
