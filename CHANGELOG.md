@@ -18,12 +18,12 @@
 ### Changed
 
 * 統合 PHPUnit bootstrap ([`tests/bootstrap.php`](./tests/bootstrap.php)) — GatherPress / Webinar スタブの読み込みを [GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426) 指摘どおり変更:
-  * **以前:** `plugins_loaded` (優先度 0) で `activate_plugin( …, true )` — コアが `after_setup_theme` 前にプラグインヘッダーを翻訳し、WP **6.7+** で `gatherpress` の `_load_textdomain_just_in_time` **Notice**
-  * **以後:** `plugins_loaded` で `require_once` のみ (GatherPress + スタブ)。`init` (優先度 0) で `GatherPress\Core\Setup::get_instance()->activate_gatherpress_plugin( false )` (events テーブル)。Webinar REST スタブのみ `init` で `activate_plugin` (`deactivate_plugins` テスト用; ヘッダに Text Domain なし)
+  * **以前:** `plugins_loaded` (優先度0) で `activate_plugin( …, true )` — コアが `after_setup_theme` 前にプラグインヘッダーを翻訳し、WP **6.7+** で `gatherpress` の `_load_textdomain_just_in_time` **Notice**
+  * **以後:** `plugins_loaded` で `require_once` のみ (GatherPress + スタブ)。`init` (優先度0) で `GatherPress\Core\Setup::get_instance()->activate_gatherpress_plugin( false )` (events テーブル)。Webinar REST スタブのみ `init` で `activate_plugin` (`deactivate_plugins` テスト用; ヘッダーに Text Domain なし)
 
 ### Notes
 
-* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** で **PASS** (2026-10-17 確認: unit **4** + integration **6**、**31** assertions)
+* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** で **PASS** (2026-10-17確認: unit **4** + integration **6**、**31** assertions)
 
 ## 0.0.1 - 2026-10-16
 
@@ -56,7 +56,7 @@
 ### Notes
 
 * ローカル `npm run test:unit:php:local` — blockpluginbase / `wordpress_test` で **PASS** (2026-10-16: unit **4** + integration **6**、**31** assertions)
-* 統合 bootstrap 時の `_load_textdomain_just_in_time` **Notice** — 2026-10-16 時点では `plugins_loaded` 上の `activate_plugin()` 経由 (GatherPress ヘッダ翻訳)。**2026-10-17** に bootstrap 変更で解消 ([GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426)、[unreleased](#unreleased))
+* 統合 bootstrap 時の `_load_textdomain_just_in_time` **Notice**: 2026-10-16時点では `plugins_loaded` 上の `activate_plugin()` 経由 (GatherPress ヘッダー翻訳)。**2026-10-17** に bootstrap 変更で解消 ([GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426)、[unreleased](#unreleased))
 
 ## 0.0.1 - 2026-10-15
 
