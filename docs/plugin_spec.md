@@ -42,7 +42,7 @@ S2J Webinar Survey と同型:
 
 * handoff は **別 UI を作らず**、本プラグインのメンテナンスモーダルを開く。
 * 実装は Webinar 側の **カスタムイベント / `@wordpress/hooks` の `doAction`** 等、Survey handoff と **同じパターン** を写経 ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md))。
-* 本プラグイン `src/gutenberg/` は **open リスナ** を登録し、Fill ボタンと同じ `MaintenanceModal` をマウント。
+* 本プラグイン `src/gutenberg/` は **open リスナ** を登録し、Document Settings パネル **Open…** と同じ `MaintenanceModal` をマウント。
 * **hook / イベント名:** 初版 docs 時点は **TBD** (Survey handoff 写経 — [status.md#webinar-側待ち](./status.md#webinar-側待ち))。**実装着手前**に Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md) で hook / イベント名を確定し、本節の TBD を **具体名に更新**する。
 
 ## コード配置 (骨格)
@@ -54,7 +54,7 @@ S2J Webinar Survey と同型:
 | `includes/Domain/document.php` | 文書の純関数 (**保存時の正規化** — `draft` / `apply` / `sanitize`。取り込みマージは TS) |
 | `includes/Meta/` | `register_post_meta` (sanitize = draft 正規化)、`save_post` 予約 |
 | `includes/RestController.php` | [rest_api_spec.md](./rest_api_spec.md) |
-| `includes/Editor/GutenbergMount.php` | Fill `EventPluginDocumentSettings` |
+| `includes/Editor/GutenbergMount.php` | `PluginDocumentSettingPanel` (GatherPress イベント編集) |
 | `src/gutenberg/` | 4ステップ UI (React、英語 + i18n) |
 | `src/domain/document.ts` | クライアント側文書型・取り込みマージ |
 

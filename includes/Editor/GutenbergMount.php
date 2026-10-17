@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Block editor script mount (GatherPress event Fill).
+ * Block editor script mount (GatherPress event document settings panel).
  *
  * @package S2J_Webinar_Source_Qr
  */
@@ -44,6 +44,12 @@ class S2J_Webinar_Source_Qr_Gutenberg_Mount
             return;
         }
 
+        $script_version = S2J_WEBINAR_SOURCE_QR_VERSION;
+        $mtime          = filemtime($script);
+        if (false !== $mtime) {
+            $script_version = S2J_WEBINAR_SOURCE_QR_VERSION . '.' . $mtime;
+        }
+
         wp_enqueue_script(
             's2j-webinar-source-qr-gutenberg',
             S2J_WEBINAR_SOURCE_QR_PLUGIN_URL . 'dist/js/s2j-webinar-source-qr-gutenberg.js',
@@ -51,22 +57,29 @@ class S2J_Webinar_Source_Qr_Gutenberg_Mount
                 'wp-plugins',
                 'wp-edit-post',
                 'wp-editor',
+                'wp-block-editor',
                 'wp-element',
                 'wp-components',
                 'wp-i18n',
                 'wp-data',
                 'wp-api-fetch',
             ),
-            S2J_WEBINAR_SOURCE_QR_VERSION,
+            $script_version,
             true
         );
 
         if (file_exists($style)) {
+            $style_version = S2J_WEBINAR_SOURCE_QR_VERSION;
+            $style_mtime   = filemtime($style);
+            if (false !== $style_mtime) {
+                $style_version = S2J_WEBINAR_SOURCE_QR_VERSION . '.' . $style_mtime;
+            }
+
             wp_enqueue_style(
                 's2j-webinar-source-qr-gutenberg',
                 S2J_WEBINAR_SOURCE_QR_PLUGIN_URL . 'dist/css/s2j-webinar-source-qr-gutenberg.css',
                 array( 'wp-components' ),
-                S2J_WEBINAR_SOURCE_QR_VERSION
+                $style_version
             );
         }
 

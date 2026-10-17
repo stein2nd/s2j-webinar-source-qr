@@ -92,7 +92,7 @@ export default defineConfig({
 			},
 			input: buildConfig.entry,
 			output: {
-				banner: `window.S2JReactJSXRuntime=window.S2JReactJSXRuntime||{jsx:wp.element.createElement,jsxs:wp.element.createElement,Fragment:wp.element.Fragment};`,
+				banner: `window.S2JWebinarSourceQrJSXRuntime=function(){var c=wp.element.createElement,f=wp.element.Fragment;function m(t,p,k){if(k!=null){p=Object.assign({},p,{key:k});}return c(t,p);}return{jsx:m,jsxs:m,Fragment:f};}();`,
 				globals: (id) => {
 					if (id.startsWith('@wordpress/')) {
 						const parts = id.split('/');
@@ -115,6 +115,9 @@ export default defineConfig({
 						if (id === '@wordpress/edit-post') {
 							return 'wp.editPost';
 						}
+						if (id === '@wordpress/block-editor') {
+							return 'wp.blockEditor';
+						}
 						if (id === '@wordpress/plugins') {
 							return 'wp.plugins';
 						}
@@ -130,7 +133,7 @@ export default defineConfig({
 						id === 'react/jsx-runtime' ||
 						id === 'react/jsx-dev-runtime'
 					) {
-						return 'S2JReactJSXRuntime';
+						return 'S2JWebinarSourceQrJSXRuntime';
 					}
 					if (id === 'jquery') {
 						return 'jQuery';

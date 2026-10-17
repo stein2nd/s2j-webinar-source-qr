@@ -153,6 +153,56 @@ class RestDocumentTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * POST preview returns data_url PNG without persisting meta.
+	 */
+	public function test_preview_returns_data_url_and_does_not_persist_meta() {
+		$before = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/preview',
+			array(
+				'registration_url' => 'https://example.com/register-preview',
+				'style'            => array(
+					'foreground_hex'     => '#112233',
+					'size_px'            => 512,
+					'icon_attachment_id' => 0,
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'data_url', $data );
+		$this->assertIsString( $data['data_url'] );
+		$this->assertStringStartsWith( 'data:image/png;base64,', $data['data_url'] );
+
+		$after = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+		$this->assertSame( $before, $after );
+	}
+
+	/**
+	 * Preview rejects empty registration URL.
+	 */
+	public function test_preview_returns_400_for_empty_url() {
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/preview',
+			array(
+				'registration_url' => '',
+				'style'            => array(
+					'foreground_hex'     => '#000000',
+					'size_px'            => 512,
+					'icon_attachment_id' => 0,
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	/**
 	 * Apply composites style.icon_attachment_id at QR center (white plate + icon).
 	 */
 	public function test_apply_with_center_icon_marks_center_bright() {

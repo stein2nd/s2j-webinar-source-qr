@@ -1,13 +1,186 @@
 .s2j-webinar-source-qr-panel {
-	margin-top: 0.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+// Modal: tighter chrome so Step 2 fits without scroll on common viewports.
+.s2j-webinar-source-qr-modal .components-modal__header {
+	margin-bottom: 0;
+}
+
+.s2j-webinar-source-qr-modal .components-modal__content {
+	padding-top: 0.5rem;
+	padding-bottom: 0.75rem;
+}
+
+.s2j-webinar-source-qr-modal .components-notice {
+	margin: 0.35rem 0;
 }
 
 .s2j-webinar-source-qr-modal__steps {
-	margin-bottom: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+.s2j-webinar-source-qr-modal__steps-primary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.35rem 0.75rem;
+}
+
+.s2j-webinar-source-qr-modal__steps-primary h3 {
+	margin: 0;
+	font-size: 1.05em;
+	line-height: 1.3;
+}
+
+.s2j-webinar-source-qr-modal__status {
+	font-size: 12px;
+	color: #646970;
+}
+
+.s2j-webinar-source-qr-modal__catalog-notice {
+	margin: 0.35rem 0 0;
+	padding: 0.35rem 0.5rem;
+	font-size: 12px;
+	line-height: 1.35;
+	color: #8a6d3b;
+	background: #fcf9e8;
+	border-left: 3px solid #dba617;
+}
+
+// Single hex field below the saturation/hue surface (hide WP ColorPicker duplicate inputs).
+.s2j-webinar-source-qr-modal__color-picker-wrap .react-colorful ~ div {
+	display: none;
+}
+
+.s2j-webinar-source-qr-modal__color-hex-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.75rem;
+	align-items: flex-end;
+}
+
+.s2j-webinar-source-qr-modal__color-hex-row__picker {
+	flex: 0 0 auto;
+
+	.components-base-control__label {
+		display: block;
+		margin-bottom: 0.35rem;
+	}
+
+	.components-color-picker {
+		margin-bottom: 0;
+	}
+
+	.react-colorful {
+		width: 8.5rem;
+		height: 8.5rem;
+	}
+}
+
+.s2j-webinar-source-qr-modal__color-hex-row__hex {
+	flex: 0 1 6.5rem;
+	min-width: 5.5rem;
+
+	.components-base-control {
+		margin-bottom: 0;
+	}
+}
+
+.s2j-webinar-source-qr-modal__step2-style-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	align-items: flex-start;
+}
+
+.s2j-webinar-source-qr-modal__step2-style-row .s2j-webinar-source-qr-modal__color {
+	flex: 1 1 14rem;
+	min-width: 0;
+	margin-bottom: 0;
+}
+
+.s2j-webinar-source-qr-modal__step2-style-row .s2j-webinar-source-qr-modal__center-icon-control {
+	flex: 0 1 11rem;
+	min-width: 0;
+	margin-bottom: 0;
+}
+
+.s2j-webinar-source-qr-modal__step2-style-row .s2j-webinar-source-qr-modal__output-size {
+	flex: 0 1 7.5rem;
+	min-width: 6.5rem;
+	margin: 0;
+}
+
+.s2j-webinar-source-qr-modal__center-icon-preview {
+	display: block;
+	width: 72px;
+	height: 72px;
+	margin-bottom: 0.35rem;
+	object-fit: contain;
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+	background: #fff;
+}
+
+.s2j-webinar-source-qr-modal__center-icon-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.s2j-webinar-source-qr-modal__step2-hint {
+	margin: 0.35rem 0 0;
+	font-size: 12px;
+	color: #646970;
+}
+
+.s2j-webinar-source-qr-modal__preview-intro {
+	margin: 0 0 0.75rem;
+	font-size: 12px;
+	color: #646970;
+}
+
+.s2j-webinar-source-qr-modal__preview-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.s2j-webinar-source-qr-modal__preview-row {
+	flex: 0 1 11rem;
+	min-width: 0;
+}
+
+.s2j-webinar-source-qr-modal__preview-label {
+	margin: 0 0 0.35rem;
+	font-weight: 600;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+
+.s2j-webinar-source-qr-modal__preview-placeholder {
+	margin: 0;
+	font-size: 12px;
+	color: #646970;
+}
+
+.s2j-webinar-source-qr-modal__preview-image {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	border: 1px solid #dcdcde;
+	background: #fff;
 }
 
 .s2j-webinar-source-qr-modal__color {
 	.components-color-picker {
-		margin-bottom: 1rem;
+		margin-bottom: 0;
 	}
 }

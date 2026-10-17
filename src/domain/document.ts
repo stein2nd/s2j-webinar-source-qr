@@ -109,7 +109,7 @@ export function mergeTrackingItems(
 export function documentRestPath(
 	restNamespace: string,
 	postId: number,
-	suffix: '' | 'draft' | 'apply' = ''
+	suffix: '' | 'draft' | 'apply' | 'preview' = ''
 ): string {
 	const base = `/${restNamespace}/events/${postId}/document`;
 	if ('draft' === suffix) {
@@ -117,6 +117,9 @@ export function documentRestPath(
 	}
 	if ('apply' === suffix) {
 		return `${base}/apply`;
+	}
+	if ('preview' === suffix) {
+		return `${base}/preview`;
 	}
 	return base;
 }

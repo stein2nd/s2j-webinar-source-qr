@@ -65,9 +65,10 @@ UI ガードの正本は [admin_ui_spec.md#保存可否-初版厳格](./admin_ui
 
 | `code` | 用途 |
 | --- | --- |
-| `invalid_registration_url` | URL 形式・スキーム・長さ NG。**Apply** で定義上の行に URL 欠落も本 code (メッセージで Apply 専用と区別可) |
+| `invalid_registration_url` | URL 形式・スキーム・長さ NG。**Apply** で定義上の行に URL 欠落も本 code (メッセージ: `One or more registration URLs are invalid.` 等) |
 | `invalid_document` | スタイル hex / size、attachment 等のその他検証 NG |
-| `qr_not_implemented` | **`apply` のみ**。HTTP **501** (**4xx ではない**) — PNG / 反映パイプライン未実装 |
+| `qr_generation_failed` | **`apply` / preview**。GD / QR 生成・中央 icon 合成失敗 — HTTP **400** |
+| `qr_not_implemented` | **(履歴・予約)** HTTP **501** — 初版起草時の PNG 未実装。**現行 `includes/` では返さない** ([rest_api_spec.md](./rest_api_spec.md)) |
 
 例 JSON: [rest_api_spec.md#エラー応答-例](./rest_api_spec.md#エラー応答-例)。追加 code は実装後に本表に追記。
 
@@ -84,7 +85,7 @@ UI ガードの正本は [admin_ui_spec.md#保存可否-初版厳格](./admin_ui
 7. **Apply 時:** ソース定義 **全行** に有効な `registration_url` があること → 行ごとに PNG 生成・メディア登録 → `qr_attachment_id` 更新 → `status` = **`ready`** → `updated_at` = UTC の `DATE_ATOM` 形式。
 8. **draft 保存:** `status` = **`draft`** のみ ( **`ready` は apply のみ** )。
 
-**失敗時** (検証エラー、カタログ503、Apply / PNG 失敗、**501**): メタ **前値維持**。ユーザー向けメッセージのみ ([rest_api_spec.md](./rest_api_spec.md))。
+**失敗時** (検証エラー、カタログ503、Apply / PNG **400**): メタ **前値維持**。ユーザー向けメッセージのみ ([rest_api_spec.md](./rest_api_spec.md))。
 
 ### 取り込み結果のマージ
 

@@ -23,7 +23,7 @@
 | 層 | 規約 |
 | --- | --- |
 | **管理 UI (コード)** | 文字列は **英語を正本** とし、`__()` / `_x()` / `sprintf()` 等で表示。テキストドメイン `s2j-webinar-source-qr` |
-| **製品名 (英語 id 例)** | 正式: `_x( 'S2J Webinar Source Tracking QR', 'plugin title', 's2j-webinar-source-qr' )`。短い UI: `Source tracking QR` / `Edit source tracking / QR` |
+| **製品名 (英語 id 例)** | Document Settings / モーダル見出し: **`S2J Webinar Source QR`** (Plugin Name 同型)。パネル内ボタン: **`Open…`** |
 | **主要ボタン (英語 id)** | 中間保存: **`Save draft`**。確定: **`Apply`** (単独 `Save` は使わない) |
 | **仕様書 (docs)** | 日本語。製品名は **S2J ウェビナー・ソース追跡 QR** |
 | **データ・ REST** | glossary 準拠 (`registration_url` 等)。UI ラベルとキー名を混同しない |
@@ -37,7 +37,7 @@
 
 ## 責務
 
-* GatherPress イベント編集への Fill 追加 (フォーク非改変)
+* GatherPress イベント編集 Document Settings へのパネル追加 (S2J Webinar 同型、フォーク非改変)
 * 文書メタの正規化と永続化 (**`ready` / PNG は `apply` のみ** — [persistence_spec.md](./persistence_spec.md))
 * QR 符号化 (JS プレビュー、PHP 保存)
 * s2j-webinar-service Adapter 結果の **受け取り** (取り込み REST は Webinar が提供)
