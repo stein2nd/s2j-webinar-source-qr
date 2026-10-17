@@ -1,0 +1,264 @@
+# Copyright (C) 2026 Koutarou ISHIKAWA
+# This file is distributed under the GPL v3 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: S2J Webinar Source QR 0.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/s2j-webinar-source-qr\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-17T10:10:46+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: s2j-webinar-source-qr\n"
+
+#. Plugin Name of the plugin
+#: s2j-webinar-source-qr.php
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "S2J Webinar Source QR"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: s2j-webinar-source-qr.php
+msgid "https://github.com/stein2nd/s2j-webinar-source-qr"
+msgstr ""
+
+#. Description of the plugin
+#: s2j-webinar-source-qr.php
+msgid "Source tracking registration URLs and QR PNG maintenance for GatherPress events."
+msgstr ""
+
+#. Author of the plugin
+#: s2j-webinar-source-qr.php
+msgid "Koutarou ISHIKAWA"
+msgstr ""
+
+#. Author URI of the plugin
+#: s2j-webinar-source-qr.php
+msgid "https://stein2nd.wordpress.com"
+msgstr ""
+
+#: includes/Domain/catalog.php:38
+#: includes/Domain/catalog.php:51
+#: includes/Domain/catalog.php:62
+#: includes/Domain/catalog.php:81
+msgid "Source catalog is unavailable."
+msgstr ""
+
+#: includes/Domain/qr.php:100
+#: includes/Domain/qr.php:108
+msgid "Center icon attachment is invalid."
+msgstr ""
+
+#: includes/Domain/qr.php:117
+msgid "Center icon must be a JPEG, PNG, GIF, or WebP image."
+msgstr ""
+
+#: includes/Domain/qr.php:126
+msgid "Center icon file could not be read."
+msgstr ""
+
+#: includes/Domain/qr.php:135
+msgid "Center icon could not be decoded."
+msgstr ""
+
+#: includes/Domain/qr.php:208
+msgid "Could not decode QR image for icon overlay."
+msgstr ""
+
+#: includes/Domain/qr.php:252
+msgid "Could not encode QR image with icon."
+msgstr ""
+
+#: includes/Domain/qr.php:282
+msgid "Registration URL is required for preview."
+msgstr ""
+
+#: includes/Domain/qr.php:319
+msgid "QR library is unavailable."
+msgstr ""
+
+#: includes/Domain/qr.php:327
+msgid "GD extension is required to generate QR images."
+msgstr ""
+
+#: includes/Domain/qr.php:361
+#: includes/Domain/qr.php:369
+msgid "Could not generate QR image."
+msgstr ""
+
+#: includes/Domain/qr.php:404
+msgid "Could not upload QR image."
+msgstr ""
+
+#: includes/Domain/qr.php:442
+#: includes/Domain/qr.php:455
+#: includes/RestController.php:249
+msgid "One or more registration URLs are invalid."
+msgstr ""
+
+#: includes/RestController.php:116
+msgid "Security check failed."
+msgstr ""
+
+#: includes/RestController.php:126
+msgid "Invalid post ID."
+msgstr ""
+
+#: includes/RestController.php:134
+msgid "Post is not a GatherPress event."
+msgstr ""
+
+#: includes/RestController.php:142
+msgid "You cannot edit this event."
+msgstr ""
+
+#: includes/RestController.php:269
+msgid "Could not save the document."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Module color"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Hex"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Replace image"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Select image"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Remove"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+#, js-format
+msgid "Output size (%1$s–%2$s px)"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Preview failed."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "No source rows. Configure S2J Webinar source definitions for this event."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Previews use the same rendering as Apply. Scan with your phone to verify."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Add a registration URL on step 1 to preview this QR."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Saving requires S2J Webinar and a source catalog."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Could not load the source QR document."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Draft saved."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Draft save failed."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+#, js-format
+msgid "Import finished (%d rows matched)."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Import failed."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Applied."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Apply failed."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Document status: Ready"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Document status: Draft"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+#, js-format
+msgid "Step %1$d of %2$d"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Paste the registration URL from the provider portal."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Import from provider"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+#, js-format
+msgid "Import is available when the source catalog is ready, S2J Webinar is active, the event has a webinar ID, and the resolved provider (%2$s) supports import (%1$s)."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "(not set)"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Some imported source names did not match the current catalog."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Center icon"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Release the pointer or leave the Hex field to confirm module color."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Apply saves ready status and PNG media when the server pipeline is complete."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Back"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Next"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Save draft"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Apply"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Open…"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "PluginDocumentSettingPanel is unavailable in this WordPress version."
+msgstr ""

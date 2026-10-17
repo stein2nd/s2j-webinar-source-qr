@@ -1,7 +1,9 @@
 import { registerPlugin } from '@wordpress/plugins';
-import { PluginDocumentSettingPanel as PluginDocumentSettingPanelFromEditPost } from '@wordpress/edit-post';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import * as editorPackage from '@wordpress/editor';
+import {
+	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import {
 	BaseControl,
 	Button,
@@ -15,7 +17,6 @@ import {
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import '@/styles/gutenberg.scss';
@@ -27,20 +28,37 @@ import {
 	type TrackingItem,
 	defaultDocument,
 	documentRestPath,
+	IMPORT_TRACKING_SUPPORTED_PROVIDERS,
 	mergeDefinitionsWithDocument,
 	mergeTrackingItems,
+	providerSupportsTrackingImport,
 	webinarPathFromTemplate,
 } from '@/domain/document';
 
 const PLUGIN_ID = 's2j-webinar-source-qr';
 
-type DocumentSettingPanel = typeof PluginDocumentSettingPanelFromEditPost;
+type DocumentSettingPanel = typeof EditorPluginDocumentSettingPanel;
+
+/** Prefer `wp.editor`; older sites may still expose the panel on `wp.editPost`. */
+function resolveDocumentSettingPanel(): DocumentSettingPanel | undefined {
+	if (EditorPluginDocumentSettingPanel) {
+		return EditorPluginDocumentSettingPanel;
+	}
+	const wp = (
+		globalThis as typeof globalThis & {
+			wp?: {
+				editPost?: {
+					PluginDocumentSettingPanel?: DocumentSettingPanel;
+				};
+			};
+		}
+	).wp;
+	return wp?.editPost?.PluginDocumentSettingPanel;
+}
 
 /** Avoid minifier reusing one-letter vars with inner panel state (breaks Panel component ref). */
 const s2jSourceQrDocumentSettings = {
-	panelComponent:
-		(editorPackage as { PluginDocumentSettingPanel?: DocumentSettingPanel })
-			.PluginDocumentSettingPanel || PluginDocumentSettingPanelFromEditPost,
+	panelComponent: resolveDocumentSettingPanel(),
 };
 
 const PLUGIN_PANEL_TITLE = __('S2J Webinar Source QR', 's2j-webinar-source-qr');
@@ -540,7 +558,7 @@ const MaintenanceModal = ({
 			catalogReady &&
 			bootstrap.s2jWebinarActive &&
 			webinarMeta.webinarId.length > 0 &&
-			document.provider === 'zoom'
+			providerSupportsTrackingImport(document.provider)
 		);
 	}, [
 		bootstrap.s2jWebinarActive,
@@ -793,9 +811,16 @@ const MaintenanceModal = ({
 								</Button>
 							) : (
 								<p>
-									{__(
-										'Import is available when the source catalog is ready, S2J Webinar is active, the event has a webinar ID, and provider is zoom.',
-										's2j-webinar-source-qr'
+									{sprintf(
+										/* translators: %1$s: comma-separated provider slugs that support import. %2$s: resolved provider slug for this event. */
+										__(
+											'Import is available when the source catalog is ready, S2J Webinar is active, the event has a webinar ID, and the resolved provider (%2$s) supports import (%1$s).',
+											's2j-webinar-source-qr'
+										),
+										IMPORT_TRACKING_SUPPORTED_PROVIDERS.join(', '),
+										document.provider.trim() !== ''
+											? document.provider
+											: __('(not set)', 's2j-webinar-source-qr')
 									)}
 								</p>
 							)}

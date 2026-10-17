@@ -25,4 +25,13 @@ Source QR の **catalogReady** 検証には S2J Webinar の定義 REST が必要
 
 Local でも **同じ U1– U12** でよい (Blueprint 再現性の確認が Studio の追加価値)。
 
+## 日本語 UI (Gutenberg)
+
+翻訳の**正本は `.po` のみ**。PHP 用 **`.mo`** と JS 用 **`.json`** は **`npm run makei18n`**（`wp i18n make-mo` + `make-json`）で同じ `.po` から生成します。
+
+1. Poedit 等で `languages/s2j-webinar-source-qr-ja.po` を更新
+2. リポジトリルートで **`npm run makei18n`**（要 [WP-CLI](https://wp-cli.org/)。`build:production:gutenberg` 後は postbuild で **JSON だけ** 自動更新）
+3. **`languages/` ごと** Studio へコピー（`.mo` と **`*-{hash}.json`** を含む）。`dist/` だけ rsync では Gutenberg は英語のまま
+4. サイト言語 **日本語** (`WPLANG=ja` 等)。編集画面を **⌘⇧R**
+
 `mu-plugin-smoke-seed.php` を編集したら Blueprint の `writeFile` データも更新してください (MediaLibrary Date Corrector / S2J Webinar と同じ運用)。

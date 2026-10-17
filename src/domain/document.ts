@@ -34,6 +34,19 @@ export type SourceDefinition = {
 	label: string;
 };
 
+/** Slugs that support Webinar `tracking-sources` import in the maintenance UI (v0.0.1). */
+export const IMPORT_TRACKING_SUPPORTED_PROVIDERS = ['zoom'] as const;
+
+export type ImportTrackingProvider =
+	(typeof IMPORT_TRACKING_SUPPORTED_PROVIDERS)[number];
+
+export function providerSupportsTrackingImport(provider: string): boolean {
+	const slug = provider.trim().toLowerCase();
+	return (IMPORT_TRACKING_SUPPORTED_PROVIDERS as readonly string[]).includes(
+		slug
+	);
+}
+
 export function defaultStyle(): DocumentStyle {
 	return {
 		icon_attachment_id: 0,

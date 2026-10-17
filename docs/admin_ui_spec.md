@@ -97,7 +97,7 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
 * **`catalogReady` 時のみ** Registration URL が編集可能 (`TextControl` `disabled={!catalogReady}`)。`!catalogReady` は readOnly — [保存可否 (初版・厳格)](#保存可否-初版厳格)。
 * **行ラベル:** 定義 `label` 非空なら `label`、空なら `id` (`channelDisplayLabel`)。
 * **help (英語):** `Paste the registration URL from the provider portal.`
-* **Import 非表示時:** 条件未充足の説明段落 (英語) — `Import is available when the source catalog is ready, S2J Webinar is active, the event has a webinar ID, and provider is zoom.`
+* **Import 非表示時:** 条件未充足の説明段落 (英語、`sprintf`) — 解決済み `provider` (%2$s) と取り込み対応 slug 一覧 (%1$s)。一覧正本: [`IMPORT_TRACKING_SUPPORTED_PROVIDERS`](../../src/domain/document.ts) (初版 `zoom` のみ)。`canImport` は `providerSupportsTrackingImport(document.provider)`。
 * **未登録 `source_name`:** Warning `Notice` — `Some imported source names did not match the current catalog.` (`unassigned` 一覧は初版 **非表示**、メッセージのみ)。
 
 ### 2. QR 見た目 (全ソース共通)

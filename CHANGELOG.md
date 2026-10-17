@@ -21,6 +21,9 @@
 
 ### Changed
 
+* Step1: Import — 対応 provider 一覧を [`IMPORT_TRACKING_SUPPORTED_PROVIDERS`](./src/domain/document.ts) に集約。`canImport` / 説明文は解決済み `provider` を動的表示 (文言の `zoom` 直書きを廃止)
+* Gutenberg — `PluginDocumentSettingPanel` を **`@wordpress/editor`** から取得 (未インストールの `@wordpress/edit-post` 型依存を削除)。レガシーは `wp.editPost` にフォールバック
+
 * Step1: Registration URL (`catalogReady` 時のみ編集)、**Import from provider** 表示条件、未マッチ catalog の Warning Notice
 * Step4: **Apply** — 失敗時はメタ非更新・モーダル維持 + REST `message` Notice。**200** 成功時は `Applied.` Notice のみ (自動 close / `GET document` 再取得なし)。**Save draft** は `dirty` 時のみ有効
 
@@ -38,10 +41,16 @@
 
 ### Added
 
-* Step3 **QR preview** — `POST …/document/preview` (`s2j_wsq_preview_qr_data_url()`、JSON `data_url`)。Gutenberg `QrPreviewStep` (400ms debounce、空 URL は placeholder) ([`includes/RestController.php`](./includes/RestController.php)、[`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
+* 翻訳 — `languages/s2j-webinar-source-qr-ja.po` / `.mo` / JED **`.json`**。正本 `.po` から **`npm run makei18n`** (`wp i18n make-mo` + `make-json`)。[`languages/README.md`](./languages/README.md)
+* npm — **`prelint:php`** (Composer dev 依存)、**`makemo`** / **`makejson`** / **`makei18n`**、`build:production:gutenberg` 後 **postbuild** で `makejson`
+* TypeScript — [`src/types/wordpress-block-editor.d.ts`](./src/types/wordpress-block-editor.d.ts) (`@wordpress/block-editor` の `exports` 未型付けを補完)
+
+* Step3: **QR preview** — `POST …/document/preview` (`s2j_wsq_preview_qr_data_url()`、JSON `data_url`)。Gutenberg `QrPreviewStep` (400ms debounce、空 URL は placeholder) ([`includes/RestController.php`](./includes/RestController.php)、[`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
 * Studio — 定義 REST スタブ [`studio/mu-plugin-definitions-stub.php`](./studio/mu-plugin-definitions-stub.php) (ローカル `catalogReady` true で U6〜 U7を手動確認)
 
 ### Docs
+
+* [studio/README.md](./studio/README.md) — Gutenberg 日本語化 (`.po` → `makei18n`、`languages/` 同梱コピー)
 
 * [admin_ui_spec.md](./docs/admin_ui_spec.md) — Step1–4は実装修正を反映 (英文 UI、`Save draft`/`Apply`、`501` 非 emit、未実装項目の明記)
 * [rest_api_spec.md](./docs/rest_api_spec.md) / [persistence_spec.md](./docs/persistence_spec.md) / [specs.md](./docs/specs.md) — Apply **200**、`qr_generation_failed` **400**。`qr_not_implemented` **501** は履歴注記

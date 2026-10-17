@@ -35,7 +35,7 @@
 
 | 順 | 段階 | 環境 | 内容 | 本リポジトリ |
 | --- | --- | --- | --- | --- |
-| **0** | **3a** | **Local 可のみ** (WP 不要) | 単体 PHPUnit ・ lint ・ CI と同型 | `npm run test:unit:php:unit-only` / `npm run lint` |
+| **0** | **3a** | **Local 可のみ** (WP 不要) | 単体 PHPUnit ・ TS/SCSS lint ・ **PHPStan/PHPCS** | `npm run test:unit:php:unit-only` / `npm run lint` / **`npm run lint:php`** |
 | **1** | **1** | **Local 可のみ** (CLI) | Local **Site Shell** と Studio ルートの **`WP_PATH`** で同じスクリプト | `npm run test:smoke:local` |
 | **2** | **3b** | **Local 可** (MySQL) / **CI** (Docker) | 統合 PHPUnit — `tests/Integration/` | `npm run test:unit:php:local` または PR の `phpunit-wp-env` |
 | **3** | **2** | **Local 可のみ** | Blueprint 再現 + (1) 再実行 + **手動** UI (Fill / モーダル) | [studio/](../studio/) |
@@ -57,7 +57,8 @@
 | Gutenberg Fill 表示 (GatherPress イベント編集) | **可能** (GatherPress 必須) | `dist/` ビルド必須 |
 | `GET/POST …/document` (本プラグイン REST) | **可能** | 定義カタログ不要の GET |
 | **`catalogReady` / Save draft / Apply** | **条件付き** | **S2J Webinar 有効** + 定義 REST 成功 + `sources.length >= 1` |
-| Webinar **Import** (`tracking-sources`) | **条件付き** | 上記 + `_s2j_webinar_id` + `provider: zoom` |
+| Webinar **Import** (`tracking-sources`) | **条件付き** | 上記 + `_s2j_webinar_id` + [`providerSupportsTrackingImport`](../src/domain/document.ts) (初版 **zoom**) |
+| Gutenberg **日本語 UI** | **条件付き** | サイト **ja** + `languages/` に **`.mo` と JED `.json`** (`npm run makei18n`)。`.po` のみでは JS 未翻訳 ([`languages/README.md`](../languages/README.md)) |
 | Zoom OAuth / 公衆 Webhook | **不可** (localhost) | Webinar 側と同様 HTTPS ステージングで検証 |
 | QR PNG **Apply** | **可能** | 全行 URL + `catalogReady` で **200** + メディア。未充足 **400**、カタログ guard **503** (Integration + Studio U10)。旧 **501** `qr_not_implemented` は移行済み ([status.md §QR 反映](./status.md#status-qr-apply)) |
 
@@ -94,6 +95,7 @@ npm run test:smoke:local
 | P2' | **Local 代替可:** GatherPress 有効 + 本プラグインを `wp-content/plugins/` に配置 (symlink 可)。Studio と **同じ手動表** でよい |
 | P3 | 本プラグインを有効化。Studio / Local 管理画面を **1回** 開く (mu-plugin が下書きイベント **S2J Source QR smoke event** を追加) |
 | P4 | CLI: `export WP_PATH='<サイト public ルート>'` → `npm run test:smoke:local` が **PASS** (段階1再確認) |
+| P5 | **任意 (ja):** `.po` 更新後 **`npm run makei18n`** → **`languages/` ごと** サイトへコピー ([`studio/README.md`](../studio/README.md) §日本語 UI) |
 
 **プラグイン配置 (Local 例):** Local サイト停止中は WP-CLI 不可。Site Shell から smoke を実行する。
 
@@ -115,10 +117,13 @@ GatherPress **イベント** 編集 (ブロックエディター) で実施。�
 | U10 | Step4 **Apply** | 失敗時 **メタ ready にならない**・**モーダル開いたまま**・Notice。**503** (カタログ guard) / **400** `invalid_registration_url` (全行 URL 未充足) / Apply 成功時は **200** + ready (Integration 参照)。旧メモ **501** PNG 未実装は現行 Apply 実装と不一致 — CI で確認 | [x] |
 | U11 | **Back** で Step1まで戻る | クラッシュ・白画面なし | [x] |
 | U12 | モーダルを閉じる | イベント編集画面に戻れる (**X**) | [x] |
+| U13 | **任意** — サイト言語 **ja** + `makei18n` 済み | モーダル・ボタンが **日本語** (例: `開く…` / `ドラフトを保存`)。正本 [`.po`](../languages/s2j-webinar-source-qr-ja.po) | [x] |
 
 **U6:** `wsq-smoke` (2026-10-17) は定義 stub で **`catalogReady` true** — レイアウトと各コントロール表示・操作を目視。**`!catalogReady` 時** (Size disabled、色未確定、Save draft 不可) は Local 2026-10-14 探索 + [admin_ui_spec.md](./admin_ui_spec.md) / 実装 ([status.md](./status.md) Step2 行) と整合。
 
 **U10:** `!catalogReady` で Apply が押せる場合は **503**。`catalogReady` だが **いずれかのソース行 URL が空** (U7 用 post 12: Web のみ) → **400** `One or more registration URLs are invalid.` — モーダル維持 ([u10-step4-apply-invalid-url-2026-10-17.png](./screenshots/u10-step4-apply-invalid-url-2026-10-17.png), Studio 2026-10-17)。**全行 URL 入力後の Apply** は Integration `test_apply_returns_200…` 参照。503 単体は **CI Integration** `catalog guard` テストで代替可。
+
+**U13:** Studio `wsq-smoke` **2026-10-17** — `npm run makei18n` + `languages/` 同梱コピー後、post **12** 編集で Gutenberg モーダル **日本語表示** を目視確認 (`WPLANG=ja`)。
 
 ### 順4 (オプション・ Local 可 E2/E4)
 
@@ -207,6 +212,7 @@ npm run phpunit:wp-env
 | 2026-10-16 | 3a | Local | PASS | `npm run test:unit:php:local` 内 — unit **4** tests, **13** assertions (WP 不要) |
 | 2026-10-16 | 3b | Local (MySQL) | PASS | integration **6** tests (当時) — apply **200**、中央 icon、invalid icon **400** |
 | 2026-10-17 | 3a+3b | Local (MySQL) | PASS | GatherPress [#2426](https://github.com/GatherPress/gatherpress/issues/2426) bootstrap — **Notice なし**; 3a **4** / 3b **9** = 計 **13** tests, **52** assertions |
-| 2026-10-17 | 2 | Studio (`wsq-smoke`, `localhost:8885`) | PASS | **U6–U7, U10** (定義 stub・`catalogReady` true・post **12**)。Gutenberg **`S2JWebinarSourceQrJSXRuntime`** 反映後。U6 Step2 1行、U7 プレビュー + 実機スキャン、U10 Apply **400**・モーダル維持。手順 [studio/README.md](../studio/README.md)。証跡は上表 |
+| 2026-10-17 | 2 | Studio (`wsq-smoke`, `localhost:8885`) | PASS | **U6–U7, U10, U13** — 定義 stub・post **12**・JSX 修正後。U7 プレビュー + iPhone スキャン、U10 Apply **400**。**U13:** `makei18n` 後モーダル **ja** 表示。証跡 PNG は上表 (U13 は文言のみ) |
+| 2026-10-17 | 0 | Local | PASS | **`npm run lint:php`** — PHPStan + PHPCS + WPCS (`prelint:php` → Composer dev 依存) |
 | (未記録) | 2 | Studio | — | Blueprint **ゼロから** 再現 + U1–U12 一括記録 (機能確認は Local 2026-10-14 + 上記 Studio 追補でカバー) |
 | (未記録) | 2 / 4 | Local or Studio | — | 順4 **E3** — 全行 URL 入力後 Apply **200** + ready の **ブラウザ** 確認 (API は Integration `test_apply_returns_200_and_ready_with_attachments`) |
