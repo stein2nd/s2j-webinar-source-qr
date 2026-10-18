@@ -12,6 +12,7 @@
 * [governance/documentation_governance.md](./governance/documentation_governance.md) — ドキュメント運用
 * [archive/README.md](./archive/README.md) — 完了イニシアチブ (まだなし)
 * [test-results.md](./test-results.md) — 段階1–3、外部結合の記録
+* [cross_plugin_remaining_matrix.md](./cross_plugin_remaining_matrix.md) — Webinar / Source QR / Survey の未完了 `[ ]` 分類 (Local / Webinar 待ち / HTTPS+Zoom)
 
 ## 機能一覧
 
@@ -234,6 +235,7 @@
 
 ## 補足
 
+* 3 プラグイン横断の未完了分類: [cross_plugin_remaining_matrix.md](./cross_plugin_remaining_matrix.md) (Webinar / Survey に同期コピーあり)。
 * **実装％** はプラグイン検証可能項のみ。OAuth、実 Zoom API は Pass 記録があっても % に含めない。
 * 初版 **Service なし** — 取り込み写像済み JSON のみ ([plugin_spec.md](./plugin_spec.md))。
 * S2J Webinar Survey と同型 UX。メタは `_s2j_webinar_source_qr` (Survey 文書とは別)。

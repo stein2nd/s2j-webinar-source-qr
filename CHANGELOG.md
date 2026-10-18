@@ -18,6 +18,7 @@
 ### Fixed
 
 * Gutenberg ビルド — 共有 `S2JReactJSXRuntime` (S2J Webinar 側) との衝突で JSX `key` が `TextControl` の子になり React **#137** → モーダル読み込み後クラッシュ。専用 **`S2JWebinarSourceQrJSXRuntime`** + `jsx`/`jsxs` で `key` を props にマージ ([`vite.config.ts`](./vite.config.ts))
+* Gutenberg **JS 翻訳** — PHP 用 **`.mo` のみ** ではエディター JS は英語のまま。**JED `.json`** (`wp i18n make-json`、Gutenberg バンドル md5付きファイル名) + `wp_set_script_translations` が必要 ([`languages/README.md`](./languages/README.md))
 
 ### Changed
 
@@ -42,7 +43,7 @@
 ### Added
 
 * 翻訳 — `languages/s2j-webinar-source-qr-ja.po` / `.mo` / JED **`.json`**。正本 `.po` から **`npm run makei18n`** (`wp i18n make-mo` + `make-json`)。[`languages/README.md`](./languages/README.md)
-* npm — **`prelint:php`** (Composer dev 依存)、**`makemo`** / **`makejson`** / **`makei18n`**、`build:production:gutenberg` 後 **postbuild** で `makejson`
+* npm — **`prelint:php`** (Composer dev 依存; 旧 **`pretest:lint:php`** を廃止)、**`makemo`** / **`makejson`** / **`makei18n`**、`build:production:gutenberg` 後 **postbuild** で `makejson`
 * TypeScript — [`src/types/wordpress-block-editor.d.ts`](./src/types/wordpress-block-editor.d.ts) (`@wordpress/block-editor` の `exports` 未型付けを補完)
 
 * Step3: **QR preview** — `POST …/document/preview` (`s2j_wsq_preview_qr_data_url()`、JSON `data_url`)。Gutenberg `QrPreviewStep` (400ms debounce、空 URL は placeholder) ([`includes/RestController.php`](./includes/RestController.php)、[`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
@@ -50,16 +51,15 @@
 
 ### Docs
 
-* [studio/README.md](./studio/README.md) — Gutenberg 日本語化 (`.po` → `makei18n`、`languages/` 同梱コピー)
-
-* [admin_ui_spec.md](./docs/admin_ui_spec.md) — Step1–4は実装修正を反映 (英文 UI、`Save draft`/`Apply`、`501` 非 emit、未実装項目の明記)
+* [admin_ui_spec.md](./docs/admin_ui_spec.md) — Step1: Import 説明 (`sprintf` / provider 定数)、Step1–4実装修正を反映
 * [rest_api_spec.md](./docs/rest_api_spec.md) / [persistence_spec.md](./docs/persistence_spec.md) / [specs.md](./docs/specs.md) — Apply **200**、`qr_generation_failed` **400**。`qr_not_implemented` **501** は履歴注記
-* [status.md](./docs/status.md) / [test-results.md](./docs/test-results.md): 2026-10-17 - Studio `wsq-smoke` (U6〜 U7/U10)、Local integration **9/9** (assertions `52`)
-* [studio/README.md](./studio/README.md) — U7手順 (auto-login、post `12`、`⌘⇧R`)。証跡 PNG — `docs/screenshots/u7-*` / `u10-*`
+* [status.md](./docs/status.md) / [test-results.md](./docs/test-results.md): Studio **U6〜 U7, U10, U13** (ja UI)、Local integration **9/9** (assertions `52`)、**`npm run lint:php` PASS**
+* [studio/README.md](./studio/README.md) — **§日本語 UI** (`makei18n`、`languages/` 同梱)、U7手順・証跡 PNG
 
 ### Notes
 
-* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** で **PASS** (2026-10-17: unit **4** + integration **9**、計 **52** assertions)
+* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** **PASS** (2026-10-17: unit **4** + integration **9**、計 **52** assertions)
+* ローカル **`npm run lint:php`** — PHPStan + PHPCS + WPCS **PASS** (2026-10-17、`prelint:php` で Composer dev 依存)
 
 ## 0.0.1 - 2026-10-16
 
