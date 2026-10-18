@@ -63,6 +63,7 @@ class S2J_Webinar_Source_Qr_Gutenberg_Mount
                 'wp-i18n',
                 'wp-data',
                 'wp-api-fetch',
+                'wp-hooks',
             ),
             $script_version,
             true
@@ -100,6 +101,7 @@ class S2J_Webinar_Source_Qr_Gutenberg_Mount
                 's2jWebinarActive'               => s2j_wsq_is_webinar_plugin_active(),
                 'webinarDefinitionsPathTemplate' => '/' . $webinar_ns . '/events/%d/tracking-source-definitions',
                 'webinarTrackingPathTemplate'    => '/' . $webinar_ns . '/events/%d/tracking-sources',
+                'webinarHandoffOpenHook'         => S2J_Webinar_Source_Qr_Constants::WEBINAR_HANDOFF_OPEN_HOOK,
             )
         );
     }

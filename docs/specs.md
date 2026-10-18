@@ -59,7 +59,7 @@
 | [plugin_spec.md](./plugin_spec.md) | 統合見取り図、handoff |
 | [data_dictionary.md](./data_dictionary.md) | メタキー、provider 解決、行の組み立て |
 | [persistence_spec.md](./persistence_spec.md) | 保存経路、正規化、503、4xx `code` 正本 (`qr_generation_failed` 等) |
-| [admin_ui_spec.md](./admin_ui_spec.md) | メンテナンス UI、Webinar REST |
+| [admin_ui_spec.md](./admin_ui_spec.md) | メンテナンス UI、Webinar REST、**handoff 実装** ([§Webinar handoff (実装)](./admin_ui_spec.md#webinar-handoff-実装)) |
 | [rest_api_spec.md](./rest_api_spec.md) | 本プラグイン REST、`catalogReady` / **4xx** vs **503** |
 | [status.md](./status.md) | 起草進捗 |
 | [ドキュメンテーション・ガバナンス](./governance/documentation_governance.md) | SoT、用語、lint、改訂フロー、archive |

@@ -295,6 +295,44 @@ function s2j_wsq_normalize_for_draft(array $document, array $catalog, $previous 
 }
 
 /**
+ * Draft save path shared by REST and meta guard (catalog required).
+ *
+ * @param int                    $post_id  Event post ID.
+ * @param mixed                  $body     Panel or meta payload.
+ * @param array<string, mixed>|null $previous Previous stored document.
+ * @return array{ok: true, document: array<string, mixed>}|array{ok: false, error: array<string, mixed>|WP_Error}
+ */
+function s2j_wsq_prepare_document_for_draft_storage($post_id, $body, $previous = null)
+{
+    $merged = s2j_wsq_merge_document($body);
+    unset($merged['provider']);
+
+    $catalog = s2j_wsq_fetch_source_definitions($post_id);
+    if (is_wp_error($catalog)) {
+        return array(
+            'ok'    => false,
+            'error' => $catalog,
+        );
+    }
+
+    $result = s2j_wsq_normalize_for_draft($merged, $catalog, $previous);
+    if (empty($result['ok'])) {
+        return array(
+            'ok'    => false,
+            'error' => $result['error'],
+        );
+    }
+
+    $document             = $result['document'];
+    $document['provider'] = s2j_wsq_resolve_provider($post_id, $document);
+
+    return array(
+        'ok'       => true,
+        'document' => $document,
+    );
+}
+
+/**
  * Whether every catalog row has a non-empty registration URL (apply precondition).
  *
  * @param array<string, mixed> $document Document with aligned channels.

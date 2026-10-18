@@ -42,20 +42,21 @@ S2J Webinar Survey と同型:
 
 * handoff は **別 UI を作らず**、本プラグインのメンテナンスモーダルを開く。
 * 実装は Webinar 側の **カスタムイベント / `@wordpress/hooks` の `doAction`** 等、Survey handoff と **同じパターン** を写経 ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md))。
-* 本プラグイン `src/gutenberg/` は **open リスナ** を登録し、Document Settings パネル **Open…** と同じ `MaintenanceModal` をマウント。
-* **hook / イベント名:** 初版 docs 時点は **TBD** (Survey handoff 写経 — [status.md#webinar-側待ち](./status.md#webinar-側待ち))。**実装着手前**に Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md) で hook / イベント名を確定し、本節の TBD を **具体名に更新**する。
+* 本プラグイン `src/gutenberg/` — **`MaintenanceModalHost`** が **open リスナ** を常時マウント。Document Settings **Open…** も handoff も **`requestOpenMaintenanceModal( postId )`** で同一 `MaintenanceModal`。
+* **hook / イベント名:** **`s2j_webinar.open_source_qr`** (引数: `postId`)。Webinar が `doAction`、本プラグインが `addAction( hook, 's2j-webinar-source-qr/handoff', … )` / unmount で `removeAction( hook, namespace )` ([`WEBINAR_HANDOFF_OPEN_HOOK`](../includes/Constants.php)、[`MaintenanceModalHost`](../src/gutenberg/index.tsx))。正本 [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)。
+* **E5:** **Pass 2026-10-19** — Webinar **Edit source tracking / QR** → 同一 `MaintenanceModal` ([test-results.md](./test-results.md))。
 
 ## コード配置 (骨格)
 
 | パス | 役割 |
 | --- | --- |
 | `s2j-webinar-source-qr.php` | ブートストラップ、定数 |
-| `includes/Constants.php` | メタキー、REST namespace |
+| `includes/Constants.php` | メタキー、REST namespace、**`WEBINAR_HANDOFF_OPEN_HOOK`** |
 | `includes/Domain/document.php` | 文書の純関数 (**保存時の正規化** — `draft` / `apply` / `sanitize`。取り込みマージは TS) |
 | `includes/Meta/` | `register_post_meta` (sanitize = draft 正規化)、`save_post` 予約 |
 | `includes/RestController.php` | [rest_api_spec.md](./rest_api_spec.md) |
-| `includes/Editor/GutenbergMount.php` | `PluginDocumentSettingPanel` (GatherPress イベント編集) |
-| `src/gutenberg/` | 4ステップ UI (React、英語 + i18n) |
+| `includes/Editor/GutenbergMount.php` | パネル脚本 enqueue (**`wp-hooks`**)、`s2jWebinarSourceQrData` localize |
+| `src/gutenberg/` | 4ステップ UI + **handoff** (`MaintenanceModalHost`、英語 + i18n) |
 | `src/domain/document.ts` | クライアント側文書型・取り込みマージ |
 
 ### クライアント / サーバー正規化

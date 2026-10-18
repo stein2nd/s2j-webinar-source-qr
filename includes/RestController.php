@@ -219,28 +219,21 @@ class S2J_Webinar_Source_Qr_Rest_Controller
         $previous = get_post_meta($post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true);
         $previous = is_array($previous) ? $previous : null;
 
-        $merged = s2j_wsq_merge_document($body);
-        unset($merged['provider']);
+        $prepared = s2j_wsq_prepare_document_for_draft_storage($post_id, $body, $previous);
 
-        $catalog = s2j_wsq_fetch_source_definitions($post_id);
-        if (is_wp_error($catalog)) {
-            return $catalog;
-        }
-
-        $result = s2j_wsq_normalize_for_draft($merged, $catalog, $previous);
-
-        if (empty($result['ok'])) {
-            $error = $result['error'];
-            $status = 400;
+        if (empty($prepared['ok'])) {
+            $error = $prepared['error'];
+            if (is_wp_error($error)) {
+                return $error;
+            }
             return new WP_Error(
                 $error['code'],
                 $error['message'],
-                array( 'status' => $status )
+                array( 'status' => 400 )
             );
         }
 
-        $document = $result['document'];
-        $document['provider'] = s2j_wsq_resolve_provider($post_id, $document);
+        $document = $prepared['document'];
 
         if ('apply' === $mode) {
             if (! s2j_wsq_all_channels_have_url($document)) {
@@ -260,7 +253,10 @@ class S2J_Webinar_Source_Qr_Rest_Controller
             $document['provider'] = s2j_wsq_resolve_provider($post_id, $document);
         }
 
+        s2j_wsq_meta_guard_set_bypass(true);
         $updated = update_post_meta($post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, $document);
+        s2j_wsq_meta_guard_set_bypass(false);
+
         if (false === $updated) {
             $current = get_post_meta($post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true);
             if ($current !== $document) {

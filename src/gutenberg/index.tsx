@@ -19,6 +19,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
+import { addAction, removeAction } from '@wordpress/hooks';
 import '@/styles/gutenberg.scss';
 import {
 	type ChannelRow,
@@ -34,8 +35,40 @@ import {
 	providerSupportsTrackingImport,
 	webinarPathFromTemplate,
 } from '@/domain/document';
+import {
+	type PanelNotice,
+	panelNoticeFromRestError,
+	panelNoticeSuccess,
+} from '@/domain/restNotice';
 
 const PLUGIN_ID = 's2j-webinar-source-qr';
+
+const HANDOFF_HOOK_NAMESPACE = 's2j-webinar-source-qr/handoff';
+
+const DEFAULT_WEBINAR_HANDOFF_OPEN_HOOK = 's2j_webinar.open_source_qr';
+
+function webinarHandoffOpenHook(): string {
+	return (
+		window.s2jWebinarSourceQrData?.webinarHandoffOpenHook ??
+		DEFAULT_WEBINAR_HANDOFF_OPEN_HOOK
+	);
+}
+
+function parseHandoffPostId(postId: unknown): number {
+	if (typeof postId === 'number' && Number.isFinite(postId)) {
+		return Math.trunc(postId);
+	}
+	const parsed = parseInt(String(postId), 10);
+	return Number.isFinite(parsed) ? parsed : 0;
+}
+
+let openMaintenanceModal: ((postId: number) => void) | undefined;
+
+function requestOpenMaintenanceModal(postId: number): void {
+	if (postId > 0) {
+		openMaintenanceModal?.(postId);
+	}
+}
 
 type DocumentSettingPanel = typeof EditorPluginDocumentSettingPanel;
 
@@ -533,7 +566,7 @@ const MaintenanceModal = ({
 	const [document, setDocument] = useState<SourceQrDocument>(defaultDocument());
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [notice, setNotice] = useState<string | null>(null);
+	const [notice, setNotice] = useState<PanelNotice | null>(null);
 	const [catalogNotice, setCatalogNotice] = useState<string | null>(null);
 	const [unassigned, setUnassigned] = useState<TrackingItem[]>([]);
 	const [catalogReady, setCatalogReady] = useState(false);
@@ -624,11 +657,14 @@ const MaintenanceModal = ({
 			setDocument(withRows);
 			setDirty(false);
 			setUnassigned([]);
-		} catch {
+		} catch (error: unknown) {
 			setNotice(
-				__(
-					'Could not load the source QR document.',
-					's2j-webinar-source-qr'
+				panelNoticeFromRestError(
+					error,
+					__(
+						'Could not load the source QR document.',
+						's2j-webinar-source-qr'
+					)
 				)
 			);
 			setDocument(defaultDocument());
@@ -654,12 +690,18 @@ const MaintenanceModal = ({
 			const withRows = await loadCatalogAndMerge(saved);
 			setDocument(withRows);
 			setDirty(false);
-			setNotice(__('Draft saved.', 's2j-webinar-source-qr'));
+			setNotice(
+				panelNoticeSuccess(
+					__('Draft saved.', 's2j-webinar-source-qr')
+				)
+			);
 		} catch (error: unknown) {
-			const message =
-				(error as { message?: string })?.message ??
-				__('Draft save failed.', 's2j-webinar-source-qr');
-			setNotice(message);
+			setNotice(
+				panelNoticeFromRestError(
+					error,
+					__('Draft save failed.', 's2j-webinar-source-qr')
+				)
+			);
 		} finally {
 			setSaving(false);
 		}
@@ -684,17 +726,24 @@ const MaintenanceModal = ({
 			setUnassigned(merged.unassigned);
 			await saveDraft(merged.document);
 			setNotice(
-				sprintf(
-					/* translators: %d: number of imported rows matched to channels */
-					__('Import finished (%d rows matched).', 's2j-webinar-source-qr'),
-					items.length - merged.unassigned.length
+				panelNoticeSuccess(
+					sprintf(
+						/* translators: %d: number of imported rows matched to channels */
+						__(
+							'Import finished (%d rows matched).',
+							's2j-webinar-source-qr'
+						),
+						items.length - merged.unassigned.length
+					)
 				)
 			);
 		} catch (error: unknown) {
-			const message =
-				(error as { message?: string })?.message ??
-				__('Import failed.', 's2j-webinar-source-qr');
-			setNotice(message);
+			setNotice(
+				panelNoticeFromRestError(
+					error,
+					__('Import failed.', 's2j-webinar-source-qr')
+				)
+			);
 		} finally {
 			setSaving(false);
 		}
@@ -704,18 +753,27 @@ const MaintenanceModal = ({
 		setSaving(true);
 		setNotice(null);
 		try {
-			await apiFetch({
+			const saved = (await apiFetch({
 				path: documentRestPath(bootstrap.restNamespace, postId, 'apply'),
 				method: 'POST',
 				data: document,
+			})) as SourceQrDocument;
+			const withRows = await loadCatalogAndMerge({
+				...defaultDocument(),
+				...saved,
 			});
-			setNotice(__('Applied.', 's2j-webinar-source-qr'));
+			setDocument(withRows);
+			setNotice(
+				panelNoticeSuccess(__('Applied.', 's2j-webinar-source-qr'))
+			);
 			setDirty(false);
 		} catch (error: unknown) {
-			const message =
-				(error as { message?: string })?.message ??
-				__('Apply failed.', 's2j-webinar-source-qr');
-			setNotice(message);
+			setNotice(
+				panelNoticeFromRestError(
+					error,
+					__('Apply failed.', 's2j-webinar-source-qr')
+				)
+			);
 		} finally {
 			setSaving(false);
 		}
@@ -769,8 +827,12 @@ const MaintenanceModal = ({
 			</div>
 
 			{notice && (
-				<Notice status="info" isDismissible onRemove={() => setNotice(null)}>
-					{notice}
+				<Notice
+					status={notice.status}
+					isDismissible
+					onRemove={() => setNotice(null)}
+				>
+					{notice.message}
 				</Notice>
 			)}
 
@@ -956,24 +1018,55 @@ const MaintenanceModal = ({
 	);
 };
 
+const MaintenanceModalHost = () => {
+	const [session, setSession] = useState<{ postId: number } | null>(null);
+
+	useEffect(() => {
+		openMaintenanceModal = (postId: number) => setSession({ postId });
+		return () => {
+			openMaintenanceModal = undefined;
+		};
+	}, []);
+
+	useEffect(() => {
+		const onHandoff = (postId: unknown) => {
+			requestOpenMaintenanceModal(parseHandoffPostId(postId));
+		};
+		const hook = webinarHandoffOpenHook();
+		addAction(hook, HANDOFF_HOOK_NAMESPACE, onHandoff);
+		return () => {
+			removeAction(hook, HANDOFF_HOOK_NAMESPACE);
+		};
+	}, []);
+
+	if (!session || session.postId <= 0) {
+		return null;
+	}
+
+	return (
+		<MaintenanceModal
+			postId={session.postId}
+			onClose={() => setSession(null)}
+		/>
+	);
+};
+
 const SourceQrPanelFields = () => {
 	const postId = useSelect(
 		(select) => select(editorStore).getCurrentPostId() as number,
 		[]
 	);
-	const [open, setOpen] = useState(false);
 
 	return (
-		<>
-			<PanelRow>
-				<Button variant="secondary" onClick={() => setOpen(true)} disabled={postId <= 0}>
-					{__('Open…', 's2j-webinar-source-qr')}
-				</Button>
-			</PanelRow>
-			{open && postId > 0 && (
-				<MaintenanceModal postId={postId} onClose={() => setOpen(false)} />
-			)}
-		</>
+		<PanelRow>
+			<Button
+				variant="secondary"
+				onClick={() => requestOpenMaintenanceModal(postId)}
+				disabled={postId <= 0}
+			>
+				{__('Open…', 's2j-webinar-source-qr')}
+			</Button>
+		</PanelRow>
 	);
 };
 
@@ -1001,6 +1094,13 @@ const SourceQrPanel = () => {
 	);
 };
 
+const SourceQrEditorIntegration = () => (
+	<>
+		<SourceQrPanel />
+		<MaintenanceModalHost />
+	</>
+);
+
 registerPlugin(PLUGIN_ID, {
-	render: SourceQrPanel,
+	render: SourceQrEditorIntegration,
 });

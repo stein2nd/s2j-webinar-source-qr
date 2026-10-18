@@ -16,10 +16,24 @@
 | --- | --- |
 | ホスト | GatherPress **イベント編集** (ブロックエディター) |
 | Document Settings | `PluginDocumentSettingPanel` (S2J Webinar 同型) — パネル見出し **`S2J Webinar Source QR`** — [plugin_spec.md](./plugin_spec.md) |
-| 入口 | **常設:** 上記パネル内 **Open…** → 4 ステップモーダル (見出しも **`S2J Webinar Source QR`**)。**任意:** S2J Webinar handoff から **同一モーダル** を開く ([plugin_spec.md#webinar-handoff-同一モーダル](./plugin_spec.md)) |
+| 入口 | **常設:** 上記パネル内 **Open…** → 4 ステップモーダル (見出しも **`S2J Webinar Source QR`**)。**handoff:** S2J Webinar Document Settings **Edit source tracking / QR** → **同一** `MaintenanceModal` ([§Webinar handoff (実装)](#webinar-handoff-実装)、[plugin_spec.md#webinar-handoff-同一モーダル](./plugin_spec.md)) |
 | Post type 判定 | `post_type_supports( …, 'gatherpress-event-date' )` — [rest_api_spec.md](./rest_api_spec.md) と同一 |
 | 権限 | 対象イベントの `edit_post` |
 | Webinar 未設定 / 無効 | 取り込み非表示。**既存メタは閲覧可**。保存は [保存可否 (初版・厳格)](#保存可否-初版厳格) |
+
+## Webinar handoff (実装) {#webinar-handoff-実装}
+
+正本 hook / 引数: Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md) (**`s2j_webinar.open_source_qr`**、`postId`)。
+
+| 項目 | 内容 |
+| --- | --- |
+| Webinar 側 | Gutenberg **Edit source tracking / QR** → `doAction( hook, postId )` |
+| Source QR 側 | `registerPlugin` 配下の **`MaintenanceModalHost`** が `addAction( hook, namespace, callback )` で受信 → **`requestOpenMaintenanceModal( postId )`** で **Open…** と同じ `MaintenanceModal` を 1 インスタンス表示 |
+| hook 名の渡し方 | PHP [`WEBINAR_HANDOFF_OPEN_HOOK`](../includes/Constants.php) → `window.s2jWebinarSourceQrData.webinarHandoffOpenHook` (未設定時 TS 既定値と同一) |
+| 脚本依存 | **`wp-hooks`** ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php)) |
+| アンマウント | `removeAction( hook, namespace )` — `@wordpress/hooks` 型は **namespace 単位** で解除 (コールバック引数なし) |
+
+**Test (E5):** Webinar + Source QR 有効・同一イベント編集画面で **Edit source tracking / QR** → **開く…** と同一モーダル — **Pass 2026-10-19** ([test-results.md](./test-results.md#最新結果)、[studio-2026-1019-handoff-e5/](./screenshots/studio-2026-1019-handoff-e5/))。
 
 ## 保存可否 (初版・厳格)
 
@@ -64,7 +78,8 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
   * `s2jWebinarActive` (bool) — [S2J Webinar 有効 (クライアント)](#s2j-webinar-有効-クライアント)
   * `webinarDefinitionsPathTemplate` — 定義 GET (`…/tracking-source-definitions`)
   * `webinarTrackingPathTemplate` — 取り込み GET (`…/tracking-sources`)
-  * 実装: 上記3キーを `GutenbergMount` から localize ([status.md](./status.md))。
+  * `webinarHandoffOpenHook` — handoff `addAction` 名 ([`WEBINAR_HANDOFF_OPEN_HOOK`](../includes/Constants.php))
+  * 実装: 上記4キーを `GutenbergMount` から localize ([status.md](./status.md))。
   * 型: `src/types/global.d.ts` (bootstrap 型) のプロパティ名も **上記キーと同一** にする。
 
 ## チャネル行 (ソース名と一行対応)
@@ -108,7 +123,7 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
   * **Output size (256–2048 px)** 列 (数値入力)
   (4) `catalogReady` 時のみ — モジュール色確定の **1 行ヒント** (英語: release pointer / leave Hex field)。(5) フッター — **Back** / **Next** / **Save draft** を **横並び** (`flex` + `gap`)。
 
-**実装参照:** [`src/gutenberg/index.tsx`](../../src/gutenberg/index.tsx) (`ModuleColorControl` / `CenterIconControl` / `OutputSizeControl`)、[`src/styles/gutenberg.scss`](../../src/styles/gutenberg.scss)。Gutenberg 脚本依存: `wp-block-editor` (`MediaUpload`)、`@wordpress/edit-post` / `@wordpress/editor` の **`PluginDocumentSettingPanel`**。[`GutenbergMount.php`](../includes/Editor/GutenbergMount.php) — 脚本・CSS バージョンに **`filemtime` サフィックス** (開発中のキャッシュバスト)。
+**実装参照:** [`src/gutenberg/index.tsx`](../../src/gutenberg/index.tsx) (`MaintenanceModal` / `MaintenanceModalHost` / `ModuleColorControl` / `CenterIconControl` / `OutputSizeControl`)、[`src/styles/gutenberg.scss`](../../src/styles/gutenberg.scss)。Gutenberg 脚本依存: `wp-block-editor` (`MediaUpload`)、`wp-hooks` (handoff)、`@wordpress/edit-post` / `@wordpress/editor` の **`PluginDocumentSettingPanel`**。[`GutenbergMount.php`](../includes/Editor/GutenbergMount.php) — 脚本・CSS バージョンに **`filemtime` サフィックス** (開発中のキャッシュバスト)。
 
 **Gutenberg ビルド:** Vite バナーで専用 **`S2JWebinarSourceQrJSXRuntime`** (`jsx`/`jsxs` が React `key` を props にマージ)。S2J Webinar 共有 `S2JReactJSXRuntime` との共存時も `TextControl` 等が void 要素の子を持たないよう分離 ([`vite.config.ts`](../vite.config.ts)、CHANGELOG unreleased)。
 
@@ -122,7 +137,7 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
 
 * **永続化:** Web / GD / QR 用に **`#RRGGBB` (sRGB hex)** のみ ([data_dictionary.md](./data_dictionary.md)、サーバー正規化と同一)。Illustrator 型の CMYK / HSB モード切替は **初版非目標** (WP `ColorPicker` の Hex / RGB / HSL 相当で足りる方針)。
 * **コントロール:** [`ModuleColorControl`](../../src/gutenberg/index.tsx) — パレット (`ColorPicker`) + 単一 **Hex** 欄。WP 付属の重複入力行 (RGB/HSL/Hex 切替ブロック) は CSS で非表示し、Hex 欄を正本表示とする。
-* **パレット → Hex:** ドラッグ中は **`liveHex`** を Hex 欄にリアルタイム表示。**document へ確定** するのは **`catalogReady` 時** に (1) パレット領域で **pointer up**、(2) Hex 欄 **blur** (有効な hex のみ)。
+* **パレット → Hex:** ドラッグ中は **`liveHex`** を Hex 欄にリアルタイム表示。**document に確定** するのは **`catalogReady` 時** に (1) パレット領域で **pointer up**、(2) Hex 欄 **blur** (有効な hex のみ)。
 * **Hex → パレット:** Hex 欄は **`catalogReady` に関わらず入力可** (プレビュー)。入力は `#` + 16進 **最大6桁** にサニタイズ。完全な `#RRGGBB` になった時点でパレット上の ◯ を同期 (`color` prop + 必要時 `ColorPicker` 再マウント)。blur で不正なら **open 時の確定 hex** に戻す。
 * **`!catalogReady`:** パレット・Hex は **表示上プレビュー** (`liveHex`)。**`onCommit` は呼ばない** — `document.style.foreground_hex` は **更新しない** (Step 離脱で open 時値に戻る)。**dirty・Save draft** なし。
 
@@ -160,7 +175,7 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
 * 本文 (英語): `Apply saves ready status and PNG media when the server pipeline is complete.`
 * Primary: **`Apply`** (日本語仕訳: 反映)。**ステップ4のみ** フッターに表示。
 * **ボタン disabled:** `!catalogReady` または `saving`。**dirty 不要** (未変更でも Apply 可 — サーバーは現在の `document` を POST)。
-* **成功 (200):** サーバーは `ready` + PNG メディア。**初版 UI:** **`Applied.`** を info `Notice`、**モーダルは閉じない**、**`GET …/document` 再取得なし** (ヘッダ `Document status` は open 時のまま — [status.md](./status.md) Apply 成功 UI 未完了)。**目標 (将来):** 応答メタで state 更新 → `Document status: Ready`、モーダル close、Webinar サマリー (handoff 実装時)。
+* **成功 (200):** サーバーは `ready` + PNG メディア。**現行 UI:** 応答メタで **`Document status: Ready`** (**準備完了** / ja)、**`Applied.`** 系 success Notice (**適用しました。**)、**モーダルは閉じない** ([status.md](./status.md) Apply 成功 UI **2026-10-18** Studio 記録)。**目標 (将来):** モーダル close、Webinar handoff サマリー自動更新。
 * **失敗 (4xx / 503):** メタ前値維持、**モーダル開いたまま**、REST `message` を info `Notice` (例: `One or more registration URLs are invalid.` — code `invalid_registration_url` **400**)。PNG / icon 失敗は **400** `qr_generation_failed`。**503** `catalog_unavailable` (カタログ guard)。
 * **501 `qr_not_implemented`:** **現行 PHP では返さない** (PNG パイプライン実装済み)。履歴 code — [persistence_spec.md](./persistence_spec.md#検証エラー-code-初版)。
 
@@ -168,7 +183,7 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
 
 **Save draft:** **`catalogReady` 時のみ**。**disabled:** `!catalogReady` / `saving` / **`!dirty`** (変更なしでは押せない)。**配置:** 全ステップ共通フッター secondary (Survey メンテナンスモーダルと **同配置** )。**未保存 (dirty):** open 時マージ結果 (または取り込み + draft 成功応答) から **URL / スタイル等が変化** したら dirty。**Save draft 成功 (200) 後**は返却メタで state 更新し dirty クリア + `Draft saved.` Notice。取り込み自動 draft 成功後は **未保存なし**。**ダイアログ close 時 dirty 確認** — 初版 **未実装** (推奨のまま)。
 
-**Notice (初版):** 成功・失敗とも **`@wordpress/components` `Notice` `status="info"`** (REST エラーも同一)。`code` 別スタイル分岐は **未実装** ([status.md](./status.md))。
+**Notice:** REST 由来は [`restNotice.ts`](../src/domain/restNotice.ts) — **`code`** 別に `status` / 文言を分岐 (Vitest [`tests/node/restNotice.test.ts`](../tests/node/restNotice.test.ts))。成功 Save draft / Apply は info success Notice。
 
 ## QR 実装メモ
 

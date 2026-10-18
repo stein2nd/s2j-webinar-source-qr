@@ -43,6 +43,7 @@
         "pretest:unit:php": "wp-env start",
         "test:unit:php": "wp-env run tests-wordpress wp-content/plugins/s2j-webinar-source-qr/vendor/bin/phpunit -c wp-content/plugins/s2j-webinar-source-qr/phpunit.wp-env.xml.dist",
         "test:unit:php:unit-only": "composer test:unit",
+        "test:unit:ts": "vitest run",
         "test:unit:php:local": "bash bin/phpunit-local.sh",
         "test:smoke:local": "bash tests/smoke-local.sh",
         "build:dev": "FLUSH_DIST=true npm run build:dev:admin && npm run build:dev:gutenberg && npm run build:dev:classic && npm run build:dev:frontend",
@@ -105,7 +106,8 @@
         "stylelint-config-standard-scss": "^17.0.0",
         "typescript": "npm:@typescript/typescript6@^6.0.2",
         "vite": "^8.3.4",
-        "vite-plugin-static-copy": "^4.1.1"
+        "vite-plugin-static-copy": "^4.1.1",
+        "vitest": "^3.2.4"
     },
     "allowScripts": {
         "@s2j/docs-linter": true,

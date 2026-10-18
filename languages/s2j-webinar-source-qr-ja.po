@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: S2J Webinar Source QR 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/s2j-webinar-"
 "source-qr\n"
-"POT-Creation-Date: 2026-10-17T10:10:46+00:00\n"
-"PO-Revision-Date: 2026-10-17 19:20+0900\n"
+"POT-Creation-Date: 2026-10-18T23:24:49+00:00\n"
+"PO-Revision-Date: 2026-10-19 08:26+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -96,7 +96,7 @@ msgid "Could not upload QR image."
 msgstr "QR 画像をアップロードできませんでした。"
 
 #: includes/Domain/qr.php:442 includes/Domain/qr.php:455
-#: includes/RestController.php:249
+#: includes/RestController.php:242
 msgid "One or more registration URLs are invalid."
 msgstr "1つ以上の登録 URL が不正です。"
 
@@ -116,7 +116,7 @@ msgstr "投稿は GatherPress のイベントではありません。"
 msgid "You cannot edit this event."
 msgstr "このイベントは編集できません。"
 
-#: includes/RestController.php:269
+#: includes/RestController.php:265
 msgid "Could not save the document."
 msgstr "ドキュメントを保存できませんでした。"
 

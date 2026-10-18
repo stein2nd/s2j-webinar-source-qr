@@ -13,6 +13,22 @@
 
 ## unreleased
 
+## 0.0.1 - 2026-10-18
+
+### Added
+
+* Webinar handoff — `addAction( s2j_webinar.open_source_qr )` → 同一 `MaintenanceModal` ([`MaintenanceModalHost`](./src/gutenberg/index.tsx))。hook 定数 [`WEBINAR_HANDOFF_OPEN_HOOK`](./includes/Constants.php)、`webinarHandoffOpenHook` localize、脚本依存 **`wp-hooks`**
+* メタ経路ガード — [`includes/Meta/Guard.php`](./includes/Meta/Guard.php)(直接 `update_post_metadata` からの `ready` 等をブロック。REST は bypass)
+* REST Notice 分岐 — [`src/domain/restNotice.ts`](./src/domain/restNotice.ts)、Vitest [`tests/node/restNotice.test.ts`](./tests/node/restNotice.test.ts)(`npm run test:unit:ts`)
+* Studio — 定義 stub 一括 [`studio/setup-catalog-stub-site.sh`](./studio/setup-catalog-stub-site.sh)。実 Webinar P2a 手順は [`studio/README.md`](./studio/README.md)
+
+### Changed
+
+* REST `document` — draft 正規化を [`s2j_wsq_prepare_document_for_draft_storage()`](./includes/Domain/document.php) に集約。[`RestController.php`](./includes/RestController.php) リファクタ
+* Gutenberg — Apply **200** 後に応答メタで **`ready`** 反映 + success Notice (`code` 分岐)。**Open…** / handoff とも [`requestOpenMaintenanceModal`](./src/gutenberg/index.tsx) 経由で単一モーダル
+* Integration — [`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php) 拡張 (meta Guard、Apply/draft **4xx** 等。**14** tests / Local MySQL **2026-10-18**)
+* 仕様と記録 — handoff / **E2** / **E7** (P2a 実定義、stub 無効) / **E5** Pass。[`docs/test-results.md`](./docs/test-results.md)、証跡 [`studio-2026-1019-e7-real-p2a/`](./docs/screenshots/studio-2026-1019-e7-real-p2a/) (01–09)、[`studio-2026-1019-handoff-e5/`](./docs/screenshots/studio-2026-1019-handoff-e5/)、Blueprint / stub 系 **2026-10-18** PNG
+
 ## 0.0.1 - 2026-10-17
 
 ### Fixed
