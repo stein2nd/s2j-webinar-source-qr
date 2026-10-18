@@ -27,9 +27,9 @@
 | --- | --- | --- |
 | **`ready` + PNG** | `POST …/document/apply` | **ここだけ** |
 | **`draft` 正規化** | `POST …/document/draft` | 正本 |
-| **`draft` 正規化 (共有)** | `register_post_meta` の `sanitize_callback` | **`draft` と同一関数** (カタログ必須・失敗時は更新拒否・前値維持。初版はメタ REST 直 PATCH を **推奨しない**) |
-| **再正規化 (予約)** | `save_post` (イベント「更新」) | 未実装可 (CoverArt 型) |
-| **禁止** | autosave、Quick Edit、一括編集、WP-CLI、不正経路 | メタ上書きしない |
+| **`draft` 正規化 (共有)** | `register_post_meta` の `sanitize_callback` + **`update_post_metadata` ガード** ([`includes/Meta/Guard.php`](../includes/Meta/Guard.php)) | 形状は `sanitize_callback` (`merge_document`)。**カタログ + `normalize_for_draft` と同等**の検証はガード (post ID 付き)。失敗時 **更新拒否・前値維持**。`status: ready` の直書きは **拒否** (`apply` + REST bypass のみ) |
+| **再正規化 (予約)** | `save_post` (イベント「更新」) | 未実装可 (CoverArt 型) — [`includes/Meta/SavePost.php`](../includes/Meta/SavePost.php) |
+| **禁止 / 非推奨** | autosave、Quick Edit、一括編集、WP-CLI、ブロックエディターからのメタ REST 直 PATCH | 正本は **`POST …/document/draft`** / **`apply`**。ガード外経路は [`Guard.php`](../includes/Meta/Guard.php) で draft 同等ルールまたは拒否 |
 
 `provider` 解決順の正本は [data_dictionary.md#provider-解決-正本](./data_dictionary.md#provider-解決-正本) です。
 
@@ -65,9 +65,10 @@ UI ガードの正本は [admin_ui_spec.md#保存可否-初版厳格](./admin_ui
 
 | `code` | 用途 |
 | --- | --- |
-| `invalid_registration_url` | URL 形式・スキーム・長さ NG。**Apply** で定義上の行に URL 欠落も本 code (メッセージで Apply 専用と区別可) |
+| `invalid_registration_url` | URL 形式・スキーム・長さ NG。**Apply** で定義上の行に URL 欠落も本 code (メッセージ: `One or more registration URLs are invalid.` 等) |
 | `invalid_document` | スタイル hex / size、attachment 等のその他検証 NG |
-| `qr_not_implemented` | **`apply` のみ**。HTTP **501** (**4xx ではない**) — PNG / 反映パイプライン未実装 |
+| `qr_generation_failed` | **`apply` / preview**。GD / QR 生成・中央 icon 合成失敗 — HTTP **400** |
+| `qr_not_implemented` | **(履歴・予約)** HTTP **501** — 初版起草時の PNG 未実装。**現行 `includes/` では返さない** ([rest_api_spec.md](./rest_api_spec.md)) |
 
 例 JSON: [rest_api_spec.md#エラー応答-例](./rest_api_spec.md#エラー応答-例)。追加 code は実装後に本表に追記。
 
@@ -84,7 +85,7 @@ UI ガードの正本は [admin_ui_spec.md#保存可否-初版厳格](./admin_ui
 7. **Apply 時:** ソース定義 **全行** に有効な `registration_url` があること → 行ごとに PNG 生成・メディア登録 → `qr_attachment_id` 更新 → `status` = **`ready`** → `updated_at` = UTC の `DATE_ATOM` 形式。
 8. **draft 保存:** `status` = **`draft`** のみ ( **`ready` は apply のみ** )。
 
-**失敗時** (検証エラー、カタログ503、Apply / PNG 失敗、**501**): メタ **前値維持**。ユーザー向けメッセージのみ ([rest_api_spec.md](./rest_api_spec.md))。
+**失敗時** (検証エラー、カタログ503、Apply / PNG **400**): メタ **前値維持**。ユーザー向けメッセージのみ ([rest_api_spec.md](./rest_api_spec.md))。
 
 ### 取り込み結果のマージ
 

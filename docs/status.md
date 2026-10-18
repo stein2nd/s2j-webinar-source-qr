@@ -1,6 +1,6 @@
 # S2J ウェビナー・ソース追跡 QR - 実装状況
 
-最終更新: 2026-10-16
+最終更新: 2026-10-19
 
 索引は [specs.md](./specs.md) です。版の取り扱いは [specs.md#版の取り扱い](./specs.md#版の取り扱い) です。仕様改訂案は [docs_mod/](../docs_mod/) を参照。
 
@@ -12,6 +12,9 @@
 * [governance/documentation_governance.md](./governance/documentation_governance.md) — ドキュメント運用
 * [archive/README.md](./archive/README.md) — 完了イニシアチブ (まだなし)
 * [test-results.md](./test-results.md) — 段階1–3、外部結合の記録
+* [cross_plugin_remaining_matrix.md](./cross_plugin_remaining_matrix.md) — Webinar / Source QR / Survey の未完了 `[ ]` 分類 (Local / Webinar 待ち / HTTPS+Zoom)
+
+**非 HTTPS 連携 (本 repo [E2](#status-external) / Webinar [E7](https://github.com/stein2nd/s2j-webinar/blob/main/docs/status.md#status-external)) — クローズ 2026-10-19:** Studio `:8888` post **8** (`_s2j_webinar_id=studio-u7`)、definitions stub **無効**。Webinar **P2a** 本番ルート **200** → UI **`catalogReady` true** → Save draft **200** (順4 **E1–E2**)。拡張: Apply **準備完了**、再 **開く…** で URL 保持 (`08`)、Webinar サマリー **`Document: ready`** (`09`)。証跡 [studio-2026-1019-e7-real-p2a/](./screenshots/studio-2026-1019-e7-real-p2a/) (01–09)、[test-results §最新結果](./test-results.md#最新結果)。*任意:* 再 open 時モーダルヘッダが **準備完了** になる 1 枚 (`08` は Step1 **ドラフト** 表示のまま — メタ **ready** は `09` と一致)。
 
 ## 機能一覧
 
@@ -23,13 +26,13 @@
 | --- | --- | --- | --- |
 | 仕様 (`docs/`) | 確定 | — | [§仕様分割](#status-spec-docs) |
 | 配布 (Vite / dist / zip) | 実装済み | 100 | [§配布](#status-dist) (5/5) |
-| メタ + REST `document` | 一部 | 75 | [§REST・永続化](#status-rest) (9/12) |
-| 管理 UI (Gutenberg 4ステップ) | 一部 | 67 | [§管理 UI](#status-admin-ui) (8/12) |
+| メタ + REST `document` | 一部 | 92 | [§REST・永続化](#status-rest) (11/12) |
+| 管理 UI (Gutenberg 4ステップ) | 実装済 | 100 | [§管理 UI](#status-admin-ui) (17/17) |
 | Webinar 定義 REST + `catalogReady` | 実装済み | 100 | [§カタログ](#status-catalog) (6/6) |
 | 取り込み → draft | 実装済み | 100 | [§取り込み](#status-import) (4/4) |
 | Apply + QR PNG | 実装済み | 100 | [§QR 反映](#status-qr-apply) (6/6) |
-| Webinar handoff (同一モーダル) | 未着手 | 0 | [§handoff](#status-handoff) (0/2) |
-| テスト、CI (段階1–3) | 一部 | 75 | [§品質・スモーク](#status-quality) (9/12) |
+| Webinar handoff (同一モーダル) | 実装済 | 100 | [§handoff](#status-handoff) (3/3) |
+| テスト、CI (段階1–3) | 一部 | 100 | [§品質・スモーク](#status-quality) (12/12) |
 
 ## 100% 完了条件チェックリスト
 
@@ -49,11 +52,11 @@
 
 | 順 | 段階 | 環境 | やること |
 | --- | --- | --- | --- |
-| 0 | 3a | Local 可のみ | `npm run test:unit:php:unit-only`、lint (WP 不要) |
+| 0 | 3a | Local 可のみ | `npm run test:unit:php:unit-only`、`npm run lint` / **`npm run lint:php`** (`prelint:php` → Composer dev 依存) |
 | 1 | 1 | Local 可のみ (CLI) | Local Site Shell / Studio — `npm run test:smoke:local` |
 | 2 | 3b | Local 可 (MySQL) / CI (Docker) | `npm run test:unit:php:local` または CI `phpunit-wp-env` ([test-results.md](./test-results.md#docker-なしの開発環境)) |
 | 3 | 2 | Local 可のみ | Studio Blueprint + 手動 UI (Fill、モーダル) |
-| 4 | 1–3 | Local 可 (E2/E4/E6) | 定義 REST 後 Save draft、Apply501/200 |
+| 4 | 1–3 | Local 可 (E2/E4/E6) | 定義 REST 後 Save draft **200**、Apply **400/503/200** ([順4 E1–E3](./test-results.md#順4-オプション-local-可-e2e4)) |
 | 5 | 2–3 | 要 HTTPS | OAuth (E1)、Import (E3) — Pass は [test-results.md](./test-results.md) |
 
 詳細コマンドは [test-results.md#推奨実施順-s2j-webinar-同型localhost-自動テスト優先](./test-results.md#推奨実施順-s2j-webinar-同型localhost-自動テスト優先)。**段階1の HTTPS 行はなし** (スモークは常に localhost WP)。
@@ -80,15 +83,16 @@
 * [x] `register_post_meta` — `_s2j_webinar_source_qr` ([`includes/Meta/Registrar.php`](../includes/Meta/Registrar.php))
 * [x] `GET …/document` — メタマージ + `provider` 解決 ([`RestController.php`](../includes/RestController.php))
 * [x] `POST …/draft` / `apply` — カタログ guard **503**、検証 **4xx**、apply **200** + QR PNG ([§QR 反映](#status-qr-apply))
+* [x] `POST …/document/preview` — Apply 同一レンダラー、JSON `data_url`、**メタ非更新** (カタログ **503 なし**)
 * [x] ドメイン正規化 — Webinar 定義順 `channels` ([`includes/Domain/document.php`](../includes/Domain/document.php))
 * [x] 固定 channel id 廃止 — ソース名正本 ([`includes/Constants.php`](../includes/Constants.php))
-* [ ] `sanitize_callback` — draft と **同一** カタログ厳格 ([persistence_spec.md](./persistence_spec.md))
+* [x] `sanitize_callback` + **`update_post_metadata` ガード** — draft と同一カタログ厳格 ([`includes/Meta/Guard.php`](../includes/Meta/Guard.php)、[persistence_spec.md](./persistence_spec.md))
 * [ ] `save_post` 再正規化 (CoverArt 型) — 任意
 * [x] `provider` 解決 — [`includes/Domain/provider.php`](../includes/Domain/provider.php)
 * [x] サーバー定義 REST — [`includes/Domain/catalog.php`](../includes/Domain/catalog.php)
 * [x] Apply — PNG 生成・`ready`・`qr_attachment_id` ([§QR 反映](#status-qr-apply))
 * [x] Import マージ (PHP 純関数) — `s2j_wsq_merge_tracking_items`
-* [ ] meta `sanitize` / apply 以外の経路ガード文書化完了
+* [x] meta `sanitize` / apply 以外の経路ガード文書化 — [persistence_spec §保存経路](./persistence_spec.md#保存経路) + Guard 実装
 
 #### Test (PHPUnit) — Local 可のみ
 
@@ -98,8 +102,9 @@
 
 * [x] draft **200** / catalog **503** ([`RestDocumentTest.php`](../tests/Integration/RestDocumentTest.php))
 * [x] apply **200** + PNG メディア・中央 icon 合成・ invalid icon **400** (`qr_generation_failed`) — 同上
-* [x] **Local MySQL** — `npm run test:unit:php:local` **PASS** (blockpluginbase, 2026-10-16: 3a **4** tests / 3b **6** tests, **31** assertions; `.env.tests` + GatherPress 実体)
-* [ ] 4xx (invalid registration URL 等) — 任意拡張
+* [x] preview **200** `data_url` + メタ不変 / 空 URL **400** — 同上
+* [x] **Local MySQL** — `npm run test:unit:php:local` **PASS** (2026-10-18: 3a **5** tests / 3b **14** tests; 計 **19** tests / **65** assertions; `.env.tests` + GatherPress 実体)
+* [x] 4xx — `invalid_registration_url` / `invalid_document` (draft・apply) + meta ガード ([`RestDocumentTest.php`](../tests/Integration/RestDocumentTest.php))
 
 ### 管理 UI {#status-admin-ui}
 
@@ -107,25 +112,34 @@
 
 #### プラグイン実装
 
-* [x] Fill **Edit source tracking / QR** ([`src/gutenberg/index.tsx`](../src/gutenberg/index.tsx))
-* [x] 4ステップ / **Save draft** / **Apply** (英語 + i18n)
-* [x] localize — `s2jWebinarActive` / 定義・取り込み パス template ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php))
+* [x] Document Settings パネル **S2J Webinar Source QR** + **Open…** ([`src/gutenberg/index.tsx`](../src/gutenberg/index.tsx))
+* [x] 4ステップ / **Save draft** / **Apply** (英語正本 + `@wordpress/i18n`)
+* [x] Gutenberg **翻訳配信** — `wp_set_script_translations` + `languages/*-{hash}.json` (正本 `.po` → **`npm run makei18n`**)。初版 **ja** ([`languages/README.md`](../languages/README.md))
+* [x] localize — `s2jWebinarActive` / 定義・取り込み パス template / **`webinarHandoffOpenHook`** ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php)、[`Constants.php`](../includes/Constants.php))
 * [x] 定義 GET → 行マージ ([`src/domain/document.ts`](../src/domain/document.ts))
 * [x] `catalogReady` — 保存ボタン、readOnly ([admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格))
+* [x] Step2 **Module color** — ColorPicker + Hex 双方向、プレビュー-only (`!catalogReady`) ([admin_ui_spec.md#21-モジュール色-module-color](./admin_ui_spec.md#21-モジュール色-module-color))
+* [x] Step2 **Center icon** — MediaUpload → `icon_attachment_id` ([admin_ui_spec.md#22-中央アイコン-center-icon](./admin_ui_spec.md#22-中央アイコン-center-icon))
+* [x] Step2 **Output size** — `size_px` 入力 UI ([admin_ui_spec.md#23-出力サイズ-output-size](./admin_ui_spec.md#23-出力サイズ-output-size))
+* [x] Step2 **レイアウト** — コンパクト警告帯・Module color+Hex / Center icon / Output size 1 行 ([admin_ui_spec.md#2-qr-見た目-全ソース共通](./admin_ui_spec.md#2-qr-見た目-全ソース共通))
 * [x] Import 成功 → **POST draft** 必須
-* [ ] QR プレビュー (ステップ3)
-* [ ] Apply 成功時 UI (501時ダイアログ維持は確認済み想定)
-* [ ] dirty / Notice `code` 分岐の網羅
-* [ ] handoff から同一モーダル ([§handoff](#status-handoff))
+* [x] Step1 Import 条件 — [`IMPORT_TRACKING_SUPPORTED_PROVIDERS`](../src/domain/document.ts) + `providerSupportsTrackingImport()` (初版 `zoom` のみ)。説明文は解決済み `provider` を動的表示
+* [x] QR プレビュー (ステップ3) — **プレビュー REST** + `QrPreviewStep` ([rest_api_spec.md#post-event_post_iddocumentpreview](./rest_api_spec.md#post-event_post_iddocumentpreview))
+* [x] Apply **失敗時** UI — メタ非 ready・モーダル維持・Notice (Studio U10 **400** 2026-10-17; **503** は Integration)
+* [x] Apply **成功時** UI — 200 後 **適用しました。** + **準備完了** (stub **2026-10-18** / **P2a 実定義 2026-10-19** post **8** — [test-results.md#最新結果](./test-results.md#最新結果))
+* [x] dirty / Notice **`code` 分岐** — [`src/domain/restNotice.ts`](../src/domain/restNotice.ts) + Vitest [`tests/node/restNotice.test.ts`](../tests/node/restNotice.test.ts)
+* [x] handoff から同一モーダル — **E5** Pass (**2026-10-19** Studio — [test-results.md#最新結果](./test-results.md#最新結果))
 
 #### Test (UI 骨格) — Local 可のみ
 
-* [x] Studio — Fill + モーダル (`catalogReady` false は仕様どおり) (2026-10-14探索)
-* [x] 順3— Local 手動 UI PASS (U1– U12、U10は CI 代替) (2026-10-14。[test-results.md](./test-results.md#最新結果))
+* [x] Studio — Document Settings パネル + モーダル (`catalogReady` false は仕様どおり) (2026-10-14探索)
+* [x] 順3— Local 手動 UI **U1–U12** (2026-10-14; U10 の **503** は Integration 代替)
+* [x] Studio **`wsq-smoke`** — **U6–U7, U10** + **ja UI** (`makei18n` 後・`WPLANG=ja`) (2026-10-17。[test-results.md#最新結果](./test-results.md#最新結果)、[studio/README.md](../studio/README.md))
+* [x] Studio **`:8888` + definitions stub** — **U6–U7**, **E4** Save draft、**E3** Apply ブラウザ (**2026-10-18**, post **8**)
 
-#### Test (保存・カタログ) — Local 可 (E2・ E4)
+#### Test (保存・カタログ) — Local 可 (E2、E4)
 
-* [ ] Local / Studio — `catalogReady` true で **Save draft** 200 ([E2](#status-external) 定義 REST + [E4](#status-external))
+* [x] Studio — `catalogReady` true で **Save draft** / **Apply** 200 (stub **2026-10-18**；**P2a 実定義 2026-10-19** post **8** — 順4 **E2–E3** ブラウザ — [studio-2026-1019-e7-real-p2a/](./screenshots/studio-2026-1019-e7-real-p2a/))
 
 #### Test (取り込み UI) — 要 HTTPS (E3)
 
@@ -145,14 +159,14 @@
 #### Test — Local 可 (E2) / UI 未成立は Local 可のみ
 
 * [x] `_s2j_webinar_id` 未設定 → `catalogReady` false (Studio: 2026-10-14)
-* [ ] 定義 REST200 + `sources.length >= 1` → `catalogReady` true ([E2](#status-external))
+* [x] 定義 REST `200` + `sources.length >= 1` — **実 Webinar P2a** (**2026-10-19** Studio `:8888` post **8**、stub 無効 — [test-results.md](./test-results.md))。**ブラウザ** Step1 **WEB/SNS/OTHER**、Save draft、Apply、**再 open + 開く…** で URL 保持、Webinar サマリー **ready** — 証跡 [studio-2026-1019-e7-real-p2a/](./screenshots/studio-2026-1019-e7-real-p2a/) (01–09)
 
 ### 取り込み {#status-import}
 
 * [x] `GET …/tracking-sources` — クライアント ([admin_ui_spec.md](./admin_ui_spec.md))
 * [x] マージ → 必須 **POST draft**
 * [x] 未登録 `source_name` — 警告のみ
-* [x] 初版 Import 表示 — `provider` **zoom** + `_s2j_webinar_id`
+* [x] 初版 Import 表示 — `providerSupportsTrackingImport` (正本 slug 一覧 [`document.ts`](../src/domain/document.ts)) + `_s2j_webinar_id`
 
 #### Test — 要 HTTPS (E3)
 
@@ -168,41 +182,44 @@
 
 #### Test (Apply API) — Local 可 (E6)
 
-* [x] Apply **200** + PNG メディア — [`RestDocumentTest.php`](../tests/Integration/RestDocumentTest.php) (CI `phpunit-wp-env` 2026-10-14、**Local MySQL** 2026-10-16 — 中央 icon 含む)
+* [x] Apply **200** + PNG メディア — [`RestDocumentTest.php`](../tests/Integration/RestDocumentTest.php) (CI `phpunit-wp-env` 2026-10-14; **Local MySQL** 2026-10-16–17 — 中央 icon・invalid icon **400** 含む、integration **9/9**)
 
 ### handoff {#status-handoff}
 
-* [ ] Webinar hook 名確定 — [plugin_spec.md#webinar-handoff-同一モーダル](./plugin_spec.md#webinar-handoff-同一モーダル)
-* [ ] open リスナ + 同一 `MaintenanceModal`
+* [x] Webinar hook 名確定 — **`s2j_webinar.open_source_qr`** ([plugin_spec.md#webinar-handoff-同一モーダル](./plugin_spec.md#webinar-handoff-同一モーダル))
+* [x] open リスナ + 同一 `MaintenanceModal` — [`MaintenanceModalHost`](../src/gutenberg/index.tsx)、`wp-hooks` 依存 ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php))
 
 #### Test — Local 可 (E5)
 
-* [ ] Webinar から同一モーダル open — hook 確定後 ([E5](#status-external))
+* [x] Webinar から同一モーダル open — **Edit source tracking / QR** → **開く…** と同一モーダル (**2026-10-19** — [E5](#status-external)、[test-results.md](./test-results.md))
 
 ### 品質・スモーク {#status-quality}
 
-#### Test (自動・ smoke) — Local 可のみ
+#### Test (自動、smoke) — Local 可のみ
 
 * [x] 段階3a — `composer test:unit` + CI [`phpunit-pure`](../.github/workflows/phpunit.yml)
 * [x] 段階1— [`tests/smoke-local.sh`](../tests/smoke-local.sh) (Local / Studio `WP_PATH`)
 * [x] 段階2— [`studio/smoke-test-blueprint.json`](../studio/smoke-test-blueprint.json) + [`studio/README.md`](../studio/README.md)
 * [x] `.wp-env.json` + [`phpunit.wp-env.xml.dist`](../phpunit.wp-env.xml.dist)
 * [x] CI — js-lint / docs-lint / dist-zip / phpunit (pure + wp-env job)
-* [x] 段階3b — Integration green (PR [#1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1) CI `phpunit-wp-env` 2026-10-14; **Local MySQL PASS** 2026-10-16 — `npm run test:unit:php:local`, blockpluginbase / `wordpress_test`)
+* [x] ローカル **`npm run lint:php`** — PHPStan + PHPCS + WPCS (**2026-10-17**、`prelint:php` で dev 依存自動 install)
+* [x] Gutenberg TS — [`src/types/wordpress-block-editor.d.ts`](../src/types/wordpress-block-editor.d.ts)、`PluginDocumentSettingPanel` は `@wordpress/editor` ([`src/gutenberg/index.tsx`](../src/gutenberg/index.tsx))
+* [x] 段階3b — Integration green (PR [#1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1) CI `phpunit-wp-env` 2026-10-14; **Local MySQL PASS** 2026-10-16 / **2026-10-17** — `npm run test:unit:php:local`, integration **9/9**)
 
 #### Test (記録) — Local 可のみ
 
 * [x] [test-results.md](./test-results.md) — localhost 可能 / 不可能の表
 * [x] 段階1PASS — Local (2026-10-14)
 * [x] 段階2一部 — Studio プラグイン・ Fill ・モーダル (2026-10-14。**catalog 未成立**は想定内)
-* [x] 段階3b ローカル — [test-results.md#最新結果](./test-results.md#最新結果) 2026-10-16 行 (3a + 3b Local MySQL)
-* [ ] 段階1–2— [test-results.md](./test-results.md) 最新結果表の定期更新 (Studio Blueprint 行など)
+* [x] 段階3b ローカル — [test-results.md#最新結果](./test-results.md#最新結果) 2026-10-16 / **2026-10-17** 行 (3a + 3b Local MySQL、**9/9** integration)
+* [x] 段階2 Studio — [test-results.md#最新結果](./test-results.md#最新結果) **2026-10-17** `wsq-smoke` 行 (U6–U7, U10, **U13** ja)
+* [x] Blueprint **ゼロから** Studio 再現 — **2026-10-18** `s2j_webinarsouseqr_new_2026_1018_smoke-test-blueprint` (`:8888`)。smoke + **U1–U12 / U13 (ja)** ([test-results.md#最新結果](./test-results.md#最新結果))
 
 #### Test (外部結合) — Local 可 (E2/E4/E6) / 要 HTTPS (E1/E3)
 
-* [ ] [E2](#status-external) 定義 REST — Webinar 実装後、localhost で Pass 記録
-* [ ] [E3](#status-external) 取り込み — **要 HTTPS**
-* [ ] Webinar [§ Source QR 関連](https://github.com/stein2nd/s2j-webinar/blob/main/docs/status.md) — 定義 REST **実装** 完了後に連携 E2E
+* [x] [E2](#status-external) 定義 REST + **`catalogReady` / Save draft / Apply** — **2026-10-19** Studio `:8888` post **8** (stub 無効 — 証跡 01–09 [studio-2026-1019-e7-real-p2a/](./screenshots/studio-2026-1019-e7-real-p2a/))
+* [ ] [E3](#status-external) 取り込み — **要 HTTPS** (実 `tracking-sources` / **P2b**)
+* [x] Webinar 横断 **E7** — **2026-10-19** (本 repo **E2** と同セッション。[Webinar test-results](https://github.com/stein2nd/s2j-webinar/blob/main/docs/test-results.md#最新結果))
 
 ## 外部結合ゲート {#status-external}
 
@@ -213,18 +230,19 @@
 | # | 内容 | Local 可 / 要 HTTPS |
 | --- | --- | --- |
 | E1 | 前提 — S2J Webinar OAuth / `_s2j_webinar_id` | **要 HTTPS** (Zoom `4700`。Connect 省略可) |
-| E2 | 定義 REST200 + `sources.length >= 1` | **Local 可** (Webinar 実装 + テスト用 ID があれば。未実装時は不可) |
+| E2 | 定義 REST200 + `sources.length >= 1` → `catalogReady` | **Local 可** — **Pass 2026-10-19** (P2a 本番ルート、post **8** / `studio-u7`) |
 | E3 | 取り込み `tracking-sources` → draft 保存 | **要 HTTPS** (実 Zoom 登録 URL。E1、E2後) |
-| E4 | Save draft / Apply (catalogReady true) | **Local 可** (E2成立時。Apply PNG + 中央 icon は [§QR 反映](#status-qr-apply)) |
-| E5 | handoff 同一モーダル | **Local 可** (hook 確定 + Webinar 側実装後) |
-| E6 | QR PNG Apply end-to-end | **Local 可** — Integration + stub 定義で **PASS** (Local MySQL 2026-10-16; 実 Webinar 定義 REST は [E2](#status-external)) |
+| E4 | Save draft / Apply (`catalogReady` true) | **Local 可** — **Pass 2026-10-19** (P2a 実定義 UI + stub **2026-10-18**) |
+| E5 | handoff 同一モーダル | **Local 可** — **Pass 2026-10-19** (Studio `:8888`) |
+| E6 | QR PNG Apply end-to-end | **Local 可** — Integration PASS + **2026-10-19** P2a 実定義 Apply UI ([E2](#status-external)) |
 
 ## 補足
 
+* 3 プラグイン横断の未完了分類: [cross_plugin_remaining_matrix.md](./cross_plugin_remaining_matrix.md) (Webinar / Survey に同期コピーあり)。
 * **実装％** はプラグイン検証可能項のみ。OAuth、実 Zoom API は Pass 記録があっても % に含めない。
 * 初版 **Service なし** — 取り込み写像済み JSON のみ ([plugin_spec.md](./plugin_spec.md))。
 * S2J Webinar Survey と同型 UX。メタは `_s2j_webinar_source_qr` (Survey 文書とは別)。
 
 ## 実装ロードマップ (到達順)
 
-1. ~~仕様 `docs/` 正本~~ → ~~REST / カタログ / UI 骨格~~ → ~~QR Apply (§ QR 反映)~~ → [§推奨テスト実施順](#status-test-order) **順0–2** (3a、smoke、**3b 緑 — CI 2026-10-14 + Local MySQL 2026-10-16**) → **順3** Studio UI → 実装: meta `sanitize`、UI 残 → **順4** (E2/E4; **E6** は stub Integration 済) → **順5** HTTPS (E1/E3) → handoff (E5)
+1. ~~仕様 `docs/` 正本~~ → ~~REST / カタログ / UI 骨格~~ → ~~QR Apply (§ QR 反映)~~ → [§推奨テスト実施順](#status-test-order) **順0–2** (3a、smoke、lint:php、**3b 緑** 2026-10-17) → **順3** Studio UI (**U1–U12** + **`wsq-smoke` U6–U7/U10/ja** 2026-10-17) → 実装: meta `sanitize`、Apply 成功 UI → **順4** (**E2** P2a REST **2026-10-19** / E4 ブラウザ済) → ~~**handoff + E5** (**2026-10-19**)~~ → **順5** HTTPS (E1/E3 取り込み)

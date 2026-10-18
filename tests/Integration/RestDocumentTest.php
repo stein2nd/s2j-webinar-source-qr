@@ -153,6 +153,56 @@ class RestDocumentTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * POST preview returns data_url PNG without persisting meta.
+	 */
+	public function test_preview_returns_data_url_and_does_not_persist_meta() {
+		$before = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/preview',
+			array(
+				'registration_url' => 'https://example.com/register-preview',
+				'style'            => array(
+					'foreground_hex'     => '#112233',
+					'size_px'            => 512,
+					'icon_attachment_id' => 0,
+				),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'data_url', $data );
+		$this->assertIsString( $data['data_url'] );
+		$this->assertStringStartsWith( 'data:image/png;base64,', $data['data_url'] );
+
+		$after = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+		$this->assertSame( $before, $after );
+	}
+
+	/**
+	 * Preview rejects empty registration URL.
+	 */
+	public function test_preview_returns_400_for_empty_url() {
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/preview',
+			array(
+				'registration_url' => '',
+				'style'            => array(
+					'foreground_hex'     => '#000000',
+					'size_px'            => 512,
+					'icon_attachment_id' => 0,
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	/**
 	 * Apply composites style.icon_attachment_id at QR center (white plate + icon).
 	 */
 	public function test_apply_with_center_icon_marks_center_bright() {
@@ -199,6 +249,150 @@ class RestDocumentTest extends WP_UnitTestCase {
 		$r = ( $rgb >> 16 ) & 0xFF;
 
 		$this->assertGreaterThan( 240, $r, 'Center pixel should lie on the white icon plate.' );
+	}
+
+	/**
+	 * Apply returns 400 when any catalog row lacks a registration URL.
+	 */
+	public function test_apply_returns_400_for_missing_registration_url() {
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/apply',
+			array(
+				'status'   => 'draft',
+				'channels' => array(
+					array(
+						'id'               => 'web',
+						'registration_url' => 'https://example.com/register-web',
+					),
+					array(
+						'id'               => 'sns',
+						'registration_url' => '',
+					),
+				),
+				'style'    => array(
+					'foreground_hex'     => '#000000',
+					'size_px'            => 512,
+					'icon_attachment_id' => 0,
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertIsArray( $data );
+		$this->assertSame( 'invalid_registration_url', $data['code'] );
+
+		$stored = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+		$this->assertSame( '', $stored );
+	}
+
+	/**
+	 * Draft returns 400 for malformed registration URL.
+	 */
+	public function test_draft_returns_400_for_invalid_registration_url() {
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/draft',
+			array(
+				'status'   => 'draft',
+				'channels' => array(
+					array(
+						'id'               => 'web',
+						'registration_url' => 'ftp://example.com/register',
+					),
+				),
+				'style'    => array(
+					'foreground_hex'     => '#112233',
+					'size_px'            => 512,
+					'icon_attachment_id' => 0,
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertSame( 'invalid_registration_url', $data['code'] );
+	}
+
+	/**
+	 * Draft returns 400 for invalid style hex.
+	 */
+	public function test_draft_returns_400_for_invalid_document_style() {
+		$response = $this->dispatch_document_request(
+			'POST',
+			'/document/draft',
+			array(
+				'status'   => 'draft',
+				'channels' => array(),
+				'style'    => array(
+					'foreground_hex'     => 'not-hex',
+					'size_px'            => 512,
+					'icon_attachment_id' => 0,
+				),
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertSame( 'invalid_document', $data['code'] );
+	}
+
+	/**
+	 * Direct meta update is rejected when catalog is unavailable.
+	 */
+	public function test_direct_meta_update_blocked_when_catalog_unavailable() {
+		deactivate_plugins( self::WEBINAR_PLUGIN );
+
+		$payload = array(
+			'status'   => 'draft',
+			'channels' => array(),
+			'style'    => array(
+				'foreground_hex'     => '#112233',
+				'size_px'            => 512,
+				'icon_attachment_id' => 0,
+			),
+		);
+
+		$result = update_post_meta(
+			$this->event_id,
+			S2J_Webinar_Source_Qr_Constants::META_KEY,
+			$payload
+		);
+
+		activate_plugins( self::WEBINAR_PLUGIN );
+
+		$this->assertFalse( $result );
+		$stored = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+		$this->assertSame( '', $stored );
+	}
+
+	/**
+	 * Direct meta update cannot set ready without REST apply bypass.
+	 */
+	public function test_direct_meta_update_rejects_ready_status() {
+		$payload = array(
+			'status'   => 'ready',
+			'channels' => array(
+				array(
+					'id'               => 'web',
+					'registration_url' => 'https://example.com/r',
+				),
+			),
+			'style'    => array(
+				'foreground_hex'     => '#112233',
+				'size_px'            => 512,
+				'icon_attachment_id' => 0,
+			),
+		);
+
+		$result = update_post_meta(
+			$this->event_id,
+			S2J_Webinar_Source_Qr_Constants::META_KEY,
+			$payload
+		);
+
+		$this->assertFalse( $result );
 	}
 
 	/**

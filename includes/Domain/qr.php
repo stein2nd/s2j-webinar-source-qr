@@ -258,6 +258,53 @@ function s2j_wsq_overlay_center_icon_on_qr_png($png_bytes, $icon_attachment_id)
 }
 
 /**
+ * Build a data-URL PNG preview (Step 3 / preview REST). Does not touch post meta.
+ *
+ * @param string               $registration_url Raw registration URL.
+ * @param array<string, mixed> $style            Style block (foreground_hex, size_px, icon_attachment_id).
+ * @return array{data_url: string}|WP_Error
+ */
+function s2j_wsq_preview_qr_data_url($registration_url, array $style)
+{
+    $check = s2j_wsq_validate_registration_url($registration_url);
+    if (empty($check['ok'])) {
+        $error = $check['error'];
+        return new WP_Error(
+            $error['code'],
+            $error['message'],
+            array( 'status' => 400 )
+        );
+    }
+
+    if ('' === $check['url']) {
+        return new WP_Error(
+            'invalid_registration_url',
+            __('Registration URL is required for preview.', 's2j-webinar-source-qr'),
+            array( 'status' => 400 )
+        );
+    }
+
+    $style_result = s2j_wsq_normalize_style_block($style);
+    if (empty($style_result['ok'])) {
+        $error = $style_result['error'];
+        return new WP_Error(
+            $error['code'],
+            $error['message'],
+            array( 'status' => 400 )
+        );
+    }
+
+    $png = s2j_wsq_render_qr_png_bytes($check['url'], $style_result['style']);
+    if (is_wp_error($png)) {
+        return $png;
+    }
+
+    return array(
+        'data_url' => 'data:image/png;base64,' . base64_encode($png),
+    );
+}
+
+/**
  * Render registration URL to raw PNG bytes.
  *
  * @param string               $url   Encoded payload.

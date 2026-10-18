@@ -8,6 +8,7 @@ declare global {
 			s2jWebinarActive: boolean;
 			webinarDefinitionsPathTemplate: string;
 			webinarTrackingPathTemplate: string;
+			webinarHandoffOpenHook?: string;
 		};
 	}
 }

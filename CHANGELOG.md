@@ -13,17 +13,69 @@
 
 ## unreleased
 
-## 0.0.1 - 2026-10-17
+## 0.0.1 - 2026-10-18
+
+### Added
+
+* Webinar handoff — `addAction( s2j_webinar.open_source_qr )` → 同一 `MaintenanceModal` ([`MaintenanceModalHost`](./src/gutenberg/index.tsx))。hook 定数 [`WEBINAR_HANDOFF_OPEN_HOOK`](./includes/Constants.php)、`webinarHandoffOpenHook` localize、脚本依存 **`wp-hooks`**
+* メタ経路ガード — [`includes/Meta/Guard.php`](./includes/Meta/Guard.php)(直接 `update_post_metadata` からの `ready` 等をブロック。REST は bypass)
+* REST Notice 分岐 — [`src/domain/restNotice.ts`](./src/domain/restNotice.ts)、Vitest [`tests/node/restNotice.test.ts`](./tests/node/restNotice.test.ts)(`npm run test:unit:ts`)
+* Studio — 定義 stub 一括 [`studio/setup-catalog-stub-site.sh`](./studio/setup-catalog-stub-site.sh)。実 Webinar P2a 手順は [`studio/README.md`](./studio/README.md)
 
 ### Changed
+
+* REST `document` — draft 正規化を [`s2j_wsq_prepare_document_for_draft_storage()`](./includes/Domain/document.php) に集約。[`RestController.php`](./includes/RestController.php) リファクタ
+* Gutenberg — Apply **200** 後に応答メタで **`ready`** 反映 + success Notice (`code` 分岐)。**Open…** / handoff とも [`requestOpenMaintenanceModal`](./src/gutenberg/index.tsx) 経由で単一モーダル
+* Integration — [`RestDocumentTest.php`](./tests/Integration/RestDocumentTest.php) 拡張 (meta Guard、Apply/draft **4xx** 等。**14** tests / Local MySQL **2026-10-18**)
+* 仕様と記録 — handoff / **E2** / **E7** (P2a 実定義、stub 無効) / **E5** Pass。[`docs/test-results.md`](./docs/test-results.md)、証跡 [`studio-2026-1019-e7-real-p2a/`](./docs/screenshots/studio-2026-1019-e7-real-p2a/) (01–09)、[`studio-2026-1019-handoff-e5/`](./docs/screenshots/studio-2026-1019-handoff-e5/)、Blueprint / stub 系 **2026-10-18** PNG
+
+## 0.0.1 - 2026-10-17
+
+### Fixed
+
+* Gutenberg ビルド — 共有 `S2JReactJSXRuntime` (S2J Webinar 側) との衝突で JSX `key` が `TextControl` の子になり React **#137** → モーダル読み込み後クラッシュ。専用 **`S2JWebinarSourceQrJSXRuntime`** + `jsx`/`jsxs` で `key` を props にマージ ([`vite.config.ts`](./vite.config.ts))
+* Gutenberg **JS 翻訳** — PHP 用 **`.mo` のみ** ではエディター JS は英語のまま。**JED `.json`** (`wp i18n make-json`、Gutenberg バンドル md5付きファイル名) + `wp_set_script_translations` が必要 ([`languages/README.md`](./languages/README.md))
+
+### Changed
+
+* Step1: Import — 対応 provider 一覧を [`IMPORT_TRACKING_SUPPORTED_PROVIDERS`](./src/domain/document.ts) に集約。`canImport` / 説明文は解決済み `provider` を動的表示 (文言の `zoom` 直書きを廃止)
+* Gutenberg — `PluginDocumentSettingPanel` を **`@wordpress/editor`** から取得 (未インストールの `@wordpress/edit-post` 型依存を削除)。レガシーは `wp.editPost` にフォールバック
+
+* Step1: Registration URL (`catalogReady` 時のみ編集)、**Import from provider** 表示条件、未マッチ catalog の Warning Notice
+* Step4: **Apply** — 失敗時はメタ非更新・モーダル維持 + REST `message` Notice。**200** 成功時は `Applied.` Notice のみ (自動 close / `GET document` 再取得なし)。**Save draft** は `dirty` 時のみ有効
+
+* Gutenberg — GatherPress `Fill` から **`PluginDocumentSettingPanel`** (S2J Webinar 同型)。Document Settings 見出し **S2J Webinar Source QR**、**Open…** で4ステップモーダル (タイトル同じ) ([`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
+* Step2 **モジュール color** — `@wordpress/components` `ColorPicker` + 単一 Hex。パレット ↔ Hex 双方向、`#RRGGBB` サニタイズ、確定は pointer up / Hex blur (`catalogReady` 時のみ document 反映)。`!catalogReady` はプレビューのみ ([admin_ui_spec.md](./docs/admin_ui_spec.md#21-モジュール色-module-color))
+* Step2 **Center icon** — `MediaUpload` / `MediaUploadCheck` で `style.icon_attachment_id` ([admin_ui_spec.md](./docs/admin_ui_spec.md#22-中央アイコン-center-icon))
+* Step2 **Output size** — `size_px` 数値入力 (256–2048、blur で clamp) ([admin_ui_spec.md](./docs/admin_ui_spec.md#23-出力サイズ-output-size))
+* Step2レイアウト — **モジュール color** + **Hex** + **Center icon** + **Output size** を1行 (折り返し可)。カタログ警告はコンパクト1行、重複プレビュー注記を削除
+* Step2 **Center icon** — `!catalogReady` でも **Select image** 可 (プレビュー)。Save draft 時のみ永続化
+* Gutenberg 資産 — JS/CSS バージョンに `filemtime` ([`includes/Editor/GutenbergMount.php`](./includes/Editor/GutenbergMount.php))
 
 * 統合 PHPUnit bootstrap ([`tests/bootstrap.php`](./tests/bootstrap.php)) — GatherPress / Webinar スタブの読み込みを [GatherPress #2426](https://github.com/GatherPress/gatherpress/issues/2426) 指摘どおり変更:
   * **以前:** `plugins_loaded` (優先度0) で `activate_plugin( …, true )` — コアが `after_setup_theme` 前にプラグインヘッダーを翻訳し、WP **6.7+** で `gatherpress` の `_load_textdomain_just_in_time` **Notice**
   * **以後:** `plugins_loaded` で `require_once` のみ (GatherPress + スタブ)。`init` (優先度0) で `GatherPress\Core\Setup::get_instance()->activate_gatherpress_plugin( false )` (events テーブル)。Webinar REST スタブのみ `init` で `activate_plugin` (`deactivate_plugins` テスト用; ヘッダーに Text Domain なし)
 
+### Added
+
+* 翻訳 — `languages/s2j-webinar-source-qr-ja.po` / `.mo` / JED **`.json`**。正本 `.po` から **`npm run makei18n`** (`wp i18n make-mo` + `make-json`)。[`languages/README.md`](./languages/README.md)
+* npm — **`prelint:php`** (Composer dev 依存; 旧 **`pretest:lint:php`** を廃止)、**`makemo`** / **`makejson`** / **`makei18n`**、`build:production:gutenberg` 後 **postbuild** で `makejson`
+* TypeScript — [`src/types/wordpress-block-editor.d.ts`](./src/types/wordpress-block-editor.d.ts) (`@wordpress/block-editor` の `exports` 未型付けを補完)
+
+* Step3: **QR preview** — `POST …/document/preview` (`s2j_wsq_preview_qr_data_url()`、JSON `data_url`)。Gutenberg `QrPreviewStep` (400ms debounce、空 URL は placeholder) ([`includes/RestController.php`](./includes/RestController.php)、[`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
+* Studio — 定義 REST スタブ [`studio/mu-plugin-definitions-stub.php`](./studio/mu-plugin-definitions-stub.php) (ローカル `catalogReady` true で U6〜 U7を手動確認)
+
+### Docs
+
+* [admin_ui_spec.md](./docs/admin_ui_spec.md) — Step1: Import 説明 (`sprintf` / provider 定数)、Step1–4実装修正を反映
+* [rest_api_spec.md](./docs/rest_api_spec.md) / [persistence_spec.md](./docs/persistence_spec.md) / [specs.md](./docs/specs.md) — Apply **200**、`qr_generation_failed` **400**。`qr_not_implemented` **501** は履歴注記
+* [status.md](./docs/status.md) / [test-results.md](./docs/test-results.md): Studio **U6〜 U7, U10, U13** (ja UI)、Local integration **9/9** (assertions `52`)、**`npm run lint:php` PASS**
+* [studio/README.md](./studio/README.md) — **§日本語 UI** (`makei18n`、`languages/` 同梱)、U7手順・証跡 PNG
+
 ### Notes
 
-* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** で **PASS** (2026-10-17確認: unit **4** + integration **6**、**31** assertions)
+* ローカル `npm run test:unit:php:local` — bootstrap 変更後 **Notice なし** **PASS** (2026-10-17: unit **4** + integration **9**、計 **52** assertions)
+* ローカル **`npm run lint:php`** — PHPStan + PHPCS + WPCS **PASS** (2026-10-17、`prelint:php` で Composer dev 依存)
 
 ## 0.0.1 - 2026-10-16
 
@@ -46,7 +98,7 @@
 
 ### Fixed
 
-* [`includes/Domain/qr.php`](./includes/Domain/qr.php): Composer 読込後に `class_exists( QRCode::class, false )` だと chillerlan が未ロードのまま **Apply `500`** (`QR library is unavailable`) — オートロード有効の判定に修正
+* [`includes/Domain/qr.php`](./includes/Domain/qr.php): Composer 読み込み後に `class_exists( QRCode::class, false )` だと chillerlan が未ロードのまま **Apply `500`** (`QR library is unavailable`) — オートロード有効の判定に修正
 * [`includes/Domain/qr.php`](./includes/Domain/qr.php): PHP **8.5** で `imagedestroy()` 非推奨警告 — `s2j_wsq_gd_destroy()` は v8.5未満のみ呼び出し
 * [`includes/Domain/catalog.php`](./includes/Domain/catalog.php): 定義 REST パス行の phpcs 行長 (>120) を折り返し
 * [`tests/stubs/wordpress-test-stubs.php`](./tests/stubs/wordpress-test-stubs.php): `WP_UnitTestCase::factory()` スタブ (Integration の `factory()` 未定義を解消)

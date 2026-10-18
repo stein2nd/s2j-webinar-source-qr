@@ -73,7 +73,7 @@ class S2J_Webinar_Source_Qr_Meta_Registrar
     }
 
     /**
-     * REST/meta sanitize: merge to known shape only (full normalize on save REST).
+     * REST/meta sanitize: shape merge only; catalog + draft rules on meta guard and REST draft/apply.
      *
      * @param mixed $value Raw value.
      * @return array<string, mixed>

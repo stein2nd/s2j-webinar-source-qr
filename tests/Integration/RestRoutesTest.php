@@ -38,4 +38,13 @@ class RestRoutesTest extends WP_UnitTestCase {
 		$routes = $this->server->get_routes();
 		$this->assertArrayHasKey( $route, $routes );
 	}
+
+	/**
+	 * Document preview POST route is registered.
+	 */
+	public function test_document_preview_route_exists() {
+		$route  = '/' . S2J_Webinar_Source_Qr_Constants::REST_NAMESPACE . '/events/(?P<post_id>[\\d]+)/document/preview';
+		$routes = $this->server->get_routes();
+		$this->assertArrayHasKey( $route, $routes );
+	}
 }

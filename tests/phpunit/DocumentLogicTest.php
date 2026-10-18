@@ -91,6 +91,25 @@ class DocumentLogicTest extends TestCase {
 	}
 
 	/**
+	 * Invalid style hex returns invalid_document.
+	 */
+	public function test_normalize_rejects_invalid_style_hex() {
+		$document = array(
+			'channels' => array(),
+			'style'    => array(
+				'foreground_hex'     => 'bad',
+				'size_px'            => 512,
+				'icon_attachment_id' => 0,
+			),
+		);
+
+		$result = s2j_wsq_normalize_for_draft( $document, $this->sample_catalog(), null );
+
+		$this->assertFalse( $result['ok'] );
+		$this->assertSame( 'invalid_document', $result['error']['code'] );
+	}
+
+	/**
 	 * Import merge assigns only known source names.
 	 */
 	public function test_merge_tracking_items_unassigned() {

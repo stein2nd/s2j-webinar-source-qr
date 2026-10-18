@@ -58,8 +58,8 @@
 | [overview.md](./overview.md) | 基本情報、責務、非対応、UI 表記 |
 | [plugin_spec.md](./plugin_spec.md) | 統合見取り図、handoff |
 | [data_dictionary.md](./data_dictionary.md) | メタキー、provider 解決、行の組み立て |
-| [persistence_spec.md](./persistence_spec.md) | 保存経路、正規化、503、4xx/501 `code` 正本 |
-| [admin_ui_spec.md](./admin_ui_spec.md) | メンテナンス UI、Webinar REST |
+| [persistence_spec.md](./persistence_spec.md) | 保存経路、正規化、503、4xx `code` 正本 (`qr_generation_failed` 等) |
+| [admin_ui_spec.md](./admin_ui_spec.md) | メンテナンス UI、Webinar REST、**handoff 実装** ([§Webinar handoff (実装)](./admin_ui_spec.md#webinar-handoff-実装)) |
 | [rest_api_spec.md](./rest_api_spec.md) | 本プラグイン REST、`catalogReady` / **4xx** vs **503** |
 | [status.md](./status.md) | 起草進捗 |
 | [ドキュメンテーション・ガバナンス](./governance/documentation_governance.md) | SoT、用語、lint、改訂フロー、archive |
@@ -83,4 +83,5 @@
 | 定義 REST **4xx** (Webinar) | — | 例: `_s2j_webinar_id` 未連携。UI は **`catalogReady` false** (本プラグイン REST は呼ばない) |
 | 保存 **503** (本プラグイン) | REST `code`: `catalog_unavailable` | `draft` / `apply` / `sanitize` がカタログ不可時。Webinar 側 **4xx** 等をサーバーが503に正規化 — [rest_api_spec.md#http-カタログ保存](./rest_api_spec.md#http-カタログ保存) |
 | 文書検証 **4xx** | `invalid_registration_url` / `invalid_document` 等 | 正本 [persistence_spec.md#検証エラー-code-初版](./persistence_spec.md#検証エラー-code-初版)。JSON 例 [rest_api_spec.md#エラー応答-例](./rest_api_spec.md#エラー応答-例) |
-| **501** (`apply`) | `qr_not_implemented` | PNG / 反映未実装 — 上記 persistence 表 |
+| QR 生成 **400** (`apply` / preview) | `qr_generation_failed` | GD / PNG / icon 合成失敗 — [persistence_spec.md#検証エラー-code-初版](./persistence_spec.md#検証エラー-code-初版) |
+| **501** (履歴) | `qr_not_implemented` | 起草時の PNG 未実装。**現行実装では emit しない** |

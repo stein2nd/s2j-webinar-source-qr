@@ -46,6 +46,7 @@ function s2j_webinar_source_qr_load_dependencies() {
 	require_once $dir . 'Domain/provider.php';
 	require_once $dir . 'Domain/qr.php';
 	require_once $dir . 'Meta/Registrar.php';
+	require_once $dir . 'Meta/Guard.php';
 	require_once $dir . 'Meta/SavePost.php';
 	require_once $dir . 'RestController.php';
 	require_once $dir . 'Editor/GutenbergMount.php';
@@ -58,6 +59,7 @@ function s2j_webinar_source_qr_bootstrap() {
 	s2j_webinar_source_qr_load_dependencies();
 
 	new S2J_Webinar_Source_Qr_Meta_Registrar();
+	new S2J_Webinar_Source_Qr_Meta_Guard();
 	new S2J_Webinar_Source_Qr_Meta_Save_Post();
 	new S2J_Webinar_Source_Qr_Rest_Controller();
 	new S2J_Webinar_Source_Qr_Gutenberg_Mount();

@@ -67,17 +67,19 @@
 
 * メタ前値維持。
 
-PNG パイプライン未実装 (**501**、`apply` のみ)。初版 `code` 正本: `qr_not_implemented`
+Apply 時 PNG / GD 失敗 (**400**、`apply` / preview)。初版 `code` 正本: `qr_generation_failed` ([persistence_spec.md#検証エラー-code-初版](./persistence_spec.md#検証エラー-code-初版))。
 
 ```json
 {
-  "code": "qr_not_implemented",
-  "message": "QR export is not available yet.",
-  "data": { "status": 501 }
+  "code": "qr_generation_failed",
+  "message": "QR generation failed.",
+  "data": { "status": 400 }
 }
 ```
 
-* メタ前値維持。UI はダイアログを閉じない ([admin_ui_spec.md](./admin_ui_spec.md))。
+* メタ前値維持 (apply)。preview はメタ非更新。
+
+**501 `qr_not_implemented` (履歴):** 初版起草時の「PNG 未実装」応答。**現行 `includes/` では emit しない** — Apply **200** + メディアが正。UI 失敗時は [admin_ui_spec.md §4](./admin_ui_spec.md#4-apply-反映) どおりモーダル維持。
 
 ## エンドポイント
 
@@ -108,7 +110,23 @@ PNG パイプライン未実装 (**501**、`apply` のみ)。初版 `code` 正�
 | 200 | `ready` メタ文書 |
 | 4xx | 検証失敗 — **メタ前値維持** ([persistence_spec.md#検証エラー-code-初版](./persistence_spec.md#検証エラー-code-初版)) |
 | **503** | ソース定義一覧の取得失敗等 — **メタ前値維持** (`draft` と同型。**503正規化** — [HTTP (カタログ・保存)](#http-カタログ保存)) |
-| **501** | PNG / 反映パイプライン未実装 (`qr_not_implemented`) — **メタ前値維持**。UI はダイアログを閉じない ([admin_ui_spec.md](./admin_ui_spec.md)、[エラー応答 (例)](#エラー応答-例)) |
+| **400** | 全行 URL 未充足 / 形式 NG (`invalid_registration_url`)、スタイル・icon 不正 (`invalid_document` / `qr_generation_failed`) — **メタ前値維持** |
+
+### `POST /events/{post_id}/document/preview` {#post-event_post_iddocumentpreview}
+
+**状態: 実装済み** ([admin_ui_spec.md#3-qr-プレビュー](./admin_ui_spec.md#3-qr-プレビュー))。
+
+| 項目 | 内容 |
+| --- | --- |
+| 用途 | ステップ3 **QR プレビュー**。Apply と **同一** PNG 生成 (`s2j_wsq_render_qr_png_bytes()` — [`includes/Domain/qr.php`](../includes/Domain/qr.php))。**メタ・メディアは更新しない** |
+| Body (最小) | `{ "registration_url": "https://…", "style": { … } }` — パネル `style` ブロック ([data_dictionary.md#スタイル-style](./data_dictionary.md#スタイル-style))。`registration_url` は **http/https** 非空 |
+| 200 | JSON `{ "data_url": "data:image/png;base64,…" }` (正本) |
+| 4xx | URL 形式 NG 等 — プレビュー用 `invalid_registration_url` / `invalid_document` (Apply と同型 code を推奨) |
+| **503** | **初版:** カタログ guard を **かけない** (`catalogReady` false でも、body の URL + style が有効ならプレビュー可 — Step2 プレビュー操作と整合)。サーバーが定義一覧を要求する場合は本表を更新 |
+| 権限 | 対象 `post_id` の `edit_post` ([共通](#共通)) |
+
+* UI: 行ごと debounce、`registration_url` 空行は **リクエストしない**。
+* バッチ (全行 1 リクエスト) は初版 **非目標**。
 
 ## 取り込み (Webinar REST) との関係
 

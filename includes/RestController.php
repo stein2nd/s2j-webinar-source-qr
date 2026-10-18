@@ -68,6 +68,19 @@ class S2J_Webinar_Source_Qr_Rest_Controller
                 ),
             )
         );
+
+        register_rest_route(
+            $ns,
+            '/events/(?P<post_id>[\d]+)/document/preview',
+            array(
+                array(
+                    'methods'             => WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'preview_document' ),
+                    'permission_callback' => array( $this, 'authorize_event' ),
+                    'args'                => $this->post_id_args(),
+                ),
+            )
+        );
     }
 
     /**
@@ -173,6 +186,26 @@ class S2J_Webinar_Source_Qr_Rest_Controller
     }
 
     /**
+     * POST preview — PNG as JSON data_url (same renderer as apply; no meta write).
+     *
+     * @param WP_REST_Request $request Request.
+     * @return WP_REST_Response|WP_Error
+     */
+    public function preview_document($request)
+    {
+        $body             = $request->get_json_params();
+        $registration_url = isset($body['registration_url']) ? (string) $body['registration_url'] : '';
+        $style            = isset($body['style']) && is_array($body['style']) ? $body['style'] : array();
+
+        $result = s2j_wsq_preview_qr_data_url($registration_url, $style);
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        return new WP_REST_Response($result, 200);
+    }
+
+    /**
      * Shared draft/apply persistence with catalog guard.
      *
      * @param WP_REST_Request $request Request.
@@ -186,28 +219,21 @@ class S2J_Webinar_Source_Qr_Rest_Controller
         $previous = get_post_meta($post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true);
         $previous = is_array($previous) ? $previous : null;
 
-        $merged = s2j_wsq_merge_document($body);
-        unset($merged['provider']);
+        $prepared = s2j_wsq_prepare_document_for_draft_storage($post_id, $body, $previous);
 
-        $catalog = s2j_wsq_fetch_source_definitions($post_id);
-        if (is_wp_error($catalog)) {
-            return $catalog;
-        }
-
-        $result = s2j_wsq_normalize_for_draft($merged, $catalog, $previous);
-
-        if (empty($result['ok'])) {
-            $error = $result['error'];
-            $status = 400;
+        if (empty($prepared['ok'])) {
+            $error = $prepared['error'];
+            if (is_wp_error($error)) {
+                return $error;
+            }
             return new WP_Error(
                 $error['code'],
                 $error['message'],
-                array( 'status' => $status )
+                array( 'status' => 400 )
             );
         }
 
-        $document = $result['document'];
-        $document['provider'] = s2j_wsq_resolve_provider($post_id, $document);
+        $document = $prepared['document'];
 
         if ('apply' === $mode) {
             if (! s2j_wsq_all_channels_have_url($document)) {
@@ -227,7 +253,10 @@ class S2J_Webinar_Source_Qr_Rest_Controller
             $document['provider'] = s2j_wsq_resolve_provider($post_id, $document);
         }
 
+        s2j_wsq_meta_guard_set_bypass(true);
         $updated = update_post_meta($post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, $document);
+        s2j_wsq_meta_guard_set_bypass(false);
+
         if (false === $updated) {
             $current = get_post_meta($post_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true);
             if ($current !== $document) {
