@@ -352,6 +352,46 @@ function s2j_wsq_all_channels_have_url(array $document)
 }
 
 /**
+ * Re-normalize stored meta on event save_post (CoverArt / Survey SavePostHandler 同型).
+ *
+ * Catalog 不可時はメタを触らない。`ready` は全行 URL が揃う場合のみ維持。
+ *
+ * @param int $post_id Event post ID.
+ * @return bool True when meta was updated.
+ */
+function s2j_wsq_renormalize_meta_on_post_save($post_id)
+{
+    $post_id = (int) $post_id;
+    if ($post_id <= 0) {
+        return false;
+    }
+
+    $key      = S2J_Webinar_Source_Qr_Constants::META_KEY;
+    $previous = get_post_meta($post_id, $key, true);
+    if (! is_array($previous) || $previous === array()) {
+        return false;
+    }
+
+    $was_ready = ( isset($previous['status']) && 'ready' === $previous['status'] );
+
+    $prepared = s2j_wsq_prepare_document_for_draft_storage($post_id, $previous, $previous);
+    if (empty($prepared['ok'])) {
+        return false;
+    }
+
+    $document = $prepared['document'];
+    if ($was_ready && s2j_wsq_all_channels_have_url($document)) {
+        $document['status'] = 'ready';
+    }
+
+    s2j_wsq_meta_guard_set_bypass(true);
+    $updated = update_post_meta($post_id, $key, $document);
+    s2j_wsq_meta_guard_set_bypass(false);
+
+    return (bool) $updated;
+}
+
+/**
  * Merge Webinar tracking import items into a panel document (pure).
  *
  * @param array<string, mixed>               $document Panel document.

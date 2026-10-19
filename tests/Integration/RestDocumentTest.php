@@ -396,7 +396,73 @@ class RestDocumentTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Apply fails when icon_attachment_id does not reference an image.
+	 * save_post re-aligns stored channels to Webinar catalog (orphan rows dropped, missing rows added).
+	 */
+	public function test_save_post_renormalizes_channels_to_catalog() {
+		if ( ! is_plugin_active( self::WEBINAR_PLUGIN ) ) {
+			activate_plugins( self::WEBINAR_PLUGIN );
+		}
+
+		update_post_meta( $this->event_id, '_s2j_webinar_id', 'wsq-save-post-test' );
+
+		$seed = array(
+			'status'     => 'draft',
+			'provider'   => 'zoom',
+			'channels'   => array(
+				array(
+					'id'               => 'web',
+					'label'            => 'Web',
+					'registration_url' => 'https://example.com/wsq-save-post-web',
+					'qr_attachment_id' => 0,
+				),
+				array(
+					'id'               => 'orphan-source',
+					'label'            => 'Legacy',
+					'registration_url' => 'https://example.com/orphan',
+					'qr_attachment_id' => 0,
+				),
+			),
+			'style'      => array(
+				'icon_attachment_id' => 0,
+				'foreground_hex'     => '#010203',
+				'size_px'            => 512,
+			),
+			'updated_at' => '2020-01-01T00:00:00+00:00',
+		);
+
+		S2J_Webinar_Source_Qr_Meta_Guard::set_bypass( true );
+		update_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, $seed );
+		S2J_Webinar_Source_Qr_Meta_Guard::set_bypass( false );
+
+		wp_set_current_user( $this->admin_id );
+		wp_update_post(
+			array(
+				'ID'         => $this->event_id,
+				'post_title' => 'REST integration event (save_post)',
+			)
+		);
+
+		$stored = get_post_meta( $this->event_id, S2J_Webinar_Source_Qr_Constants::META_KEY, true );
+		$this->assertIsArray( $stored );
+		$this->assertGreaterThanOrEqual( 2, count( $stored['channels'] ) );
+
+		$ids = wp_list_pluck( $stored['channels'], 'id' );
+		$this->assertContains( 'web', $ids );
+		$this->assertNotContains( 'orphan-source', $ids );
+
+		$web_row = null;
+		foreach ( $stored['channels'] as $row ) {
+			if ( isset( $row['id'] ) && 'web' === $row['id'] ) {
+				$web_row = $row;
+				break;
+			}
+		}
+		$this->assertIsArray( $web_row );
+		$this->assertSame( 'https://example.com/wsq-save-post-web', $web_row['registration_url'] );
+	}
+
+	/**
+	 * POST apply returns 400 when center icon attachment is invalid.
 	 */
 	public function test_apply_returns_400_for_invalid_center_icon() {
 		$response = $this->dispatch_document_request(

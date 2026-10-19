@@ -53,7 +53,7 @@ S2J Webinar Survey と同型:
 | `s2j-webinar-source-qr.php` | ブートストラップ、定数 |
 | `includes/Constants.php` | メタキー、REST namespace、**`WEBINAR_HANDOFF_OPEN_HOOK`** |
 | `includes/Domain/document.php` | 文書の純関数 (**保存時の正規化** — `draft` / `apply` / `sanitize`。取り込みマージは TS) |
-| `includes/Meta/` | `register_post_meta` (sanitize = draft 正規化)、`save_post` 予約 |
+| `includes/Meta/` | `register_post_meta`、Guard、`save_post` 再正規化 ([`SavePost.php`](../includes/Meta/SavePost.php)) |
 | `includes/RestController.php` | [rest_api_spec.md](./rest_api_spec.md) |
 | `includes/Editor/GutenbergMount.php` | パネル脚本 enqueue (**`wp-hooks`**)、`s2jWebinarSourceQrData` localize |
 | `src/gutenberg/` | 4ステップ UI + **handoff** (`MaintenanceModalHost`、英語 + i18n) |

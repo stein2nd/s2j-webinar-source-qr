@@ -22,9 +22,9 @@
 
 | リポジトリ | Local | Webinar 実装待ち | HTTPS + Zoom | 備考 |
 | --- | ---: | ---: | ---: | --- |
-| [S2J Webinar Survey](#s2j-webinar-survey) | 9 | 0 | 0 (+ E3/E4 ゲート) | Zoom 非接触は Local 検証 |
+| [S2J Webinar Survey](#s2j-webinar-survey) | 0 | 0 | 0 (+ E3/E4 ゲート) | Local 未完了 9 件 **2026-10-19** 完了 (wp-env 分母外) |
 | [S2J Webinar](#s2j-webinar) | 2 | 2 | 1 (+ E1–E4 ゲート) | P3 は v0.0.2 対象外 |
-| [S2J Webinar Source QR](#s2j-webinar-source-qr) | 1 | 0 | 3 (+ E1/E3 ゲート) | save_post 任意 |
+| [S2J Webinar Source QR](#s2j-webinar-source-qr) | 0 | 0 | 3 (+ E1/E3 ゲート) | |
 
 ---
 
@@ -32,18 +32,14 @@
 
 正本: [status.md §100%](../s2j-webinar-survey/docs/status.md#100-完了条件チェックリスト) / [test-results.md](../s2j-webinar-survey/docs/test-results.md) ([GitHub](https://github.com/stein2nd/s2j-webinar-survey/blob/main/docs/status.md))
 
-| § | 未完了 `[ ]` | Local | Webinar 実装待ち | HTTPS + Zoom |
-| --- | --- | :---: | :---: | :---: |
-| 仕様 | CI: `docs-lint` | ● | | |
-| Composer | Service 橋渡し smoke (段階1 WP-CLI) | ● | | |
-| 設定 | Test: option 保存 | ● | | |
-| 管理 UI | Smoke: REST / Fill (`smoke-local.sh`) | ● | | |
-| 管理 UI | wp-env — メタ REST 往復 | ● | | 任意 |
-| 永続化 | Test: wp-env 統合 (任意) | ● | | |
-| 下書き UI | コネクタモック / E2E 採用フロー | ● | | 実 LLM は Local 可 |
-| 品質 | `.wp-env.json` + wp-env PHPUnit (任意) | ● | | |
-| 品質 | 段階3b — wp-env green | ● | | |
-| アンインストール | Zoom 非接触 (アンインストールで Zoom 側を触らない) | ● | | |
+**Local 未完了 `[ ]`:** なし (**2026-10-19**)。メタ REST / 3b は `npm run test:unit:php:local` (MySQL) を正本とし、wp-env は採用しない。
+
+| § | 備考 (完了) |
+| --- | --- |
+| 仕様 | `docs-lint` CI |
+| Composer | `smoke-local.sh` — evaluate + REST ルート |
+| 設定 / 永続化 / 下書き / アンインストール | Integration 9 本 + unit 6 |
+| 品質 | 3a CI + 3b local + `lint:php` + test-results |
 
 ### ゲートのみ (チェックリスト `[ ]` ではない)
 
@@ -105,7 +101,6 @@
 
 | § | 未完了 `[ ]` | Local | Webinar 実装待ち | HTTPS + Zoom |
 | --- | --- | :---: | :---: | :---: |
-| REST | `save_post` 再正規化 — 任意 | ● | | |
 | 取り込み | 実 `tracking-sources` → draft (**E3**) | | | ● |
 
 ### 外部結合ゲート (参照)
