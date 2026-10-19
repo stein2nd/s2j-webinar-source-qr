@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Save_post guards (re-normalize deferred to REST apply/draft in v0.0.1 skeleton).
+ * save_post re-normalize (CoverArt / Survey SavePostHandler 同型).
  *
  * @package S2J_Webinar_Source_Qr
  */
@@ -11,31 +11,41 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Skips autosave and non-event post types; future hook for CoverArt-style re-normalize.
+ * Re-aligns stored source QR meta to the current Webinar catalog when the event post is saved.
  */
 class S2J_Webinar_Source_Qr_Meta_Save_Post
 {
+    /**
+     * Prevents nested save_post handling when meta update runs.
+     *
+     * @var bool
+     */
+    private static $running = false;
+
     /**
      * Constructor.
      */
     public function __construct()
     {
-        add_action('save_post', array( $this, 'maybe_touch_post' ), 10, 2);
+        add_action('save_post', array( $this, 'maybe_touch_post' ), 20, 2);
     }
 
     /**
-     * Placeholder for explicit post update re-normalize (persistence_spec).
-     *
      * @param int     $post_id Post ID.
      * @param WP_Post $post    Post object.
      */
     public function maybe_touch_post($post_id, $post)
     {
+        if (self::$running) {
+            return;
+        }
+
         if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
             return;
         }
 
-        if (! post_type_supports($post->post_type, 'gatherpress-event-date')) {
+        $post_type = get_post_type($post_id);
+        if (! is_string($post_type) || ! post_type_supports($post_type, 'gatherpress-event-date')) {
             return;
         }
 
@@ -43,6 +53,8 @@ class S2J_Webinar_Source_Qr_Meta_Save_Post
             return;
         }
 
-        // Skeleton: REST draft/apply owns normalization; save_post hook reserved for step-2 work.
+        self::$running = true;
+        s2j_wsq_renormalize_meta_on_post_save((int) $post_id);
+        self::$running = false;
     }
 }

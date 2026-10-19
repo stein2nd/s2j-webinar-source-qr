@@ -28,7 +28,7 @@
 | **`ready` + PNG** | `POST …/document/apply` | **ここだけ** |
 | **`draft` 正規化** | `POST …/document/draft` | 正本 |
 | **`draft` 正規化 (共有)** | `register_post_meta` の `sanitize_callback` + **`update_post_metadata` ガード** ([`includes/Meta/Guard.php`](../includes/Meta/Guard.php)) | 形状は `sanitize_callback` (`merge_document`)。**カタログ + `normalize_for_draft` と同等**の検証はガード (post ID 付き)。失敗時 **更新拒否・前値維持**。`status: ready` の直書きは **拒否** (`apply` + REST bypass のみ) |
-| **再正規化 (予約)** | `save_post` (イベント「更新」) | 未実装可 (CoverArt 型) — [`includes/Meta/SavePost.php`](../includes/Meta/SavePost.php) |
+| **再正規化** | `save_post` (イベント「更新」) | [`s2j_wsq_renormalize_meta_on_post_save()`](../includes/Domain/document.php) — [`SavePost.php`](../includes/Meta/SavePost.php) priority **20**。カタログ不可時は **スキップ** (メタ維持)。`ready` は全行 URL ありのとき維持 |
 | **禁止 / 非推奨** | autosave、Quick Edit、一括編集、WP-CLI、ブロックエディターからのメタ REST 直 PATCH | 正本は **`POST …/document/draft`** / **`apply`**。ガード外経路は [`Guard.php`](../includes/Meta/Guard.php) で draft 同等ルールまたは拒否 |
 
 `provider` 解決順の正本は [data_dictionary.md#provider-解決-正本](./data_dictionary.md#provider-解決-正本) です。
