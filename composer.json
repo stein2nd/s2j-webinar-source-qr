@@ -4,7 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-3.0-or-later",
 	"require": {
-		"php": ">=8.1",
+		"php": ">=8.3",
 		"chillerlan/php-qrcode": "^5.0"
 	},
 	"require-dev": {
@@ -40,7 +40,7 @@
 	"config": {
 		"sort-packages": true,
 		"platform": {
-			"php": "8.2.34"
+			"php": "8.3.28"
 		},
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true

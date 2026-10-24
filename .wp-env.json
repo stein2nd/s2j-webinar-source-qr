@@ -5,7 +5,7 @@
 		"https://downloads.wordpress.org/plugin/gatherpress.zip",
 		"./tests/fixtures/s2j-webinar"
 	],
-	"phpVersion": "8.2",
+	"phpVersion": "8.3",
 	"config": {
 		"WP_DEBUG": true
 	}

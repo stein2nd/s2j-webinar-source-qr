@@ -2,6 +2,10 @@
 
 確定仕様の統合見取り図です (正本 **docs/** )。細部の正本は [specs.md](./specs.md) の一覧です。
 
+## 実行環境
+
+* **PHP v8.3 以上** — WordPress [必須要件](https://ja.wordpress.org/about/requirements/)の推奨ベースライン。プラグインヘッダー `Requires PHP: 8.3`、`composer.json` `require.php`、CI / wp-env / Studio Blueprint と同値。
+
 ## 位置付け
 
 | 層 | 名称 | 役割 |

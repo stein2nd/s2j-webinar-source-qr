@@ -15,6 +15,7 @@
 | テキストドメイン | `s2j-webinar-source-qr` |
 | ライセンス | GPL-3.0-or-later (リポジトリ LICENSE に同じ) |
 | 仕様・製品版 (初版) | **v0.0.1** ([版の取り扱い](./specs.md#版の取り扱い)) |
+| 実行環境 (PHP) | **v8.3 以上** ([WordPress 必須要件](https://ja.wordpress.org/about/requirements/)) |
 
 ## UI 表記規約 (初版 v001)
 
