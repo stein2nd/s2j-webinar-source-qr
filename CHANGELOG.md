@@ -13,6 +13,8 @@
 
 ## unreleased
 
+## 0.0.1 - 2026-10-24
+
 ### Changed
 
 * **PHP 下限 v8.3** — [WordPress 必須要件](https://ja.wordpress.org/about/requirements/)に合わせ、`Requires PHP: 8.3`、`composer.json` / [`composer.lock`](./composer.lock) (platform **8.3.28**)、[`phpcs.xml.dist`](./phpcs.xml.dist) (80300)、[`.wp-env.json`](./.wp-env.json)、[`studio/smoke-test-blueprint.json`](./studio/smoke-test-blueprint.json)
