@@ -13,6 +13,18 @@
 
 ## unreleased
 
+### Changed
+
+* **PHP 下限 v8.3** — [WordPress 必須要件](https://ja.wordpress.org/about/requirements/)に合わせ、`Requires PHP: 8.3`、`composer.json` / [`composer.lock`](./composer.lock) (platform **8.3.28**)、[`phpcs.xml.dist`](./phpcs.xml.dist) (80300)、[`.wp-env.json`](./.wp-env.json)、[`studio/smoke-test-blueprint.json`](./studio/smoke-test-blueprint.json)
+* 仕様・記録 — [`README.md`](./README.md)、[`docs/overview.md`](./docs/overview.md)、[`plugin_spec.md`](./docs/plugin_spec.md#実行環境)、[`test-results.md`](./docs/test-results.md)、[`status.md`](./docs/status.md) (CI **lint-php** / PHP **8.3**)
+* GitHub Actions — CI PHP **v8.3** ([`phpunit.yml`](./.github/workflows/phpunit.yml)、[`dist-zip.yml`](./.github/workflows/dist-zip.yml))。[`js-lint.yml`](./.github/workflows/js-lint.yml) **`lint-php` job** (`npm run lint:php`)。[`docs-lint.yml`](./.github/workflows/docs-lint.yml) — `composer.json` を `path` トリガーに追加
+* npm 開発依存 — `@wordpress/*` v8– v19帯、`@wordpress/env` **12**、`vitest` **5**、`vite` **8.3.5**、`@s2j/docs-linter` **1.0.30** ([`package.json`](./package.json) / lock)
+
+### Notes
+
+* CI **`phpunit-wp-env`** — [`package.json`](./package.json) の **`phpunit:wp-env`** (→ `test:unit:php` / `pretest:unit:php` で wp-env)。**Node セットアップ後**に実行 (未定義 script で job 即 fail しないよう維持)
+* ローカル **`npm run lint:php` PASS** (**2026-10-24**)
+
 ## 0.0.1 - 2026-10-19
 
 ### Fixed

@@ -1,8 +1,10 @@
 # テスト戦略と結果記録
 
-最終更新: 2026-10-17
+最終更新: 2026-10-24
 
-本プラグインの検証方針です。Local / Studio / PHPUnit の共通定義は [wp-plugin-spec: SMOKE_AND_WP_ENVIRONMENTS.md](https://github.com/stein2nd/wp-plugin-spec/blob/main/docs/SMOKE_AND_WP_ENVIRONMENTS.md) を正とし、本ファイルは **このリポジトリ固有の手順** です。
+本プラグインの検証方針です。
+
+**実行環境:** PHP **v8.3 以降** (CI / wp-env / Local PHPUnit も同値。[WordPress 必須要件](https://ja.wordpress.org/about/requirements/))。Local / Studio / PHPUnit の共通定義は [wp-plugin-spec: SMOKE_AND_WP_ENVIRONMENTS.md](https://github.com/stein2nd/wp-plugin-spec/blob/main/docs/SMOKE_AND_WP_ENVIRONMENTS.md) を正とし、本ファイルは **このリポジトリ固有の手順** です。
 
 ## 段階的な導入 (3段階)
 

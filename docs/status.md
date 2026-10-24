@@ -202,7 +202,7 @@
 * [x] 段階1— [`tests/smoke-local.sh`](../tests/smoke-local.sh) (Local / Studio `WP_PATH`)
 * [x] 段階2— [`studio/smoke-test-blueprint.json`](../studio/smoke-test-blueprint.json) + [`studio/README.md`](../studio/README.md)
 * [x] `.wp-env.json` + [`phpunit.wp-env.xml.dist`](../phpunit.wp-env.xml.dist)
-* [x] CI — js-lint / docs-lint / dist-zip / phpunit (pure + wp-env job)
+* [x] CI — js-lint (**TS/SCSS** + **`lint-php` job**、PHP **8.3**) / docs-lint / dist-zip / phpunit (pure + wp-env job、PHP **8.3**)
 * [x] ローカル **`npm run lint:php`** — PHPStan + PHPCS + WPCS (**2026-10-17**、`prelint:php` で dev 依存自動 install)
 * [x] Gutenberg TS — [`src/types/wordpress-block-editor.d.ts`](../src/types/wordpress-block-editor.d.ts)、`PluginDocumentSettingPanel` は `@wordpress/editor` ([`src/gutenberg/index.tsx`](../src/gutenberg/index.tsx))
 * [x] 段階3b — Integration green (PR [#1](https://github.com/stein2nd/s2j-webinar-source-qr/pull/1) CI `phpunit-wp-env` 2026-10-14; **Local MySQL PASS** 2026-10-16 / **2026-10-17** — `npm run test:unit:php:local`, integration **9/9**)

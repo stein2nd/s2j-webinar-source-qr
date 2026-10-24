@@ -17,7 +17,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
+          php-version: "8.3"
           tools: composer
 
       - name: Install Composer dependencies
@@ -42,7 +42,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
+          php-version: "8.3"
           tools: composer
 
       - name: Install dependencies
@@ -50,5 +50,6 @@ jobs:
           npm ci
           composer install --no-interaction --prefer-dist
 
+      # package.json の `phpunit:wp-env` → `test:unit:php` (`pretest:unit:php` で wp-env 起動)。未定義 script だとここで即 fail する。
       - name: Run PHPUnit in wp-env
         run: npm run phpunit:wp-env
