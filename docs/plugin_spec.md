@@ -5,6 +5,7 @@
 ## 実行環境
 
 * **PHP v8.3 以上** — WordPress [必須要件](https://ja.wordpress.org/about/requirements/)の推奨ベースライン。プラグインヘッダー `Requires PHP: 8.3`、`composer.json` `require.php`、CI / wp-env / Studio Blueprint と同値。
+* **S2J Webinar** — 本プラグインは WordPress 上 **単独では完結しない** (ソース定義・handoff・取り込み REST の正本)。インストール手順は [README.md#installation](../README.md#installation)。未導入 / 無効時は Document Settings に案内のみ ([admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント))。
 
 ## 位置付け
 
@@ -46,7 +47,7 @@ S2J Webinar Survey と同型:
 
 * handoff は **別 UI を作らず**、本プラグインのメンテナンスモーダルを開く。
 * 実装は Webinar 側の **カスタムイベント / `@wordpress/hooks` の `doAction`** 等、Survey handoff と **同じパターン** を写経 ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md))。
-* 本プラグイン `src/gutenberg/` — **`MaintenanceModalHost`** が **open リスナ** を常時マウント。Document Settings **Open…** も handoff も **`requestOpenMaintenanceModal( postId )`** で同一 `MaintenanceModal`。
+* 本プラグイン `src/gutenberg/` — **`s2jWebinarActive` 時のみ** **`MaintenanceModalHost`** が **open リスナ** をマウント。Document Settings **Open…** も handoff も **`requestOpenMaintenanceModal( postId )`** で同一 `MaintenanceModal`。
 * **hook / イベント名:** **`s2j_webinar.open_source_qr`** (引数: `postId`)。Webinar が `doAction`、本プラグインが `addAction( hook, 's2j-webinar-source-qr/handoff', … )` / unmount で `removeAction( hook, namespace )` ([`WEBINAR_HANDOFF_OPEN_HOOK`](../includes/Constants.php)、[`MaintenanceModalHost`](../src/gutenberg/index.tsx))。正本 [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)。
 * **E5:** **Pass 2026-10-19** — Webinar **Edit source tracking / QR** → 同一 `MaintenanceModal` ([test-results.md](./test-results.md))。
 
@@ -57,6 +58,7 @@ S2J Webinar Survey と同型:
 | `s2j-webinar-source-qr.php` | ブートストラップ、定数 |
 | `includes/Constants.php` | メタキー、REST namespace、**`WEBINAR_HANDOFF_OPEN_HOOK`** |
 | `includes/Domain/document.php` | 文書の純関数 (**保存時の正規化** — `draft` / `apply` / `sanitize`。取り込みマージは TS) |
+| `includes/Domain/catalog.php` | Webinar **installed / active** 判定、定義 REST、`webinarActivateUrl` 等 |
 | `includes/Meta/` | `register_post_meta`、Guard、`save_post` 再正規化 ([`SavePost.php`](../includes/Meta/SavePost.php)) |
 | `includes/RestController.php` | [rest_api_spec.md](./rest_api_spec.md) |
 | `includes/Editor/GutenbergMount.php` | パネル脚本 enqueue (**`wp-hooks`**)、`s2jWebinarSourceQrData` localize |

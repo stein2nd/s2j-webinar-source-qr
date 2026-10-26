@@ -115,8 +115,10 @@
 
 * [x] Document Settings パネル **S2J Webinar Source QR** + **Open…** ([`src/gutenberg/index.tsx`](../src/gutenberg/index.tsx))
 * [x] 4ステップ / **Save draft** / **Apply** (英語正本 + `@wordpress/i18n`)
-* [x] Gutenberg **翻訳配信** — `wp_set_script_translations` + `languages/*-{hash}.json` (正本 `.po` → **`npm run makei18n`**)。初版 **ja** ([`languages/README.md`](../languages/README.md))
-* [x] localize — `s2jWebinarActive` / 定義・取り込み パス template / **`webinarHandoffOpenHook`** ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php)、[`Constants.php`](../includes/Constants.php))
+* [x] Gutenberg **翻訳配信** — `wp_set_script_translations` + `languages/*-{hash}.json` (正本 `.po` → **`npm run makei18n`**)。**訳済み `msgstr` のみ JED** — [`languages/README.md`](../languages/README.md)、[`tools/i18n/maps/source-qr-ja-gutenberg.php`](../tools/i18n/maps/source-qr-ja-gutenberg.php)。初版 **ja**
+* [x] **S2J Webinar 依存 UI** — パネル **3 状態** (未インストール / 無効 Notice、有効 → Open…)。`s2jWebinarInstalled` / `webinarInstallGuideUrl` / `webinarActivateUrl` ([`catalog.php`](../includes/Domain/catalog.php)、[`admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント))
+* [x] Gutenberg — **postId / postType 確定後** 描画、`core/editor` 文字列 store ([admin_ui_spec.md#gutenberg-エディター安定化](./admin_ui_spec.md#gutenberg-エディター安定化))
+* [x] localize — 上記 + 定義・取り込み path template / **`webinarHandoffOpenHook`** ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php)、[`Constants.php`](../includes/Constants.php))
 * [x] 定義 GET → 行マージ ([`src/domain/document.ts`](../src/domain/document.ts))
 * [x] `catalogReady` — 保存ボタン、readOnly ([admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格))
 * [x] Step2 **モジュール color** — ColorPicker + Hex 双方向、プレビュー-only (`!catalogReady`) ([admin_ui_spec.md#21-モジュール色-module-color](./admin_ui_spec.md#21-モジュール色-module-color))
@@ -188,7 +190,7 @@
 ### handoff {#status-handoff}
 
 * [x] Webinar hook 名確定 — **`s2j_webinar.open_source_qr`** ([plugin_spec.md#webinar-handoff-同一モーダル](./plugin_spec.md#webinar-handoff-同一モーダル))
-* [x] open リスナ + 同一 `MaintenanceModal` — [`MaintenanceModalHost`](../src/gutenberg/index.tsx)、`wp-hooks` 依存 ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php))
+* [x] open リスナ + 同一 `MaintenanceModal` — **`s2jWebinarActive` 時のみ** [`MaintenanceModalHost`](../src/gutenberg/index.tsx)、`wp-hooks` 依存 ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php))
 
 #### Test — Local 可 (E5)
 

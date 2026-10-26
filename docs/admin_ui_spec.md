@@ -19,7 +19,8 @@
 | 入口 | **常設:** 上記パネル内 **Open…** → 4 ステップモーダル (見出しも **`S2J Webinar Source QR`**)。**handoff:** S2J Webinar Document Settings **Edit source tracking / QR** → **同一** `MaintenanceModal` ([§Webinar handoff (実装)](#webinar-handoff-実装)、[plugin_spec.md#webinar-handoff-同一モーダル](./plugin_spec.md)) |
 | Post type 判定 | `post_type_supports( …, 'gatherpress-event-date' )` — [rest_api_spec.md](./rest_api_spec.md) と同一 |
 | 権限 | 対象イベントの `edit_post` |
-| Webinar 未設定 / 無効 | 取り込み非表示。**既存メタは閲覧可**。保存は [保存可否 (初版・厳格)](#保存可否-初版厳格) |
+| Webinar 未インストール / 無効 | Document Settings に **1 行 Notice** (Install / Enable + リンク)。**Open…・モーダル・handoff リスナは出さない** — [§S2J Webinar 有効 (クライアント)](#s2j-webinar-有効-クライアント) |
+| Webinar 有効・カタログ未成立 | 取り込み非表示。**既存メタは閲覧可**。保存は [保存可否 (初版・厳格)](#保存可否-初版厳格) |
 
 ## Webinar handoff (実装) {#webinar-handoff-実装}
 
@@ -28,7 +29,7 @@
 | 項目 | 内容 |
 | --- | --- |
 | Webinar 側 | Gutenberg **Edit source tracking / QR** → `doAction( hook, postId )` |
-| Source QR 側 | `registerPlugin` 配下の **`MaintenanceModalHost`** が `addAction( hook, namespace, callback )` で受信 → **`requestOpenMaintenanceModal( postId )`** で **Open…** と同じ `MaintenanceModal` を 1 インスタンス表示 |
+| Source QR 側 | **`s2jWebinarActive` 時のみ** `MaintenanceModalHost` が `addAction( … )` で受信 → **`requestOpenMaintenanceModal( postId )`** で **Open…** と同じ `MaintenanceModal` を 1 インスタンス表示 |
 | hook 名の渡し方 | PHP [`WEBINAR_HANDOFF_OPEN_HOOK`](../includes/Constants.php) → `window.s2jWebinarSourceQrData.webinarHandoffOpenHook` (未設定時 TS 既定値と同一) |
 | 脚本依存 | **`wp-hooks`** ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php)) |
 | アンマウント | `removeAction( hook, namespace )` — `@wordpress/hooks` 型は **namespace 単位** で解除 (コールバック引数なし) |
@@ -83,12 +84,19 @@ S2J Webinar 名前空間 `s2j-webinar/v1`。パス の **正本** は Webinar [s
 * **`sources: []`:** 行なし。Import 不可。保存ボタン disabled。
 * 取り込み **失敗:** Notice、メタは前回 `draft` のまま (自動 draft POST しない)。
 * **localize キー (命名正本):** `GutenbergMount` 等から渡す。
-  * `s2jWebinarActive` (bool) — [S2J Webinar 有効 (クライアント)](#s2j-webinar-有効-クライアント)
+  * `s2jWebinarInstalled` / `s2jWebinarActive` (bool) — [S2J Webinar 有効 (クライアント)](#s2j-webinar-有効-クライアント)
+  * `webinarInstallGuideUrl` / `webinarActivateUrl` — Notice 用 (GitHub ガイド / 有効化 nonce URL。権限なし時は空)
   * `webinarDefinitionsPathTemplate` — 定義 GET (`…/tracking-source-definitions`)
   * `webinarTrackingPathTemplate` — 取り込み GET (`…/tracking-sources`)
   * `webinarHandoffOpenHook` — handoff `addAction` 名 ([`WEBINAR_HANDOFF_OPEN_HOOK`](../includes/Constants.php))
-  * 実装: 上記4キーを `GutenbergMount` から localize ([status.md](./status.md))。
-  * 型: `src/types/global.d.ts` (bootstrap 型) のプロパティ名も **上記キーと同一** にする。
+  * 実装: 上記を [`GutenbergMount.php`](../includes/Editor/GutenbergMount.php) から localize ([`catalog.php`](../includes/Domain/catalog.php) 判定)。
+  * 型: [`src/types/global.d.ts`](../src/types/global.d.ts) (bootstrap 型) のプロパティ名も **上記キーと同一** にする。
+
+## Gutenberg エディター安定化
+
+* Document Settings 本体は **`core/editor`** の `getCurrentPostId` / `getCurrentPostType` が確定してから描画 (`postId <= 0` または `postType === ''` はロード中表示)。
+* `useSelect` の store 名は文字列 **`core/editor`** ( `@wordpress/editor` の `store` import に依存しない )。
+* メンテナンスモーダル内のイベント meta 参照も **post コンテキスト確定後** にのみ行う ([`src/gutenberg/index.tsx`](../src/gutenberg/index.tsx))。
 
 ## チャネル行 (ソース名と一行対応)
 

@@ -10,7 +10,8 @@
 * 定義 REST: イベント `_s2j_webinar_id` 必須 (Webinar 正本 **4xx**)。`catalogReady` = Webinar **有効** + 定義 GET 成功 + `sources` 非空 ([specs.md#用語](./specs.md#用語))
 * HTTP: Webinar 定義 **4xx** (UI) vs 本プラグイン **503** (保存) — [rest_api_spec.md#http-カタログ保存](./rest_api_spec.md#http-カタログ保存)
 * REST 検証 `code`: [persistence_spec.md#検証エラー-code-初版](./persistence_spec.md#検証エラー-code-初版)
-* localize 正本: `s2jWebinarActive`、`webinarDefinitionsPathTemplate`、`webinarTrackingPathTemplate`、**`webinarHandoffOpenHook`** — [admin_ui_spec.md#webinar-rest-本-ui-契約](./admin_ui_spec.md#webinar-rest-本-ui-契約)
+* localize 正本: `s2jWebinarInstalled` / `s2jWebinarActive`、`webinarInstallGuideUrl` / `webinarActivateUrl`、定義・取り込み path template、**`webinarHandoffOpenHook`** — [admin_ui_spec.md#webinar-rest-本-ui-契約](./admin_ui_spec.md#webinar-rest-本-ui-契約)
+* Webinar 依存パネル **3 状態** — [admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント)
 * handoff (Source QR 側): **`s2j_webinar.open_source_qr`** → 同一モーダル — [admin_ui_spec.md#webinar-handoff-実装](./admin_ui_spec.md#webinar-handoff-実装) / Webinar [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)
 
 版の取り扱いは [specs.md](./specs.md#版の取り扱い) を参照してください。**S2J Webinar 仕様 v0.0.2** は親プラグイン側の版であり、本プラグインの製品版ではありません。

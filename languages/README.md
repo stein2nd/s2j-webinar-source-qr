@@ -7,7 +7,8 @@
 | 生成物 | コマンド | 実行時に読む層 |
 | --- | --- | --- |
 | `.mo` | `wp i18n make-mo` | PHP `__()` — `load_plugin_textdomain` |
-| `*-{hash}.json` | `wp i18n make-json` | JS `__()` — `wp_set_script_translations` |
+| `*-{hash}.json` | `wp i18n make-json` ( **`npm run makejson`** — 既定 **purge** ) | JS `__()` — `wp_set_script_translations` |
+| 孤児 JED 温存 | **`npm run makejson:keep`** (`--no-purge`) | 旧ハッシュ JSON を残すときのみ |
 
 **一括:** リポジトリルートで
 
@@ -30,3 +31,5 @@ Poedit で `.po` を保存したあとも、**`npm run makei18n`** を実行す�
 ## ランタイムの注意
 
 WordPress は **JS 翻訳を `.po` から直接読みません**。必ず **JSON** を配信します。`.po` から賄う＝**ビルド／CI で JSON を生成して同梱する**、という意味になります。
+
+**`wp i18n make-json` は `msgstr` が空の条目を JED に含めません。** Gutenberg モーダルが英語のままのときは、`.po` の Gutenberg 引用 (`dist/js/…-gutenberg.js`) に訳があるか確認し、`wp i18n update-po` → 訳 → `npm run makei18n`。補助: [`tools/i18n/fill-empty-msgstr.php`](../tools/i18n/fill-empty-msgstr.php) + [`tools/i18n/maps/source-qr-ja-gutenberg.php`](../tools/i18n/maps/source-qr-ja-gutenberg.php)。

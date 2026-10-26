@@ -9,7 +9,7 @@
 | [`smoke-test-blueprint.json`](./smoke-test-blueprint.json) | **本プラグイン** 向け。GatherPress を自動インストール。**S2J Webinar Source QR** (とフル UI なら **S2J Webinar**) は **手動配置** |
 | [S2J Webinar `studio/smoke-test-blueprint.json`](https://github.com/stein2nd/s2j-webinar/blob/main/studio/smoke-test-blueprint.json) | Webinar 本体 + OAuth / 同期 / 定義 REST のスモーク。Source QR は **別途** 本リポジトリをコピー |
 
-Source QR の **catalogReady** 検証には S2J Webinar の定義 REST が必要です。Studio だけでは Webinar を含めないため、フル結合は Local または Webinar Blueprint 併用を推奨します。
+Source QR の **catalogReady** 検証には **S2J Webinar 有効** + 定義 REST が必要です。Webinar なしで Source QR のみ有効のとき、イベント編集 **Document Settings** には **Install / Enable S2J Webinar** の Notice のみ ([admin_ui_spec.md#s2j-webinar-有効-クライアント](../docs/admin_ui_spec.md#s2j-webinar-有効-クライアント))。フル結合は Local または Webinar Blueprint 併用を推奨します。
 
 ## 手順 (本 Blueprint)
 

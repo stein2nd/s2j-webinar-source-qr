@@ -79,6 +79,7 @@
 | ソース追跡 QR 文書の状態 | メタ `status` | `_s2j_webinar_status` とは別 ([data_dictionary.md](./data_dictionary.md)) |
 | 製品名 (仕様書) | — | **S2J ウェビナー・ソース追跡 QR** |
 | 製品名 (UI 英語) | `_x( …, 'plugin title' )` 等 | [overview.md#ui-表記規約-初版-v001](./overview.md#ui-表記規約-初版-v001) |
+| **`s2jWebinarInstalled` / `s2jWebinarActive`** | localize (bool) | PHP [`catalog.php`](../includes/Domain/catalog.php)。**false** 時はパネル Notice のみ (Open… / モーダルなし) — [admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント) |
 | **`catalogReady`** | UI / クライアント state (boolean) | Webinar **有効** + ソース定義一覧 GET **成功** + `sources.length >= 1` — [admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格)。**実装では同名 `catalogReady` を推奨**。TS は **導出を1ヵ所** ([admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント)) |
 | 定義 REST **4xx** (Webinar) | — | 例: `_s2j_webinar_id` 未連携。UI は **`catalogReady` false** (本プラグイン REST は呼ばない) |
 | 保存 **503** (本プラグイン) | REST `code`: `catalog_unavailable` | `draft` / `apply` / `sanitize` がカタログ不可時。Webinar 側 **4xx** 等をサーバーが503に正規化 — [rest_api_spec.md#http-カタログ保存](./rest_api_spec.md#http-カタログ保存) |
