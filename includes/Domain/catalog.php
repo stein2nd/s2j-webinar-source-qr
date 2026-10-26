@@ -11,17 +11,86 @@ if (! defined('ABSPATH')) {
 }
 
 /**
+ * Load plugin.php helpers when needed.
+ */
+function s2j_wsq_ensure_plugin_admin_api()
+{
+    if (! function_exists('get_plugins')) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+}
+
+/**
+ * S2J Webinar plugin basename.
+ *
+ * @return string
+ */
+function s2j_wsq_webinar_plugin_file()
+{
+    return 's2j-webinar/s2j-webinar.php';
+}
+
+/**
+ * Whether S2J Webinar is present in the plugins list (uploaded).
+ *
+ * @return bool
+ */
+function s2j_wsq_is_webinar_plugin_installed()
+{
+    if (defined('S2J_WEBINAR_VERSION')) {
+        return true;
+    }
+
+    s2j_wsq_ensure_plugin_admin_api();
+    $plugins = get_plugins();
+
+    return isset($plugins[ s2j_wsq_webinar_plugin_file() ]);
+}
+
+/**
  * Whether S2J Webinar plugin is active.
  *
  * @return bool
  */
 function s2j_wsq_is_webinar_plugin_active()
 {
-    if (! function_exists('is_plugin_active')) {
-        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    if (defined('S2J_WEBINAR_VERSION')) {
+        return true;
     }
 
-    return is_plugin_active('s2j-webinar/s2j-webinar.php');
+    s2j_wsq_ensure_plugin_admin_api();
+
+    return is_plugin_active(s2j_wsq_webinar_plugin_file());
+}
+
+/**
+ * Nonce URL to activate S2J Webinar (empty when not allowed or already active).
+ *
+ * @return string
+ */
+function s2j_wsq_webinar_plugin_activate_url()
+{
+    if (! current_user_can('activate_plugins') || s2j_wsq_is_webinar_plugin_active()) {
+        return '';
+    }
+
+    $file = s2j_wsq_webinar_plugin_file();
+    s2j_wsq_ensure_plugin_admin_api();
+
+    return wp_nonce_url(
+        admin_url('plugins.php?action=activate&plugin=' . $file),
+        'activate-plugin_' . $file
+    );
+}
+
+/**
+ * Installation guide URL (GitHub until wp.org listing).
+ *
+ * @return string
+ */
+function s2j_wsq_webinar_plugin_install_guide_url()
+{
+    return 'https://github.com/stein2nd/s2j-webinar#installation';
 }
 
 /**

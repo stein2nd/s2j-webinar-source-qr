@@ -1,13 +1,11 @@
 import { registerPlugin } from '@wordpress/plugins';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import {
-	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
-	store as editorStore,
-} from '@wordpress/editor';
+import { PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel } from '@wordpress/editor';
 import {
 	BaseControl,
 	Button,
 	ColorPicker,
+	ExternalLink,
 	Modal,
 	PanelRow,
 	TextControl,
@@ -42,6 +40,8 @@ import {
 } from '@/domain/restNotice';
 
 const PLUGIN_ID = 's2j-webinar-source-qr';
+
+const EDITOR_STORE = 'core/editor';
 
 const HANDOFF_HOOK_NAMESPACE = 's2j-webinar-source-qr/handoff';
 
@@ -101,12 +101,64 @@ function getBootstrap() {
 		window.s2jWebinarSourceQrData ?? {
 			restNamespace: 's2j-webinar-source-qr/v1',
 			metaKey: '_s2j_webinar_source_qr',
+			s2jWebinarInstalled: false,
 			s2jWebinarActive: false,
+			webinarInstallGuideUrl:
+				'https://github.com/stein2nd/s2j-webinar#installation',
+			webinarActivateUrl: '',
 			webinarDefinitionsPathTemplate:
 				'/s2j-webinar/v1/events/%d/tracking-source-definitions',
 			webinarTrackingPathTemplate:
 				'/s2j-webinar/v1/events/%d/tracking-sources',
 		}
+	);
+}
+
+function WebinarDependencyNotice() {
+	const bootstrap = getBootstrap();
+
+	if (bootstrap.s2jWebinarActive) {
+		return null;
+	}
+
+	if (!bootstrap.s2jWebinarInstalled) {
+		const guideUrl = bootstrap.webinarInstallGuideUrl;
+		return (
+			<PanelRow>
+				<Notice status="warning" isDismissible={false}>
+					<p>
+						{__(
+							'Install S2J Webinar to manage source tracking URLs and QR codes.',
+							's2j-webinar-source-qr'
+						)}{' '}
+						{guideUrl ? (
+							<ExternalLink href={guideUrl}>
+								{__('Installation guide', 's2j-webinar-source-qr')}
+							</ExternalLink>
+						) : null}
+					</p>
+				</Notice>
+			</PanelRow>
+		);
+	}
+
+	const activateUrl = bootstrap.webinarActivateUrl;
+	return (
+		<PanelRow>
+			<Notice status="warning" isDismissible={false}>
+				<p>
+					{__(
+						'Enable S2J Webinar to manage source tracking URLs and QR codes.',
+						's2j-webinar-source-qr'
+					)}{' '}
+					{activateUrl ? (
+						<a href={activateUrl}>
+							{__('Activate S2J Webinar', 's2j-webinar-source-qr')}
+						</a>
+					) : null}
+				</p>
+			</Notice>
+		</PanelRow>
 	);
 }
 
@@ -573,11 +625,15 @@ const MaintenanceModal = ({
 	const [dirty, setDirty] = useState(false);
 
 	const webinarMeta = useSelect((select) => {
-		const meta =
-			(select(editorStore).getEditedPostAttribute('meta') as Record<
-				string,
-				unknown
-			>) ?? {};
+		const getEditedPostAttribute = (
+			select(EDITOR_STORE) as {
+				getEditedPostAttribute?: (key: string) => unknown;
+			}
+		).getEditedPostAttribute;
+		if (typeof getEditedPostAttribute !== 'function') {
+			return { webinarId: '', provider: 'zoom' };
+		}
+		const meta = (getEditedPostAttribute('meta') as Record<string, unknown>) ?? {};
 		return {
 			webinarId: String(meta._s2j_webinar_id ?? '').trim(),
 			provider: String(meta._s2j_webinar_provider ?? '').trim() || 'zoom',
@@ -1051,23 +1107,45 @@ const MaintenanceModalHost = () => {
 	);
 };
 
-const SourceQrPanelFields = () => {
-	const postId = useSelect(
-		(select) => select(editorStore).getCurrentPostId() as number,
-		[]
-	);
+const SourceQrPanelFieldsInner = ({ postId }: { postId: number }) => (
+	<PanelRow>
+		<Button
+			variant="secondary"
+			onClick={() => requestOpenMaintenanceModal(postId)}
+			disabled={postId <= 0}
+		>
+			{__('Open…', 's2j-webinar-source-qr')}
+		</Button>
+	</PanelRow>
+);
 
-	return (
-		<PanelRow>
-			<Button
-				variant="secondary"
-				onClick={() => requestOpenMaintenanceModal(postId)}
-				disabled={postId <= 0}
-			>
-				{__('Open…', 's2j-webinar-source-qr')}
-			</Button>
-		</PanelRow>
-	);
+const SourceQrPanelFields = () => {
+	const postId = useSelect((select) => {
+		const editor = select(EDITOR_STORE) as { getCurrentPostId?: () => number };
+		return editor.getCurrentPostId?.() ?? 0;
+	}, []);
+
+	const postType = useSelect((select) => {
+		const editor = select(EDITOR_STORE) as { getCurrentPostType?: () => string };
+		return editor.getCurrentPostType?.() ?? '';
+	}, []);
+
+	if (postId <= 0 || postType === '') {
+		return (
+			<PanelRow>
+				<p className="description">
+					{__('Loading source QR settings…', 's2j-webinar-source-qr')}
+				</p>
+			</PanelRow>
+		);
+	}
+
+	const bootstrap = getBootstrap();
+	if (!bootstrap.s2jWebinarActive) {
+		return <WebinarDependencyNotice />;
+	}
+
+	return <SourceQrPanelFieldsInner postId={postId} />;
 };
 
 const SourceQrPanel = () => {
@@ -1094,12 +1172,16 @@ const SourceQrPanel = () => {
 	);
 };
 
-const SourceQrEditorIntegration = () => (
-	<>
-		<SourceQrPanel />
-		<MaintenanceModalHost />
-	</>
-);
+const SourceQrEditorIntegration = () => {
+	const bootstrap = getBootstrap();
+
+	return (
+		<>
+			<SourceQrPanel />
+			{bootstrap.s2jWebinarActive ? <MaintenanceModalHost /> : null}
+		</>
+	);
+};
 
 registerPlugin(PLUGIN_ID, {
 	render: SourceQrEditorIntegration,

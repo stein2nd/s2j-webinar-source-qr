@@ -1,4 +1,4 @@
-# S2J ウェビナー・ソース追跡 QR - CHANGELOG
+# S2J Webinar Source QR - CHANGELOG
 
 ## セキュリティ (開発依存 - upstream 待ち)
 
@@ -12,6 +12,26 @@
 * **`vite-plugin-static-copy`** (`npm run build:*`): 同梱 **chokidar** 経由の **`braces`** (high)。npm の自動 fix は v0系ダウングレード提案のため不可。**待ち**: [vite-plugin-static-copy](https://github.com/sapphi-red/vite-plugin-static-copy) の chokidar 更新
 
 ## unreleased
+
+## 0.0.1 - 2026-10-26
+
+### Added
+
+* **S2J Webinar 依存 UI** — Document Settings **3状態** (未インストール → ガイド、無効 → 有効化 Notice、有効 → Open…)。localize `s2jWebinarInstalled` / `webinarInstallGuideUrl` / `webinarActivateUrl` ([`catalog.php`](./includes/Domain/catalog.php)、[`GutenbergMount.php`](./includes/Editor/GutenbergMount.php)、[`global.d.ts`](./src/types/global.d.ts))。Webinar 無効時 **MaintenanceModalHost 非マウント**
+
+### Fixed
+
+* Gutenberg — **postId / postType 確定後** にパネル描画。`useSelect` は **`core/editor` 文字列** (`editorStore` import 削除)。モーダル内 meta 参照の安全化 ([`src/gutenberg/index.tsx`](./src/gutenberg/index.tsx))
+
+### Changed
+
+* [`README.md`](./README.md#installation) / [`admin_ui_spec.md`](./docs/admin_ui_spec.md) — Webinar 前提の **Installation**、パネル3状態。
+* i18n — Webinar 依存 Notice 文言。`makejson` は **purge デフォルト**、残存 JED は **`makejson:keep`** ([`package.json`](./package.json)、[`.gitignore`](./.gitignore))
+* ビルド — Vite ターゲット `admin` → **`settings`** (`build:*:admin` は `:admin` 接尾辞で判定) ([`vite.config.ts`](./vite.config.ts))
+
+### Notes
+
+* 横断 — **S2J Webinar** 管理画面の Optional companion 案内は Webinar リポジトリ側 PR (本 repo とは別デプロイ)
 
 ## 0.0.1 - 2026-10-24
 

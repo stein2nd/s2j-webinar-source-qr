@@ -8,8 +8,8 @@ if (process.env.FLUSH_DIST === 'true') {
 
 const getBuildTarget = () => {
 	const npmScript = process.env.npm_lifecycle_event;
-	if (npmScript?.includes('admin')) {
-		return 'admin';
+	if (npmScript?.endsWith(':admin')) {
+		return 'settings';
 	}
 	if (npmScript?.includes('gutenberg')) {
 		return 'gutenberg';
@@ -27,7 +27,7 @@ const buildTarget = getBuildTarget();
 
 const getBuildConfig = (target: string) => {
 	switch (target) {
-		case 'admin':
+		case 'settings':
 			return {
 				entry: resolve(import.meta.dirname, 'src/admin/index.tsx'),
 				name: 'S2JWebinarSourceQrAdmin',

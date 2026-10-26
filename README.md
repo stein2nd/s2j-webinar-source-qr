@@ -1,6 +1,14 @@
-# S2J ウェビナー・ソース追跡 QR
+# S2J Webinar Source QR
 
 GatherPress イベント向けの **ソース追跡 URL + QR コード** コンパニオン・プラグインです (仕様書上の名称: **S2J ウェビナー・ソース追跡 QR**)。
+
+## Installation {#installation}
+
+1. **[S2J Webinar](https://github.com/stein2nd/s2j-webinar#installation)** をインストールし **有効化** します (本プラグインの正本は Webinar のソース定義 REST と handoff です)。
+2. [GatherPress](https://github.com/stein2nd/gatherpress) を有効化します。
+3. 本プラグインを `wp-content/plugins/s2j-webinar-source-qr/` に配置し、**Plugins** 画面で有効化します。
+
+Webinar が未インストール / 無効のとき、イベント編集の **Document Settings** パネルに案内 Notice が表示されます (wp.org 掲載後は Add New からの導入も想定)。
 
 実行環境は **PHP v8.3以降** です ([WordPress 必須要件](https://ja.wordpress.org/about/requirements/)の推奨ベースラインに合わせる)。
 

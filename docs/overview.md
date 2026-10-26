@@ -1,4 +1,4 @@
-# S2J ウェビナー・ソース追跡 QR - 概要
+# S2J Webinar Source QR - 概要
 
 ## はじめに
 

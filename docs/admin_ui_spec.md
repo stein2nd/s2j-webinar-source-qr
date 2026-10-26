@@ -1,4 +1,4 @@
-# S2J ウェビナー・ソース追跡 QR - 管理 UI 仕様
+# S2J Webinar Source QR - 管理 UI 仕様
 
 ## 設計意図 (ゴール)
 
@@ -54,9 +54,17 @@
 
 ### S2J Webinar 有効 (クライアント)
 
-初版は PHP (`GutenbergMount`) が **`s2jWebinarActive`** (bool) を localize する。判定は Survey メンテナンス UI と同型の **`is_plugin_active()` 相当** を正本とする。
+初版は PHP (`GutenbergMount`) が **`s2jWebinarInstalled`** / **`s2jWebinarActive`** (bool)、**`webinarInstallGuideUrl`** / **`webinarActivateUrl`** を localize する。判定は **`is_plugin_active()` 相当** + プラグイン一覧に存在するか ([`catalog.php`](../includes/Domain/catalog.php))。
 
-* **`false`:** ソース定義一覧 GET を **呼ばない** (または即失敗同扱い)。`catalogReady` = false。
+**Document Settings パネル (3 状態):**
+
+| 状態 | UI |
+| --- | --- |
+| Webinar **未インストール** | 1 行 `Notice` — Install S2J Webinar + **Installation guide** (GitHub。wp.org 掲載後は Add New 案内に差し替え可) |
+| **インストール済み・無効** | 1 行 `Notice` — Enable S2J Webinar + **Activate** リンク (`activate_plugins` 時のみ) |
+| **有効** | **Open…** / モーダル / handoff (`MaintenanceModalHost`) |
+
+* **`s2jWebinarActive` false:** ソース定義一覧 GET を **呼ばない**。`catalogReady` = false。モーダルホストは **マウントしない**。
 * **`true`:** 定義一覧 GET を実行。成功かつ `sources.length >= 1` の場合 `catalogReady` = true。
 * **導出:** `src/gutenberg/` に **`catalogReady` 導出を1ヵ所** に集約 (上記 + `s2jWebinarActive` + 定義 GET 結果)。サーバー guard とは別評価 ([persistence_spec.md#保存可否-初版厳格](./persistence_spec.md#保存可否-初版厳格))。
 

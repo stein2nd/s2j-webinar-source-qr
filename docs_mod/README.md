@@ -1,4 +1,4 @@
-# S2J ウェビナー・ソース追跡 QR - 起草用 (存置)
+# S2J Webinar Source QR - 起草用 (存置)
 
 > **確定仕様の正本:** [docs/](../docs/) — v0.0.1 合意内容は **docs/** に写経済みです。本 **docs_mod/** は後日の改訂案と、進行中イニシアチブの三点セット (`modification.md` / `status.md` / `test-results.md`) 用に **削除せず存置** します。
 

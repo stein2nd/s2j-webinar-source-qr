@@ -1,4 +1,4 @@
-# docs/archive (イニシアチブ証跡)
+# S2J Webinar Source QR - docs/archive (イニシアチブ証跡)
 
 完了した実装・改修イニシアチブの **凍結スナップショット** を置きます。
 

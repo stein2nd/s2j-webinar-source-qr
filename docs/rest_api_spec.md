@@ -1,4 +1,4 @@
-# S2J ウェビナー・ソース追跡 QR - REST API
+# S2J Webinar Source QR - REST API
 
 ## 設計意図 (ゴール)
 

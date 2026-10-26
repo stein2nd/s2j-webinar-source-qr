@@ -1,4 +1,4 @@
-# S2J ウェビナー・ソース追跡 QR - データ辞書
+# S2J Webinar Source QR - データ辞書
 
 用語 (パネル文書 / メタ文書) は [S2J Webinar 仕様 v0.0.2 / glossary.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/glossary_operational.md) と [persistence_spec.md](./persistence_spec.md) を参照します。横断用語表は [specs.md#用語](./specs.md#用語) です。本プラグインの版は [specs.md#版の取り扱い](./specs.md#版の取り扱い) です。
 

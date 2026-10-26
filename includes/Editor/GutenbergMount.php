@@ -98,7 +98,10 @@ class S2J_Webinar_Source_Qr_Gutenberg_Mount
             array(
                 'restNamespace'                  => S2J_Webinar_Source_Qr_Constants::REST_NAMESPACE,
                 'metaKey'                        => S2J_Webinar_Source_Qr_Constants::META_KEY,
+                's2jWebinarInstalled'            => s2j_wsq_is_webinar_plugin_installed(),
                 's2jWebinarActive'               => s2j_wsq_is_webinar_plugin_active(),
+                'webinarInstallGuideUrl'         => s2j_wsq_webinar_plugin_install_guide_url(),
+                'webinarActivateUrl'             => s2j_wsq_webinar_plugin_activate_url(),
                 'webinarDefinitionsPathTemplate' => '/' . $webinar_ns . '/events/%d/tracking-source-definitions',
                 'webinarTrackingPathTemplate'    => '/' . $webinar_ns . '/events/%d/tracking-sources',
                 'webinarHandoffOpenHook'         => S2J_Webinar_Source_Qr_Constants::WEBINAR_HANDOFF_OPEN_HOOK,

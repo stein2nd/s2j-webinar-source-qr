@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-19T02:44:46+00:00\n"
+"POT-Creation-Date: 2026-10-26T15:35:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: s2j-webinar-source-qr\n"
@@ -40,10 +40,10 @@ msgstr ""
 msgid "https://stein2nd.wordpress.com"
 msgstr ""
 
-#: includes/Domain/catalog.php:38
-#: includes/Domain/catalog.php:51
-#: includes/Domain/catalog.php:62
-#: includes/Domain/catalog.php:81
+#: includes/Domain/catalog.php:107
+#: includes/Domain/catalog.php:120
+#: includes/Domain/catalog.php:131
+#: includes/Domain/catalog.php:150
 msgid "Source catalog is unavailable."
 msgstr ""
 
@@ -117,6 +117,22 @@ msgstr ""
 
 #: includes/RestController.php:265
 msgid "Could not save the document."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Install S2J Webinar to manage source tracking URLs and QR codes."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Installation guide"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Enable S2J Webinar to manage source tracking URLs and QR codes."
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Activate S2J Webinar"
 msgstr ""
 
 #: dist/js/s2j-webinar-source-qr-gutenberg.js:1
@@ -257,6 +273,10 @@ msgstr ""
 
 #: dist/js/s2j-webinar-source-qr-gutenberg.js:1
 msgid "Open…"
+msgstr ""
+
+#: dist/js/s2j-webinar-source-qr-gutenberg.js:1
+msgid "Loading source QR settings…"
 msgstr ""
 
 #: dist/js/s2j-webinar-source-qr-gutenberg.js:1
