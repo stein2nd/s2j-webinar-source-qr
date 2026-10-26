@@ -13,6 +13,16 @@
 
 ## unreleased
 
+## 0.0.1 - 2026-10-27
+
+### Added
+
+* i18n ツール — 空 `msgstr` をマップから埋める [`tools/i18n/fill-empty-msgstr.php`](./tools/i18n/fill-empty-msgstr.php)。Gutenberg 日本語正本 [`tools/i18n/maps/source-qr-ja-gutenberg.php`](./tools/i18n/maps/source-qr-ja-gutenberg.php) (Webinar 依存 Notice 含む)
+
+### Changed
+
+* [`languages/s2j-webinar-source-qr.pot`](./languages/s2j-webinar-source-qr.pot) — 上記 msgid 反映
+
 ## 0.0.1 - 2026-10-26
 
 ### Added
