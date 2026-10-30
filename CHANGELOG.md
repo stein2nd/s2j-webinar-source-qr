@@ -13,6 +13,13 @@
 
 ## unreleased
 
+## 0.0.1 - 2026-10-30
+
+### Changed
+
+* **Docs** — Webinar 依存 **3 状態** / localize キー / **`MaintenanceModalHost` 条件** / **Gutenberg エディター安定化** を正本に同期 ([`admin_ui_spec.md`](./docs/admin_ui_spec.md)、[`plugin_spec.md`](./docs/plugin_spec.md)、[`status.md`](./docs/status.md)、[`specs.md`](./docs/specs.md)、[`overview.md`](./docs/overview.md)、[`docs/README.md`](./docs/README.md)、[`studio/README.md`](./studio/README.md)、[`languages/README.md`](./languages/README.md))
+* npm 開発依存 — `@s2j/docs-linter` **1.0.31**、TypeScript-ESLint **8.72.1**、`rollup` **4.66**、`sass` **1.107** 等 ([`package.json`](./package.json) / lock)
+
 ## 0.0.1 - 2026-10-27
 
 ### Added
