@@ -4,8 +4,8 @@
 
 ## 実行環境
 
-* **PHP v8.3 以上** — WordPress [必須要件](https://ja.wordpress.org/about/requirements/)の推奨ベースライン。プラグインヘッダー `Requires PHP: 8.3`、`composer.json` `require.php`、CI / wp-env / Studio Blueprint と同値。
-* **S2J Webinar** — 本プラグインは WordPress 上 **単独では完結しない** (ソース定義・handoff・取り込み REST の正本)。インストール手順は [README.md#installation](../README.md#installation)。未導入 / 無効時は Document Settings に案内のみ ([admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント))。
+* **PHP v8.3以上** — WordPress [必須要件](https://ja.wordpress.org/about/requirements/)の推奨ベースライン。プラグインヘッダー `Requires PHP: 8.3`、`composer.json` `require.php`、CI / wp-env / Studio Blueprint と同値。
+* **S2J Webinar** — 本プラグインは WordPress 上 **単独では完結しない** (ソース定義、handoff、取り込み REST の正本)。インストール手順は [README.md#installation](../README.md#installation)。未導入 / 無効時は Document Settings に案内のみ ([admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント))。
 
 ## 位置付け
 
@@ -14,7 +14,7 @@
 | イベント UI | [stein2nd/gatherpress](https://github.com/stein2nd/gatherpress) | イベント編集画面 |
 | 呼び出し元 (入口・サマリー) | **[S2J Webinar](https://github.com/stein2nd/s2j-webinar)** | パネル handoff。**ソース名正本**。定義 REST + 取り込み REST |
 | **本プラグイン** | S2J ウェビナー・ソース追跡 QR | メンテナンス UI、`_s2j_webinar_source_qr`、QR PNG |
-| 取り込み写像 | [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) | プロバイダ Adapter (初版 v0.0.1: `zoom`) |
+| 取り込みマッピング | [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) | プロバイダ Adapter (初版 v0.0.1: `zoom`) |
 
 ## 目的 (初版 v0.0.1)
 
@@ -35,11 +35,11 @@
 
 | 本プラグイン | s2j-webinar-service |
 | --- | --- |
-| パネル文書、保存時の URL / スタイル検証 | GET 応答 → `registration_url` 行への写像 (`zoom` Adapter) |
+| パネル文書、保存時の URL / スタイル検証 | GET 応答 → `registration_url` 行へのマッピング (`zoom` Adapter) |
 | QR バイト生成、メディア登録 | PNG / GD を持たない |
 | 取り込みボタン → Webinar REST 呼び出し | HTTP を呼ばない (Webinar アダプタが呼ぶ) |
 
-初版 (v0.0.1) の **`composer.json` に s2j-webinar-service は含めません** (取り込みは S2J Webinar REST の写像済み JSON のみ受け取る。方針根拠は [S2J Webinar 仕様 v0.0.2 / status.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md))。
+初版 (v0.0.1) の **`composer.json` に s2j-webinar-service は含めません** (取り込みは S2J Webinar REST のマッピング済み JSON のみ受け取る。方針根拠は [S2J Webinar 仕様 v0.0.2 / status.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md))。
 
 ## Webinar handoff (同一モーダル)
 
@@ -49,7 +49,7 @@ S2J Webinar Survey と同型:
 * 実装は Webinar 側の **カスタムイベント / `@wordpress/hooks` の `doAction`** 等、Survey handoff と **同じパターン** を写経 ([source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md))。
 * 本プラグイン `src/gutenberg/` — **`s2jWebinarActive` 時のみ** **`MaintenanceModalHost`** が **open リスナ** をマウント。Document Settings **Open…** も handoff も **`requestOpenMaintenanceModal( postId )`** で同一 `MaintenanceModal`。
 * **hook / イベント名:** **`s2j_webinar.open_source_qr`** (引数: `postId`)。Webinar が `doAction`、本プラグインが `addAction( hook, 's2j-webinar-source-qr/handoff', … )` / unmount で `removeAction( hook, namespace )` ([`WEBINAR_HANDOFF_OPEN_HOOK`](../includes/Constants.php)、[`MaintenanceModalHost`](../src/gutenberg/index.tsx))。正本 [source_qr_handoff_spec.md](https://github.com/stein2nd/s2j-webinar/blob/main/docs/source_qr_handoff_spec.md)。
-* **E5:** **Pass 2026-10-19** — Webinar **Edit source tracking / QR** → 同一 `MaintenanceModal` ([test-results.md](./test-results.md))。
+* **E5:** **Pass {2026-10-19}** — Webinar **Edit source tracking / QR** → 同一 `MaintenanceModal` ([test-results.md](./test-results.md))。
 
 ## コード配置 (骨格)
 

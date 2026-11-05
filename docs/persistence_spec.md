@@ -97,7 +97,7 @@ Webinar REST から `{ "items": [ { "source_name", "registration_url", "external
 2. 定義一覧に **無い** `source_name` は **未登録一覧** として UI 警告。**メタ行は増やさない**。`external_id` はメタに保存しない。
 3. マージ後 **必ず** `POST …/document/draft` (成功時のみメタ更新)。
 
-写像の正本は webinar-service `zoom` Adapter です。本プラグインは **写像済み JSON** のみ受け取ります。
+マッピングの正本は webinar-service `zoom` Adapter です。本プラグインは **マッピング済み JSON** のみ受け取ります。
 
 ### クライアント / サーバー正規化 (責務)
 

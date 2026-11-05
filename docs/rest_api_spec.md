@@ -110,7 +110,7 @@ Apply 時 PNG / GD 失敗 (**400**、`apply` / preview)。初版 `code` 正本: 
 | 200 | `ready` メタ文書 |
 | 4xx | 検証失敗 — **メタ前値維持** ([persistence_spec.md#検証エラー-code-初版](./persistence_spec.md#検証エラー-code-初版)) |
 | **503** | ソース定義一覧の取得失敗等 — **メタ前値維持** (`draft` と同型。**503正規化** — [HTTP (カタログ・保存)](#http-カタログ保存)) |
-| **400** | 全行 URL 未充足 / 形式 NG (`invalid_registration_url`)、スタイル・icon 不正 (`invalid_document` / `qr_generation_failed`) — **メタ前値維持** |
+| **400** | 全行 URL 未充足 / 形式 NG (`invalid_registration_url`)、スタイル、icon 不正 (`invalid_document` / `qr_generation_failed`) — **メタ前値維持** |
 
 ### `POST /events/{post_id}/document/preview` {#post-event_post_iddocumentpreview}
 
@@ -122,11 +122,11 @@ Apply 時 PNG / GD 失敗 (**400**、`apply` / preview)。初版 `code` 正本: 
 | Body (最小) | `{ "registration_url": "https://…", "style": { … } }` — パネル `style` ブロック ([data_dictionary.md#スタイル-style](./data_dictionary.md#スタイル-style))。`registration_url` は **http/https** 非空 |
 | 200 | JSON `{ "data_url": "data:image/png;base64,…" }` (正本) |
 | 4xx | URL 形式 NG 等 — プレビュー用 `invalid_registration_url` / `invalid_document` (Apply と同型 code を推奨) |
-| **503** | **初版:** カタログ guard を **かけない** (`catalogReady` false でも、body の URL + style が有効ならプレビュー可 — Step2 プレビュー操作と整合)。サーバーが定義一覧を要求する場合は本表を更新 |
+| **503** | **初版:** カタログ guard を **かけない** (`catalogReady` false でも、body の URL + style が有効ならプレビュー可 — Step2プレビュー操作と整合)。サーバーが定義一覧を要求する場合は本表を更新 |
 | 権限 | 対象 `post_id` の `edit_post` ([共通](#共通)) |
 
 * UI: 行ごと debounce、`registration_url` 空行は **リクエストしない**。
-* バッチ (全行 1 リクエスト) は初版 **非目標**。
+* バッチ (全行1リクエスト) は初版 **非目標**。
 
 ## 取り込み (Webinar REST) との関係
 
@@ -136,7 +136,7 @@ Apply 時 PNG / GD 失敗 (**400**、`apply` / preview)。初版 `code` 正本: 
 | 取り込みボタン | `GET /s2j-webinar/v1/events/{post_id}/tracking-sources` |
 | マージ後 | **必須:** `POST /s2j-webinar-source-qr/v1/events/{post_id}/document/draft` |
 
-### Webinar 取り込み応答 (写像済み・最小例)
+### Webinar 取り込み応答 (マッピング済み・最小例)
 
 契約の正本は Webinar `source_qr_tracking_rest_spec.md`。本プラグインが期待する形:
 

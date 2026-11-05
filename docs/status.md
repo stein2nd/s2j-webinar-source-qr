@@ -116,9 +116,9 @@
 * [x] Document Settings パネル **S2J Webinar Source QR** + **Open…** ([`src/gutenberg/index.tsx`](../src/gutenberg/index.tsx))
 * [x] 4ステップ / **Save draft** / **Apply** (英語正本 + `@wordpress/i18n`)
 * [x] Gutenberg **翻訳配信** — `wp_set_script_translations` + `languages/*-{hash}.json` (正本 `.po` → **`npm run makei18n`**)。**訳済み `msgstr` のみ JED** — [`languages/README.md`](../languages/README.md)、[`tools/i18n/maps/source-qr-ja-gutenberg.php`](../tools/i18n/maps/source-qr-ja-gutenberg.php)。初版 **ja**
-* [x] **S2J Webinar 依存 UI** — パネル **3 状態** (未インストール / 無効 Notice、有効 → Open…)。`s2jWebinarInstalled` / `webinarInstallGuideUrl` / `webinarActivateUrl` ([`catalog.php`](../includes/Domain/catalog.php)、[`admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント))
+* [x] **S2J Webinar 依存 UI** — パネル **3状態** (未インストール / 無効 Notice、有効 → Open…)。`s2jWebinarInstalled` / `webinarInstallGuideUrl` / `webinarActivateUrl` ([`catalog.php`](../includes/Domain/catalog.php)、[`admin_ui_spec.md#s2j-webinar-有効-クライアント](./admin_ui_spec.md#s2j-webinar-有効-クライアント))
 * [x] Gutenberg — **postId / postType 確定後** 描画、`core/editor` 文字列 store ([admin_ui_spec.md#gutenberg-エディター安定化](./admin_ui_spec.md#gutenberg-エディター安定化))
-* [x] localize — 上記 + 定義・取り込み path template / **`webinarHandoffOpenHook`** ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php)、[`Constants.php`](../includes/Constants.php))
+* [x] localize — 上記 + 定義・取り込みパス template / **`webinarHandoffOpenHook`** ([`GutenbergMount.php`](../includes/Editor/GutenbergMount.php)、[`Constants.php`](../includes/Constants.php))
 * [x] 定義 GET → 行マージ ([`src/domain/document.ts`](../src/domain/document.ts))
 * [x] `catalogReady` — 保存ボタン、readOnly ([admin_ui_spec.md#保存可否-初版厳格](./admin_ui_spec.md#保存可否-初版厳格))
 * [x] Step2 **モジュール color** — ColorPicker + Hex 双方向、プレビュー-only (`!catalogReady`) ([admin_ui_spec.md#21-モジュール色-module-color](./admin_ui_spec.md#21-モジュール色-module-color))
@@ -243,7 +243,7 @@
 
 * 3プラグイン横断の未完了分類: [cross_plugin_remaining_matrix.md](./cross_plugin_remaining_matrix.md) (Webinar / Survey に同期コピーあり)。
 * **実装％** はプラグイン検証可能項のみ。OAuth、実 Zoom API は Pass 記録があっても % に含めない。
-* 初版 **Service なし** — 取り込み写像済み JSON のみ ([plugin_spec.md](./plugin_spec.md))。
+* 初版 **Service なし** — 取り込みマッピング済み JSON のみ ([plugin_spec.md](./plugin_spec.md))。
 * S2J Webinar Survey と同型 UX。メタは `_s2j_webinar_source_qr` (Survey 文書とは別)。
 
 ## 実装ロードマップ (到達順)

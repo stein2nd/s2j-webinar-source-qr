@@ -4,7 +4,7 @@
 
 ## 非対象
 
-* Zoom API フィールド名の一覧 (写像正本は webinar-service Adapter 起草)
+* Zoom API フィールド名の一覧 (マッピング正本は webinar-service Adapter 起草)
 * OAuth option キー (S2J Webinar)
 
 ## イベントメタ (本プラグイン)

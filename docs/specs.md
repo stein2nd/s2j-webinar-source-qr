@@ -20,7 +20,7 @@
 
 ## 計算の正本 (Composer)
 
-初版 (本プラグイン v0.0.1) では **`s2j-webinar-source-qr-service` は作りません。** Source Tracking **取り込み** の写像は [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) のプロバイダ Adapter です。QR 符号化と文書検証 (URL、スタイル) は本プラグインに置きます。
+初版 (本プラグイン v0.0.1) では **`s2j-webinar-source-qr-service` は作りません。** Source Tracking **取り込み** のマッピングは [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) のプロバイダ Adapter です。QR 符号化と文書検証 (URL、スタイル) は本プラグインに置きます。
 
 * 上記 Composer 方針の根拠 (Webinar 側): [S2J Webinar 運用素材索引](https://github.com/stein2nd/s2j-webinar/blob/main/docs/operational_material_index.md)
 

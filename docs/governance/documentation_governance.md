@@ -12,7 +12,7 @@ README と `docs/` の説明・命名が、実装と Webinar / Service 契約か
 
 | 対象 | 正本 |
 | --- | --- |
-| Source Tracking **取り込み**写像 (`zoom` Adapter) | [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) の `docs/` (本プラグイン v0.0.1は Composer で require しない) |
+| Source Tracking **取り込み**マッピング (`zoom` Adapter) | [s2j-webinar-service](https://github.com/stein2nd/s2j-webinar-service) の `docs/` (本プラグイン v0.0.1は Composer で require しない) |
 | Webinar handoff、OAuth、取り込み GET、ソース定義 REST | [S2J Webinar `docs/`](https://github.com/stein2nd/s2j-webinar/tree/main/docs) (運用素材 v0.0.2) |
 | メタキー、文書形、REST `code` (本プラグイン) | 本 `docs/` (`data_dictionary.md` / `persistence_spec.md` / `rest_api_spec.md` 等) |
 | 4ステップ UI、Webinar REST 契約 (クライアント) | [admin_ui_spec.md](../admin_ui_spec.md) |
@@ -21,7 +21,7 @@ README と `docs/` の説明・命名が、実装と Webinar / Service 契約か
 | 統合の見取り図 | [plugin_spec.md](../plugin_spec.md) (要約。細部の正本ではない) |
 | 索引 | [specs.md](../specs.md) |
 
-矛盾時は **規則・契約の正本** (取り込み写像は Service、定義・ GET は Webinar、メタ・保存・ UI は本 `docs/`) を直し、README と要約を追随させます。
+矛盾時は **規則・契約の正本** (取り込みマッピングは Service、定義・ GET は Webinar、メタ・保存・ UI は本 `docs/`) を直し、README と要約を追随させます。
 
 ## 2. 用語
 

@@ -13,11 +13,22 @@
 
 ## unreleased
 
+## 0.0.1 - 2026-11-05
+
+### Changed
+
+* **Docs** — 用語 **写像 → マッピング** に統一 ([`plugin_spec.md`](./docs/plugin_spec.md)、[`persistence_spec.md`](./docs/persistence_spec.md)、[`specs.md`](./docs/specs.md)、[`data_dictionary.md`](./docs/data_dictionary.md)、[`documentation_governance.md`](./docs/governance/documentation_governance.md)、[`status.md`](./docs/status.md))。`docs-lint` 向け表記・スペース微調整 ([`rest_api_spec.md`](./docs/rest_api_spec.md) 等)
+* npm 開発依存 — `@wordpress/*` patch/minor、`stylelint` **18**、`vitest` **5.1**、`vite` **8.3.6**、`rollup` **4.67.5**、`@s2j/docs-linter` **1.0.32** ([`package.json`](./package.json) / lock)
+
+### Fixed
+
+* **`lint:scss`** — Stylelint **18** 削除ルールと `stylelint-config-standard-scss@17` 経由の `stylelint-config-standard@40` の不整合 (`Unknown rule declaration-block-single-line-max-declarations`)。[`package.json`](./package.json) **`overrides`** で `stylelint-config-standard` **^41** を指定 (`stylelint-config-standard-scss` が Stylelint v18向けに更新されるまで)
+
 ## 0.0.1 - 2026-10-30
 
 ### Changed
 
-* **Docs** — Webinar 依存 **3 状態** / localize キー / **`MaintenanceModalHost` 条件** / **Gutenberg エディター安定化** を正本に同期 ([`admin_ui_spec.md`](./docs/admin_ui_spec.md)、[`plugin_spec.md`](./docs/plugin_spec.md)、[`status.md`](./docs/status.md)、[`specs.md`](./docs/specs.md)、[`overview.md`](./docs/overview.md)、[`docs/README.md`](./docs/README.md)、[`studio/README.md`](./studio/README.md)、[`languages/README.md`](./languages/README.md))
+* **Docs** — Webinar 依存 **3状態** / localize キー / **`MaintenanceModalHost` 条件** / **Gutenberg エディター安定化** を正本に同期 ([`admin_ui_spec.md`](./docs/admin_ui_spec.md)、[`plugin_spec.md`](./docs/plugin_spec.md)、[`status.md`](./docs/status.md)、[`specs.md`](./docs/specs.md)、[`overview.md`](./docs/overview.md)、[`docs/README.md`](./docs/README.md)、[`studio/README.md`](./studio/README.md)、[`languages/README.md`](./languages/README.md))
 * npm 開発依存 — `@s2j/docs-linter` **1.0.31**、TypeScript-ESLint **8.72.1**、`rollup` **4.66**、`sass` **1.107** 等 ([`package.json`](./package.json) / lock)
 
 ## 0.0.1 - 2026-10-27
